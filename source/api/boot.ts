@@ -41,7 +41,11 @@ if (env.isProduction) {
   serveStaticFiles(app);
 
   const port = parseInt(process.env.PORT || "3000");
+  console.log(`[BOOT] Starting production server on port ${port}...`);
+  console.log(`[BOOT] NODE_ENV=${process.env.NODE_ENV}`);
+  console.log(`[BOOT] CWD=${process.cwd()}`);
+  
   serve({ fetch: app.fetch, port }, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+    console.log(`[BOOT] Server running on port ${port}`);
   });
 }
