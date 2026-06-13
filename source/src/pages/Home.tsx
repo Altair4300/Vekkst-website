@@ -1,0 +1,539 @@
+import { useState } from "react";
+import { Link } from "react-router";
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import Layout from "@/components/Layout";
+import SmartVideo from "@/components/SmartVideo";
+import "@/components/Marquee.css";
+
+/* ─────────────── DATA ─────────────── */
+
+const categories = [
+  { name: "Hoodies", img: "/images/cat-hoodies-new.jpg", hover: "/images/cat-hoodies-2.jpg", slug: "hoodies" },
+  { name: "T-Shirts", img: "/images/cat-tshirts-new.png", hover: "/images/cat-tshirts-2.jpg", slug: "t-shirts" },
+  { name: "Jackets", img: "/images/cat-jackets-new.png", hover: "/images/cat-jackets-2.png", slug: "jackets" },
+  { name: "Shorts", img: "/images/cat-shorts-new.png", hover: "/images/cat-shorts-2.png", slug: "shorts" },
+  { name: "Pants", img: "/images/cat-pants-new.jpg", hover: "/images/cat-pants-2.jpg", slug: "pants" },
+  { name: "Tracksuits", img: "/images/cat-tracksuits.png", hover: "/images/cat-tracksuits-hover.jpg", slug: "tracksuits" },
+];
+
+const seasons = [
+  { name: "Spring", img: "/images/season-spring.png" },
+  { name: "Summer", img: "/images/season-summer.png" },
+  { name: "Autumn", img: "/images/season-autumn.png" },
+  { name: "Winter", img: "/images/season-winter.png" },
+];
+
+const portfolioProducts = [
+  { id: 1, name: "Oversized Black Pink Hoodie", img: "/images/p1.png", cat: "hoodies" },
+  { id: 2, name: "Grey Pattern Embroidered Hoodie", img: "/images/p2.png", cat: "hoodies" },
+  { id: 3, name: "Paint Splatter Bomber Jacket", img: "/images/p3.png", cat: "jackets" },
+  { id: 4, name: "Color Block Windbreaker", img: "/images/p4.png", cat: "jackets" },
+  { id: 5, name: "Retro Color Block Jacket", img: "/images/p5.png", cat: "jackets" },
+  { id: 6, name: "Dragon Print Flared Pants", img: "/images/p6.png", cat: "pants" },
+  { id: 7, name: "Gothic Letter Denim Shorts", img: "/images/p7.png", cat: "shorts" },
+  { id: 8, name: "Distressed Graffiti Tee", img: "/images/p8.png", cat: "t-shirts" },
+];
+
+const faqs = [
+  { q: "Our response time?", a: "We typically respond to all inquiries within 24 hours during business days." },
+  { q: "What's your payment terms?", a: "We accept T/T, L/C, and Western Union. 30% deposit, 70% before shipment." },
+  { q: "What's the production lead time?", a: "Standard production lead time is 15-25 days depending on order quantity." },
+  { q: "What's your sample policy?", a: "Sample lead time is 3-7 days. Sample fee is refundable upon bulk order." },
+  { q: "Can I put my design logo on the items?", a: "Yes, we specialize in custom OEM/ODM manufacturing with your own designs and logos." },
+];
+
+const companyPhotos = [
+  "/images/showroom.jpg", "/images/team1.png", "/images/factory-cutting.jpg",
+  "/images/team2.png", "/images/factory-machine.jpg", "/images/team3.png",
+  "/images/factory-warehouse.jpg", "/images/hero-factory.png",
+  "/images/factory-dyeing.jpg", "/images/showroom.jpg", "/images/team1.png",
+  "/images/factory-cutting.jpg",
+];
+
+const feedbacks = [
+  { name: "Alexander", country: "USA", rating: 5, text: "I was instantly attracted to this sweatshirt after putting it on! It completely exceeded my expectations! Now it has become a must-have item for my daily outfit. Friends all asked me for the link. I really recommend it!", img: "/images/fb1.png" },
+  { name: "Ethan", country: "Mexico", rating: 5, text: "This sweatshirt has completely conquered me! It feels delicate, comfortable, and breathable. The color does not fade after washing. Very good quality!", img: "/images/fb2.png" },
+  { name: "Marco Rossi", country: "Italy", rating: 5, text: "The style is loose and stylish, and it is very suitable for both jeans and sweatpants. I wore it to a friend's party, and several people asked for the link! The quality is good, and I will buy it again next time!", img: "/images/p7.png" },
+  { name: "Henry", country: "USA", rating: 5, text: "The men's denim shorts I bought have a loose fit and are comfortable, the elastic waistband is fitted, the material is durable and breathable, and the details are perfect. I highly recommend!", img: "/images/fb3.png" },
+];
+
+/* ─────────────── HOME PAGE ─────────────── */
+
+export default function Home() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
+  const [hoveredCat, setHoveredCat] = useState<number | null>(null);
+
+  return (
+    <Layout>
+      {/* ═══════ HERO — 1-1.jpg ═══════ */}
+      <section className="relative w-full overflow-hidden bg-black">
+        <img
+          src="/images/hero-main.jpg"
+          alt="Premium Streetwear Manufacturer"
+          className="w-full object-cover object-center"
+          style={{ maxHeight: 750 }}
+        />
+      </section>
+
+      {/* ═══════ CATEGORIES — DARK ═══════ */}
+      <section className="py-20 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Our Specialties</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Popular Categories</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+            {categories.map((cat, i) => (
+              <Link
+                to={`/products?category=${cat.slug}`}
+                key={cat.slug}
+                className="group relative aspect-[16/10] rounded-xl overflow-hidden border border-white/5"
+                onMouseEnter={() => setHoveredCat(i)}
+                onMouseLeave={() => setHoveredCat(null)}
+              >
+                <img
+                  src={hoveredCat === i ? cat.hover : cat.img}
+                  alt={cat.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                <div className="absolute bottom-4 left-5">
+                  <span className="text-xs text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 block">View designs &rarr;</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ WHY VEKKST — DARK HTML ═══════ */}
+      <section className="py-20 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Why Us</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Why VEKKST</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <div className="grid md:grid-cols-5 gap-4">
+            {[
+              { num: "01", title: "HEAVYWEIGHT EXPERTISE", items: ["400-550 GSM Hoodies", "16+ Print & Embroidery Techniques", "9+ Specialty Washes"], icon: (
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              )},
+              { num: "02", title: "BUILT FOR INDEPENDENT BRANDS", items: ["256 Professionals", "3-7 Day Sampling", "3,600+ m2 Factory", "300K-450K+ PCS / Month"], icon: (
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              )},
+              { num: "03", title: "TRUSTED COMPLIANCE", items: ["TUV Rheinland Verified", "BSCI & AZO FREE", "100% On-Time Delivery", "4.8/5 Rating"], icon: (
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              )},
+              { num: "04", title: "COOPERATION TERMS", items: ["100% OEM/ODM", "MOQ 60 pcs", "15-25 Days Bulk", "Custom Labels & Packaging"], icon: (
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+              )},
+              { num: "05", title: "GLOBAL STREETWEAR PARTNER", items: ["Serving 1100+ Global Brands", "Fast Communication", "Trend-Driven Development", "Long-Term Brand Growth"], icon: (
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              )},
+            ].map((pillar) => (
+              <div key={pillar.num} className="bg-[#161616] border border-white/5 rounded-xl p-5 hover:border-amber-400/30 transition-colors">
+                <div className="text-amber-400 mb-3">{pillar.icon}</div>
+                <div className="text-amber-400 text-xs font-bold mb-1">{pillar.num}</div>
+                <h3 className="text-white text-sm font-bold mb-3 leading-tight">{pillar.title}</h3>
+                <ul className="space-y-1.5">
+                  {pillar.items.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-xs text-gray-400">
+                      <span className="text-amber-400 mt-0.5">&#10003;</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          {/* Quote/Sample/Bulk bar */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-[#161616] border border-white/5 rounded-xl p-5 flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div>
+                <div className="text-xl font-bold text-white">QUOTE IN 24 HOURS</div>
+                <div className="text-xs text-gray-500">Fast Response. Clear Solutions.</div>
+              </div>
+            </div>
+            <div className="bg-[#161616] border border-white/5 rounded-xl p-5 flex items-center gap-4">
+              <div className="w-12 h-12 bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+              </div>
+              <div>
+                <div className="text-xl font-bold text-white">SAMPLE IN 3-7 DAYS</div>
+                <div className="text-xs text-gray-500">Ready to Build Together.</div>
+              </div>
+            </div>
+            <div className="bg-[#161616] border border-white/5 rounded-xl p-5 flex items-center gap-4">
+              <div className="w-12 h-12 bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+              </div>
+              <div>
+                <div className="text-xl font-bold text-white">BULK IN 15-25 DAYS</div>
+                <div className="text-xs text-gray-500">Reliable Production Timeline.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ FACTORY STRENGTH — WHITE BG ═══════ */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Our Facility</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Factory Strength</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <img src="/images/factory-strength-cropped.jpg" alt="Factory Strength" className="w-full rounded-2xl shadow-lg" />
+        </div>
+      </section>
+
+      {/* ═══════ CRAFTSMANSHIP — WHITE BG ═══════ */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Techniques</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Logo Rich Technology</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <img src="/images/craftsmanship-cropped.jpg" alt="16+ Printing and Embroidery Techniques" className="w-full rounded-2xl shadow-lg" />
+        </div>
+      </section>
+
+      {/* ═══════ FABRIC — WHITE BG ═══════ */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Materials</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Premium Custom Fabric</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <img src="/images/fabric-cropped.jpg" alt="Custom Fabric Options" className="w-full rounded-2xl shadow-lg" />
+        </div>
+      </section>
+
+      {/* ═══════ SUPPLY CHAIN — WHITE BG ═══════ */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Process</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">From Idea to Bulk</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <img src="/images/supply-chain-cropped.jpg" alt="From Idea to Bulk - 8 Step Process" className="w-full rounded-2xl shadow-lg" />
+        </div>
+      </section>
+
+      {/* ═══════ TEAM — WHITE BG ═══════ */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Our People</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Meet Our Team</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <div className="max-w-3xl mx-auto">
+            <img src="/images/team-photo.jpg" alt="VEKKST Garment Team" className="w-full rounded-2xl shadow-lg" />
+            <p className="text-center text-gray-500 text-sm mt-6 max-w-xl mx-auto">
+              Over 256 skilled professionals dedicated to delivering premium quality streetwear 
+              for independent brands worldwide. Built for quality. Made to deliver.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ PARTNER BRANDS — WHITE BG ═══════ */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Partners</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Trusted by 1100+ Brands</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <img src="/images/partner-brands-cropped.jpg" alt="Trusted by 1100+ Global Streetwear Brands" className="w-full rounded-2xl shadow-lg" />
+        </div>
+      </section>
+
+      {/* ═══════ CERTIFICATES — WHITE BG ═══════ */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Quality Assurance</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Certifications & Compliance</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <img src="/images/certificates-cropped.jpg" alt="Certifications and Compliance" className="w-full rounded-2xl shadow-lg" />
+        </div>
+      </section>
+
+      {/* ═══════ SEASONS — DARK ═══════ */}
+      <section className="py-20 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Collections</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Select by Season</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            {seasons.map((s) => (
+              <Link to={`/products?season=${s.name.toLowerCase()}`} key={s.name} className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-white/5">
+                <img src={s.img} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4">
+                  <h3 className="text-lg font-bold text-white">{s.name}</h3>
+                  <span className="text-xs text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity">Explore &rarr;</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ PORTFOLIO PRODUCTS — DARK ═══════ */}
+      <section className="py-20 bg-[#0f0f0f]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Portfolio</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Design Portfolio</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+            <p className="text-gray-400 mt-4 text-sm max-w-xl mx-auto">Browse our styles for inspiration. Request a quote for any design.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            {portfolioProducts.map((p) => (
+              <div key={p.id} className="group bg-[#161616] rounded-xl overflow-hidden border border-white/5 hover:border-amber-400/30 transition-all">
+                <div className="relative aspect-square">
+                  <Link to={`/product/${p.id}`}><img src={p.img} alt={p.name} className="w-full h-full object-cover" /></Link>
+                  <Link to={`/product/${p.id}`} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="bg-amber-400 text-black px-4 py-2 rounded-full text-sm font-medium">View Details</span>
+                  </Link>
+                </div>
+                <div className="p-3">
+                  <span className="text-xs text-gray-500 uppercase">{p.cat}</span>
+                  <h3 className="text-sm font-semibold text-white mt-1 truncate">{p.name}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link to="/products" className="inline-block border border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-black px-8 py-3 rounded-full font-medium transition-all text-sm">View All Designs</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ COMPANY PHOTO MARQUEE — DARK ═══════ */}
+      <section className="py-10 bg-[#0a0a0a] overflow-hidden">
+        <div className="marquee-container">
+          <div className="marquee-track">
+            {[...companyPhotos, ...companyPhotos].map((src, i) => (
+              <div key={i} className="flex-shrink-0 w-64 h-44 mx-2 rounded-xl overflow-hidden border border-white/5">
+                <img src={src} alt="Company" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ VIDEO — DARK ═══════ */}
+      <section className="py-20 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Showcase</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Our Factory in Action</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <div className="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <p className="text-gray-300 text-lg leading-relaxed">More than 15 years of experience in menswear manufacturing and international trade.</p>
+              <div className="mt-8 space-y-4 text-sm text-gray-400">
+                {["Professional design and sampling team", "Advanced production equipment and technology", "Strict quality control system", "Fast delivery and excellent after-sales service"].map((item) => (
+                  <p key={item} className="flex items-start gap-3"><span className="text-amber-400 mt-0.5 text-lg">&#10003;</span><span>{item}</span></p>
+                ))}
+              </div>
+              <Link to="/quote" className="inline-flex items-center gap-2 mt-8 bg-amber-400 hover:bg-amber-500 text-black px-8 py-3 rounded-full font-medium transition-colors">
+                <Play className="w-4 h-4" /> Request a Factory Tour
+              </Link>
+            </div>
+            <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
+              <SmartVideo src="/videos/company-video.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ CUSTOMER REVIEWS — WHITE BG ═══════ */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Testimonials</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Customer Reviews</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <img src="/images/customer-reviews-cropped.png" alt="Customer Reviews" className="w-full rounded-2xl shadow-lg" />
+        </div>
+      </section>
+
+      {/* ═══════ WHY CHOOSE US (features) — DARK ═══════ */}
+      <section className="py-20 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Advantages</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Why Choose Us</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: "Customized design capabilities", icon: "/images/A1.png", hover: "/images/A2.png" },
+              { label: "Professional QC quality inspection", icon: "/images/B1.png", hover: "/images/B2.png" },
+              { label: "Flexible supply chain", icon: "/images/C1.png", hover: "/images/C3.png" },
+              { label: "Global market layout", icon: "/images/D1.png", hover: "/images/D2.png" },
+              { label: "Digital innovation", icon: "/images/E1.png", hover: "/images/E2.png" },
+              { label: "Strengthening local services", icon: "/images/F1.png", hover: "/images/F2.png" },
+              { label: "Sustainable development", icon: "/images/G1.png", hover: "/images/G2.png" },
+              { label: "Humanistic care and team stability", icon: "/images/H1.png", hover: "/images/H2.png" },
+            ].map((f, i) => (
+              <div
+                key={f.label}
+                className="rounded-xl overflow-hidden cursor-pointer border border-white/5 hover:border-amber-400/30 transition-all"
+                onMouseEnter={() => setHoveredFeature(i)}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <img src={hoveredFeature === i ? f.hover : f.icon} alt={f.label} className="w-full aspect-square object-cover" />
+                <p className="text-xs text-center text-gray-400 py-3 px-2 bg-[#161616]">{f.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ VIDEO 2 — DARK ═══════ */}
+      <section className="py-20 bg-[#0f0f0f]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="mb-8">
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Behind the Scenes</p>
+            <h2 className="text-4xl font-bold text-white uppercase mb-4">Factory Tour</h2>
+            <p className="text-gray-400 max-w-md">See our production process and quality standards in action.</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="flex items-end">
+              <SmartVideo src="/videos/video-tour.mp4" className="w-full max-w-[360px] aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
+            </div>
+            <div className="space-y-4">
+              <SmartVideo src="/videos/video-factory.mp4" className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
+              <p className="text-gray-400 text-sm leading-relaxed">
+                We strictly select high-quality fabrics, such as breathable and skin-friendly cotton materials, 
+                and high-tech functional materials, combined with exquisite workmanship, and strictly control 
+                every stitch and every detail.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ FEEDBACK CAROUSEL — DARK ═══════ */}
+      <section className="py-20 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Feedback</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Customer Feedback</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <FeedbackCarousel feedbacks={feedbacks} />
+        </div>
+      </section>
+
+      {/* ═══════ FAQ — DARK ═══════ */}
+      <section className="py-20 bg-[#0f0f0f]">
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="text-center mb-14">
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Support</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white">Frequently Asked Questions</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <div key={i} className="border border-white/5 rounded-xl bg-[#161616] overflow-hidden">
+                <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between p-5 text-left hover:bg-white/5 transition-colors">
+                  <span className="font-medium text-white text-sm">{faq.q}</span>
+                  {openFaq === i ? <ChevronUp className="w-4 h-4 text-amber-400 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0" />}
+                </button>
+                {openFaq === i && <div className="px-5 pb-5 text-sm text-gray-400">{faq.a}</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════ CTA — DARK ═══════ */}
+      <section className="py-24 bg-gradient-to-br from-[#0a0a0a] via-[#1a1200] to-[#0a0a0a]">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Start Today</p>
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Ready to Build Your Brand?</h2>
+          <p className="text-gray-400 mb-10 max-w-xl mx-auto">Get a free quote within 24 hours. Low MOQ from 60 pieces. Custom samples in 3-7 days.</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/quote" className="inline-block bg-amber-400 hover:bg-amber-500 text-black px-10 py-4 rounded-full font-semibold transition-colors">Get a Free Quote</Link>
+            <a href="https://wa.me/8613125204154" target="_blank" rel="noopener noreferrer" className="inline-block border border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-black px-10 py-4 rounded-full font-semibold transition-all">WhatsApp Us</a>
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+}
+
+/* ───────── Feedback Carousel ───────── */
+function FeedbackCarousel({ feedbacks }: { feedbacks: { name: string; country: string; rating: number; text: string; img: string }[] }) {
+  const [current, setCurrent] = useState(0);
+  const perPage = typeof window !== "undefined" && window.innerWidth < 768 ? 1 : 2;
+  const maxIndex = Math.max(0, feedbacks.length - perPage);
+  const goPrev = () => setCurrent((c) => Math.max(0, c - 1));
+  const goNext = () => setCurrent((c) => Math.min(maxIndex, c + 1));
+
+  return (
+    <div className="relative">
+      <div className="overflow-hidden">
+        <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${current * (100 / perPage)}%)` }}>
+          {feedbacks.map((fb, i) => (
+            <div key={i} className="w-full md:w-1/2 flex-shrink-0 px-3">
+              <div className="bg-[#161616] rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-start border border-white/5">
+                <img src={fb.img} alt={fb.name} className="w-full md:w-40 h-48 object-cover rounded-xl flex-shrink-0" />
+                <div className="flex-1">
+                  <h4 className="font-bold text-lg text-white">{fb.name}</h4>
+                  <p className="text-gray-500 text-sm mb-2">{fb.country}</p>
+                  <div className="flex gap-0.5 mb-3">
+                    {Array.from({ length: fb.rating }).map((_, j) => (
+                      <svg key={j} className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    ))}
+                  </div>
+                  <p className="text-gray-400 text-sm leading-relaxed">{fb.text}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center justify-center gap-4 mt-8">
+        <button onClick={goPrev} disabled={current === 0} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-amber-400 hover:text-black hover:border-amber-400 transition-colors text-white disabled:opacity-30 disabled:cursor-not-allowed">
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <div className="flex gap-2">
+          {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+            <button key={i} onClick={() => setCurrent(i)} className={`w-2.5 h-2.5 rounded-full transition-colors ${i === current ? "bg-amber-400" : "bg-gray-700"}`} />
+          ))}
+        </div>
+        <button onClick={goNext} disabled={current === maxIndex} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-amber-400 hover:text-black hover:border-amber-400 transition-colors text-white disabled:opacity-30 disabled:cursor-not-allowed">
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
+      <div className="text-center mt-4">
+        <Link to="/products" className="inline-block bg-amber-400 hover:bg-amber-500 text-black px-8 py-3 rounded-full text-sm font-medium transition-colors">
+          View more
+        </Link>
+      </div>
+    </div>
+  );
+}
