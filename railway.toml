@@ -4,5 +4,5 @@ root = "source"
 
 [deploy]
 startCommand = "npm start"
-healthcheckPath = "/api/trpc"
-healthcheckTimeout = 100
+healthcheckPath = "/health"
+healthcheckTimeout = 200

@@ -10,7 +10,18 @@ const app = new Hono<{ Bindings: HttpBindings }>();
 
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 
-// tRPC API handler
+// Simple health check endpoint (no DB required)
+app.get("/health", (c) => c.json({ ok: true, ts: Date.now() }));
+
+// tRPC API handler - match both /api/trpc and /api/trpc/*
+app.use("/api/trpc", async (c) => {
+  return fetchRequestHandler({
+    endpoint: "/api/trpc",
+    req: c.req.raw,
+    router: appRouter,
+    createContext,
+  });
+});
 app.use("/api/trpc/*", async (c) => {
   return fetchRequestHandler({
     endpoint: "/api/trpc",
