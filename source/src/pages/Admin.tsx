@@ -733,14 +733,6 @@ export default function Admin() {
     return <AdminLogin onLogin={handleLogin} />;
   }
 
-  const pageComponents: Record<Page, React.ReactNode> = {
-    dashboard: <DashboardPage />,
-    quotes: <QuotesPage />,
-    messages: <MessagesPage />,
-    products: <ProductsPage />,
-    media: <MediaPage />,
-  };
-
   return (
     <div className="min-h-screen bg-gray-100">
       <Sidebar page={page} onNavigate={setPage} onLogout={handleLogout} unreadCount={unreadCount} />
