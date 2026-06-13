@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { createRouter, publicQuery, adminQuery } from "./middleware";
-import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { writeFile, mkdir, unlink, readdir } from "fs/promises";
 import { join } from "path";
 
@@ -10,7 +9,12 @@ const BUCKET = process.env.S3_BUCKET_NAME || "";
 const REGION = process.env.AWS_REGION || "us-east-1";
 const ENDPOINT = process.env.S3_ENDPOINT;
 
-function getS3Client() {
+async function getS3Modules() {
+  const { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } = await import("@aws-sdk/client-s3");
+  return { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command };
+}
+
+function getS3Client(S3Client: any) {
   if (!USE_S3) return null;
   const config: any = {
     region: REGION,
@@ -54,8 +58,9 @@ export const mediaRouter = createRouter({
       const filename = `${Date.now()}_${input.filename}`;
 
       if (USE_S3) {
+        const { S3Client, PutObjectCommand } = await getS3Modules();
         const key = `uploads/${input.category}/${filename}`;
-        const s3 = getS3Client();
+        const s3 = getS3Client(S3Client);
         await s3!.send(new PutObjectCommand({
           Bucket: BUCKET,
           Key: key,
@@ -86,8 +91,9 @@ export const mediaRouter = createRouter({
       const filename = `${Date.now()}_${input.filename}`;
 
       if (USE_S3) {
+        const { S3Client, PutObjectCommand } = await getS3Modules();
         const key = `videos/${input.category}/${filename}`;
-        const s3 = getS3Client();
+        const s3 = getS3Client(S3Client);
         await s3!.send(new PutObjectCommand({
           Bucket: BUCKET,
           Key: key,
@@ -112,7 +118,8 @@ export const mediaRouter = createRouter({
       const category = input?.category;
       if (USE_S3) {
         try {
-          const s3 = getS3Client();
+          const { S3Client, ListObjectsV2Command } = await getS3Modules();
+          const s3 = getS3Client(S3Client);
           const prefix = category ? `videos/${category}/` : "videos/";
           const result = await s3!.send(new ListObjectsV2Command({
             Bucket: BUCKET,
@@ -165,7 +172,8 @@ export const mediaRouter = createRouter({
       const category = input?.category;
       if (USE_S3) {
         try {
-          const s3 = getS3Client();
+          const { S3Client, ListObjectsV2Command } = await getS3Modules();
+          const s3 = getS3Client(S3Client);
           const prefix = category ? `uploads/${category}/` : "uploads/";
           const result = await s3!.send(new ListObjectsV2Command({
             Bucket: BUCKET,
@@ -216,7 +224,8 @@ export const mediaRouter = createRouter({
     .input(z.object({ path: z.string() }))
     .mutation(async ({ input }) => {
       if (USE_S3) {
-        const s3 = getS3Client();
+        const { S3Client, DeleteObjectCommand } = await getS3Modules();
+        const s3 = getS3Client(S3Client);
         // Extract key from full URL or relative path
         let key = input.path;
         if (key.startsWith("http")) {

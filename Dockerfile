@@ -10,7 +10,7 @@ RUN npm install
 
 RUN npm run build
 
-RUN cp -r ../public/images/* dist/public/images/ && cp -r ../public/videos/* dist/public/videos/
+RUN mkdir -p dist/public/images dist/public/videos && cp -r ../public/images/* dist/public/images/ && cp -r ../public/videos/* dist/public/videos/
 
 EXPOSE 3000
 
