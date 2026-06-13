@@ -7,7 +7,7 @@ export default function TopBar() {
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
             <Phone className="w-3 h-3 text-amber-400" />
-            +86 131 2520 4154
+            +86 134 2474 5515
           </span>
           <span className="hidden sm:flex items-center gap-1.5">
             <Mail className="w-3 h-3 text-amber-400" />
