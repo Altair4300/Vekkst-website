@@ -481,7 +481,7 @@ function ProductsPage() {
     const reader = new FileReader();
     reader.onload = async (ev) => {
       try {
-        const result = await uploadImage.mutateAsync({ data: String(ev.target?.result), filename: file.name, folder: "uploads" });
+        const result = await uploadImage.mutateAsync({ data: String(ev.target?.result), filename: file.name, category: editing.category || "general" });
         setEditing({ ...editing, image: result.url });
       } catch { alert("Upload failed"); }
     };

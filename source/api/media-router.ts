@@ -46,7 +46,7 @@ export const mediaRouter = createRouter({
     .input(z.object({
       data: z.string(),
       filename: z.string(),
-      category: z.enum(["hoodies", "t-shirts", "jackets", "shorts", "pants", "tracksuits", "general"]).default("general"),
+      category: z.string().default("general"),
     }))
     .mutation(async ({ input }) => {
       const base64Data = input.data.replace(/^data:image\/\w+;base64,/, "");
@@ -78,7 +78,7 @@ export const mediaRouter = createRouter({
     .input(z.object({
       data: z.string(),
       filename: z.string(),
-      category: z.enum(["hoodies", "t-shirts", "jackets", "shorts", "pants", "tracksuits", "general"]).default("general"),
+      category: z.string().default("general"),
     }))
     .mutation(async ({ input }) => {
       const base64Data = input.data.replace(/^data:video\/\w+;base64,/, "");
