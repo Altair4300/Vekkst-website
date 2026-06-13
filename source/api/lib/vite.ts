@@ -7,7 +7,8 @@ import path from "path";
 type App = Hono<{ Bindings: HttpBindings }>;
 
 export function serveStaticFiles(app: App) {
-  const distPath = path.resolve(import.meta.dirname, "../../dist/public");
+  // Use process.cwd() since npm start runs from /app/source where dist/public exists
+  const distPath = path.resolve(process.cwd(), "dist/public");
 
   app.use("*", serveStatic({ root: distPath }));
 
@@ -17,6 +18,10 @@ export function serveStaticFiles(app: App) {
       return c.json({ error: "Not Found" }, 404);
     }
     const indexPath = path.resolve(distPath, "index.html");
+    if (!fs.existsSync(indexPath)) {
+      console.error(`[STATIC] index.html not found at ${indexPath}`);
+      return c.json({ error: "index.html not found" }, 500);
+    }
     const content = fs.readFileSync(indexPath, "utf-8");
     return c.html(content);
   });
