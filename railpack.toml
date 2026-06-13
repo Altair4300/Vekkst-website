@@ -1,0 +1,14 @@
+[options]
+# The app source (package.json, vite.config.ts, etc.) lives in source/,
+# not the repo root. Without this, Railpack sees the top-level public/
+# images directory and misdetects the project as a static site.
+rootDir = "source"
+
+[providers.node]
+# Explicitly select the Node.js provider so Railpack never falls back to
+# static-site detection, regardless of what else exists at the repo root.
+enabled = true
+
+[deploy]
+buildCommand = "npm run build"
+startCommand = "npm start"
