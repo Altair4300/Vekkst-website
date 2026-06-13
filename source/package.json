@@ -8,10 +8,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && esbuild api/boot.ts --platform=node --bundle --format=esm --outdir=dist --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\"",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "NODE_ENV=production node dist/boot.js",
+    "start": "NODE_ENV=production tsx api/boot.ts",
     "check": "tsc -b",
     "format": "prettier --write .",
     "test": "vitest run",
@@ -109,6 +109,7 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "tsx": "^4.19.0"
   }
 }
