@@ -6,22 +6,27 @@ import {
 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 
-const ADMIN_PASSWORD = "superadmin2025";
-
 type Page = "dashboard" | "quotes" | "messages" | "products" | "media";
 
 // ─── LOGIN SCREEN ───
-function AdminLogin({ onLogin }: { onLogin: () => void }) {
+function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
   const [pw, setPw] = useState("");
   const [error, setError] = useState(false);
+  const loginMutation = trpc.adminAuth.login.useMutation({
+    onSuccess: (data) => {
+      if (data.success && data.token) {
+        localStorage.setItem("admin_auth_token", data.token);
+        onLogin(data.token);
+      } else {
+        setError(true);
+      }
+    },
+    onError: () => setError(true),
+  });
 
   const handleLogin = () => {
-    if (pw === ADMIN_PASSWORD) {
-      localStorage.setItem("admin_auth", "true");
-      onLogin();
-    } else {
-      setError(true);
-    }
+    if (!pw.trim()) return;
+    loginMutation.mutate({ password: pw });
   };
 
   return (
@@ -40,9 +45,10 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
         {error && <p className="text-red-500 text-xs text-center mb-3">Incorrect password</p>}
         <button
           onClick={handleLogin}
-          className="w-full py-3 bg-[#E60012] hover:bg-[#c4000f] text-white rounded-lg text-sm font-semibold transition-colors"
+          disabled={loginMutation.isPending}
+          className="w-full py-3 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition-colors"
         >
-          Sign In
+          {loginMutation.isPending ? "Verifying..." : "Sign In"}
         </button>
         <Link to="/" className="block text-center text-xs text-gray-500 mt-4 hover:text-[#E60012]">
           Back to Website
@@ -595,13 +601,24 @@ function ProductsPage() {
 // ─── MEDIA PAGE ───
 function MediaPage() {
   const [tab, setTab] = useState<"videos" | "images">("videos");
-  const { data: videos, refetch: refetchVideos } = trpc.media.listVideos.useQuery();
-  const { data: images, refetch: refetchImages } = trpc.media.listImages.useQuery();
+  const [category, setCategory] = useState("general");
+  const { data: videos, refetch: refetchVideos } = trpc.media.listVideos.useQuery({ category });
+  const { data: images, refetch: refetchImages } = trpc.media.listImages.useQuery({ category });
   const uploadVideo = trpc.media.uploadVideo.useMutation({ onSuccess: () => refetchVideos() });
   const uploadImage = trpc.media.uploadImage.useMutation({ onSuccess: () => refetchImages() });
   const deleteFile = trpc.media.deleteFile.useMutation({
     onSuccess: () => { refetchVideos(); refetchImages(); },
   });
+
+  const categories = [
+    { label: "General", value: "general" },
+    { label: "Hoodies", value: "hoodies" },
+    { label: "T-Shirts", value: "t-shirts" },
+    { label: "Jackets", value: "jackets" },
+    { label: "Shorts", value: "shorts" },
+    { label: "Pants", value: "pants" },
+    { label: "Tracksuits", value: "tracksuits" },
+  ];
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "video" | "image") => {
     const file = e.target.files?.[0];
@@ -610,9 +627,9 @@ function MediaPage() {
     reader.onload = async (ev) => {
       try {
         if (type === "video") {
-          await uploadVideo.mutateAsync({ data: String(ev.target?.result), filename: file.name });
+          await uploadVideo.mutateAsync({ data: String(ev.target?.result), filename: file.name, category });
         } else {
-          await uploadImage.mutateAsync({ data: String(ev.target?.result), filename: file.name, folder: "uploads" });
+          await uploadImage.mutateAsync({ data: String(ev.target?.result), filename: file.name, category });
         }
       } catch { alert("Upload failed"); }
     };
@@ -632,11 +649,25 @@ function MediaPage() {
         </button>
       </div>
 
-      <div className="mb-5">
-        <label className="block border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-[#E60012] hover:bg-red-50 transition-colors">
-          <span className="text-gray-400 text-sm">Click to upload {tab === "videos" ? "video" : "image"}</span>
-          <input type="file" accept={tab === "videos" ? "video/*" : "image/*"} className="hidden" onChange={(e) => handleUpload(e, tab === "videos" ? "video" : "image")} />
-        </label>
+      <div className="flex gap-3 mb-5 items-center">
+        <div>
+          <label className="block text-xs font-semibold text-gray-700 mb-1.5">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#E60012]"
+          >
+            {categories.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1">
+          <label className="block border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-[#E60012] hover:bg-red-50 transition-colors">
+            <span className="text-gray-400 text-sm">Click to upload {tab === "videos" ? "video" : "image"} to <strong>{category}</strong></span>
+            <input type="file" accept={tab === "videos" ? "video/*" : "image/*"} className="hidden" onChange={(e) => handleUpload(e, tab === "videos" ? "video" : "image")} />
+          </label>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -648,7 +679,10 @@ function MediaPage() {
               <img src={item.url} alt={item.name} className="w-full h-44 object-cover" />
             )}
             <div className="px-3 py-2 flex justify-between items-center">
-              <span className="text-xs text-gray-500 truncate">{item.name}</span>
+              <div className="min-w-0">
+                <span className="text-xs text-gray-500 truncate block">{item.name}</span>
+                <span className="text-[10px] text-gray-400 uppercase">{item.category}</span>
+              </div>
               <button onClick={() => { if (confirm("Delete?")) deleteFile.mutate({ path: item.url }); }} className="p-1 hover:bg-red-50 text-red-500 rounded transition-colors">
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -657,7 +691,7 @@ function MediaPage() {
         ))}
       </div>
       {items.length === 0 && (
-        <div className="text-center py-12 text-gray-400 text-sm">No {tab} yet. Upload your first {tab === "videos" ? "video" : "image"}!</div>
+        <div className="text-center py-12 text-gray-400 text-sm">No {tab} in <strong>{category}</strong> yet. Upload your first {tab === "videos" ? "video" : "image"}!</div>
       )}
     </div>
   );
@@ -665,21 +699,34 @@ function MediaPage() {
 
 // ─── MAIN ADMIN PAGE ───
 export default function Admin() {
-  const [authenticated, setAuthenticated] = useState(() =>
-    localStorage.getItem("admin_auth") === "true"
+  const [token, setToken] = useState(() =>
+    localStorage.getItem("admin_auth_token")
   );
   const [page, setPage] = useState<Page>("dashboard");
 
   const { data: conversations } = trpc.message.listConversations.useQuery(undefined, {
-    enabled: authenticated,
+    enabled: !!token,
     refetchInterval: 10000,
   });
   const unreadCount = conversations?.reduce((s, c) => s + (c.unreadCount || 0), 0) || 0;
 
-  const handleLogin = () => setAuthenticated(true);
+  const handleLogin = (newToken: string) => setToken(newToken);
   const handleLogout = () => {
-    localStorage.removeItem("admin_auth");
-    setAuthenticated(false);
+    localStorage.removeItem("admin_auth_token");
+    localStorage.removeItem("admin_auth"); // Clear old auth too
+    setToken(null);
+  };
+
+  if (!token) {
+    return <AdminLogin onLogin={handleLogin} />;
+  }
+
+  const pageComponents: Record<Page, React.ReactNode> = {
+    dashboard: <DashboardPage />,
+    quotes: <QuotesPage />,
+    messages: <MessagesPage />,
+    products: <ProductsPage />,
+    media: <MediaPage />,
   };
 
   if (!authenticated) {

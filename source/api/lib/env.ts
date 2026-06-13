@@ -21,4 +21,6 @@ export const env = {
   kimiAuthUrl: optional("KIMI_AUTH_URL"),
   kimiOpenUrl: optional("KIMI_OPEN_URL"),
   ownerUnionId: optional("OWNER_UNION_ID"),
+  // Admin password - optional, defaults to "superadmin2025" if not set
+  adminPassword: optional("ADMIN_PASSWORD"),
 };

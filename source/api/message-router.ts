@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createRouter, publicQuery } from "./middleware";
+import { createRouter, publicQuery, adminQuery } from "./middleware";
 import { quoteMessages, quotes } from "@db/schema";
 import { getDb } from "./queries/connection";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -30,8 +30,8 @@ export const messageRouter = createRouter({
       return { success: true, id: Number(result[0].insertId) };
     }),
 
-  // Get conversation by quoteId
-  getByQuoteId: publicQuery
+  // Get conversation by quoteId (admin view)
+  getByQuoteId: adminQuery
     .input(z.object({ quoteId: z.string() }))
     .query(async ({ input }) => {
       const db = getDb();
@@ -69,7 +69,7 @@ export const messageRouter = createRouter({
     }),
 
   // List all conversations (admin view - latest message per quote)
-  listConversations: publicQuery.query(async () => {
+  listConversations: adminQuery.query(async () => {
     const db = getDb();
     // Get latest message for each quoteId
     const allMessages = await db.select().from(quoteMessages).orderBy(desc(quoteMessages.createdAt));
@@ -112,7 +112,7 @@ export const messageRouter = createRouter({
     }),
 
   // Get unread count for admin
-  unreadCount: publicQuery.query(async () => {
+  unreadCount: adminQuery.query(async () => {
     const db = getDb();
     const result = await db
       .select({ count: sql<number>`count(*)` })

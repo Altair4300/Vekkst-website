@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { createRouter, publicQuery } from "./middleware";
+import { createRouter, adminQuery } from "./middleware";
 import { users, products, quotes } from "@db/schema";
 import { getDb } from "./queries/connection";
 import { desc, sql, eq } from "drizzle-orm";
 
 export const adminRouter = createRouter({
-  stats: publicQuery.query(async () => {
+  stats: adminQuery.query(async () => {
     const db = getDb();
     const [userCount, productCount, quoteCount] = await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(users),
@@ -19,17 +19,17 @@ export const adminRouter = createRouter({
     };
   }),
 
-  customerList: publicQuery.query(async () => {
+  customerList: adminQuery.query(async () => {
     const db = getDb();
     return db.select().from(users).orderBy(desc(users.createdAt));
   }),
 
-  quoteList: publicQuery.query(async () => {
+  quoteList: adminQuery.query(async () => {
     const db = getDb();
     return db.select().from(quotes).orderBy(desc(quotes.createdAt));
   }),
 
-  updateQuote: publicQuery
+  updateQuote: adminQuery
     .input(
       z.object({
         id: z.number(),

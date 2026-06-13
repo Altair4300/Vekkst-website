@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { eq, and, like, desc } from "drizzle-orm";
-import { createRouter, publicQuery } from "./middleware";
+import { createRouter, publicQuery, adminQuery } from "./middleware";
 import { getDb } from "./queries/connection";
 import { products } from "@db/schema";
 
@@ -25,14 +25,14 @@ export const productRouter = createRouter({
     return result[0] || null;
   }),
 
-  create: publicQuery
+  create: adminQuery
     .input(z.object({ name: z.string().min(1), slug: z.string().min(1), category: z.string(), description: z.string().optional(), image: z.string(), badge: z.string().optional(), sizes: z.string().optional(), season: z.string().optional() }))
     .mutation(async ({ input }) => {
       const db = getDb();
       return db.insert(products).values(input);
     }),
 
-  update: publicQuery
+  update: adminQuery
     .input(z.object({ id: z.number(), name: z.string().optional(), slug: z.string().optional(), category: z.string().optional(), description: z.string().optional(), image: z.string().optional(), badge: z.string().optional(), sizes: z.string().optional(), season: z.string().optional() }))
     .mutation(async ({ input }) => {
       const db = getDb();
@@ -40,13 +40,13 @@ export const productRouter = createRouter({
       return db.update(products).set(data).where(eq(products.id, id));
     }),
 
-  delete: publicQuery.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+  delete: adminQuery.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
     const db = getDb();
     await db.delete(products).where(eq(products.id, input.id));
     return { success: true };
   }),
 
-  uploadImage: publicQuery
+  uploadImage: adminQuery
     .input(z.object({ data: z.string(), filename: z.string() }))
     .mutation(async ({ input }) => {
       const base64Data = input.data.replace(/^data:image\/\w+;base64,/, "");

@@ -18,7 +18,7 @@ export async function createContext(
 ): Promise<TrpcContext> {
   const ctx: TrpcContext = { req: opts.req, resHeaders: opts.resHeaders };
 
-  // Authenticate via local auth token (x-local-auth-token header)
+  // 1. Check for regular user auth token (x-local-auth-token header)
   try {
     const token = opts.req.headers.get("x-local-auth-token");
     if (token) {
@@ -29,6 +29,34 @@ export async function createContext(
     }
   } catch {
     // Auth is optional - user stays undefined for public endpoints
+  }
+
+  // 2. Check for admin auth token (x-admin-token header)
+  // If no regular user is found, check if admin token is present
+  if (!ctx.user) {
+    try {
+      const adminToken = opts.req.headers.get("x-admin-token");
+      if (adminToken) {
+        const decoded = jwt.verify(adminToken, JWT_SECRET) as { role: string; isAdmin: boolean };
+        if (decoded.role === "admin" && decoded.isAdmin) {
+          // Create a synthetic admin user for middleware checks
+          ctx.user = {
+            id: 0,
+            unionId: null,
+            name: "Admin",
+            email: "admin@vekkst.com",
+            phone: null,
+            avatar: null,
+            role: "admin",
+            password: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as typeof users.$inferSelect;
+        }
+      }
+    } catch {
+      // Admin auth is optional
+    }
   }
 
   return ctx;

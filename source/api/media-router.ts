@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createRouter, publicQuery } from "./middleware";
+import { createRouter, publicQuery, adminQuery } from "./middleware";
 import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { writeFile, mkdir, unlink, readdir } from "fs/promises";
 import { join } from "path";
@@ -33,21 +33,28 @@ function getS3Url(key: string) {
   return `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
 }
 
+// ─── Categories ───
+const CATEGORIES = ["hoodies", "t-shirts", "jackets", "shorts", "pants", "tracksuits", "general"];
+
 // ─── Local filesystem fallback ───
 const VIDEO_DIR = join(process.cwd(), "public", "videos");
 const IMAGE_DIR = join(process.cwd(), "public", "uploads");
 
 export const mediaRouter = createRouter({
-  // Upload an image
-  uploadImage: publicQuery
-    .input(z.object({ data: z.string(), filename: z.string(), folder: z.string().default("uploads") }))
+  // Upload an image (organized by category)
+  uploadImage: adminQuery
+    .input(z.object({
+      data: z.string(),
+      filename: z.string(),
+      category: z.enum(["hoodies", "t-shirts", "jackets", "shorts", "pants", "tracksuits", "general"]).default("general"),
+    }))
     .mutation(async ({ input }) => {
       const base64Data = input.data.replace(/^data:image\/\w+;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
       const filename = `${Date.now()}_${input.filename}`;
 
       if (USE_S3) {
-        const key = `${input.folder}/${filename}`;
+        const key = `uploads/${input.category}/${filename}`;
         const s3 = getS3Client();
         await s3!.send(new PutObjectCommand({
           Bucket: BUCKET,
@@ -55,27 +62,31 @@ export const mediaRouter = createRouter({
           Body: buffer,
           ContentType: "image/jpeg",
         }));
-        return { url: getS3Url(key) };
+        return { url: getS3Url(key), category: input.category };
       }
 
       // Fallback: local filesystem
-      const uploadDir = join(process.cwd(), "public", input.folder);
+      const uploadDir = join(process.cwd(), "public", "uploads", input.category);
       try { await mkdir(uploadDir, { recursive: true }); } catch { /* exists */ }
       const filePath = join(uploadDir, filename);
       await writeFile(filePath, buffer);
-      return { url: `/${input.folder}/${filename}` };
+      return { url: `/uploads/${input.category}/${filename}`, category: input.category };
     }),
 
-  // Upload a video
-  uploadVideo: publicQuery
-    .input(z.object({ data: z.string(), filename: z.string() }))
+  // Upload a video (organized by category)
+  uploadVideo: adminQuery
+    .input(z.object({
+      data: z.string(),
+      filename: z.string(),
+      category: z.enum(["hoodies", "t-shirts", "jackets", "shorts", "pants", "tracksuits", "general"]).default("general"),
+    }))
     .mutation(async ({ input }) => {
       const base64Data = input.data.replace(/^data:video\/\w+;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
       const filename = `${Date.now()}_${input.filename}`;
 
       if (USE_S3) {
-        const key = `videos/${filename}`;
+        const key = `videos/${input.category}/${filename}`;
         const s3 = getS3Client();
         await s3!.send(new PutObjectCommand({
           Bucket: BUCKET,
@@ -83,74 +94,125 @@ export const mediaRouter = createRouter({
           Body: buffer,
           ContentType: "video/mp4",
         }));
-        return { url: getS3Url(key) };
+        return { url: getS3Url(key), category: input.category };
       }
 
       // Fallback: local filesystem
-      try { await mkdir(VIDEO_DIR, { recursive: true }); } catch { /* exists */ }
-      const filePath = join(VIDEO_DIR, filename);
+      const videoDir = join(process.cwd(), "public", "videos", input.category);
+      try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
+      const filePath = join(videoDir, filename);
       await writeFile(filePath, buffer);
-      return { url: `/videos/${filename}` };
+      return { url: `/videos/${input.category}/${filename}`, category: input.category };
     }),
 
-  // List all videos
-  listVideos: publicQuery.query(async () => {
-    if (USE_S3) {
-      try {
-        const s3 = getS3Client();
-        const result = await s3!.send(new ListObjectsV2Command({
-          Bucket: BUCKET,
-          Prefix: "videos/",
-        }));
-        return (result.Contents || [])
-          .filter(item => item.Key && (item.Key.endsWith(".mp4") || item.Key.endsWith(".webm") || item.Key.endsWith(".mov")))
-          .map(item => ({
-            name: item.Key!.replace("videos/", ""),
-            url: getS3Url(item.Key!),
-            size: item.Size || 0,
+  // List all videos by category
+  listVideos: publicQuery
+    .input(z.object({ category: z.string().optional() }).optional())
+    .query(async ({ input }) => {
+      const category = input?.category;
+      if (USE_S3) {
+        try {
+          const s3 = getS3Client();
+          const prefix = category ? `videos/${category}/` : "videos/";
+          const result = await s3!.send(new ListObjectsV2Command({
+            Bucket: BUCKET,
+            Prefix: prefix,
           }));
-      } catch { return []; }
-    }
+          return (result.Contents || [])
+            .filter(item => item.Key && (item.Key.endsWith(".mp4") || item.Key.endsWith(".webm") || item.Key.endsWith(".mov")))
+            .map(item => {
+              const parts = item.Key!.split("/");
+              const cat = parts.length >= 3 ? parts[1] : "general";
+              return {
+                name: parts[parts.length - 1] || item.Key!.replace(prefix, ""),
+                url: getS3Url(item.Key!),
+                category: cat,
+                size: item.Size || 0,
+              };
+            });
+        } catch { return []; }
+      }
 
-    // Fallback: local filesystem
-    try {
-      const files = await readdir(VIDEO_DIR);
-      return files
-        .filter(f => f.endsWith(".mp4") || f.endsWith(".webm") || f.endsWith(".mov"))
-        .map(f => ({ name: f, url: `/videos/${f}`, size: f.length }));
-    } catch { return []; }
-  }),
-
-  // List all uploaded images
-  listImages: publicQuery.query(async () => {
-    if (USE_S3) {
+      // Fallback: local filesystem
       try {
-        const s3 = getS3Client();
-        const result = await s3!.send(new ListObjectsV2Command({
-          Bucket: BUCKET,
-          Prefix: "uploads/",
-        }));
-        return (result.Contents || [])
-          .filter(item => item.Key && !item.Key.endsWith("/"))
-          .map(item => ({
-            name: item.Key!.replace("uploads/", ""),
-            url: getS3Url(item.Key!),
-            size: item.Size || 0,
-          }));
+        if (category) {
+          const dir = join(VIDEO_DIR, category);
+          const files = await readdir(dir);
+          return files
+            .filter(f => f.endsWith(".mp4") || f.endsWith(".webm") || f.endsWith(".mov"))
+            .map(f => ({ name: f, url: `/videos/${category}/${f}`, category, size: f.length }));
+        } else {
+          // List all categories
+          const results: any[] = [];
+          for (const cat of CATEGORIES) {
+            try {
+              const dir = join(VIDEO_DIR, cat);
+              const files = await readdir(dir);
+              results.push(...files
+                .filter(f => f.endsWith(".mp4") || f.endsWith(".webm") || f.endsWith(".mov"))
+                .map(f => ({ name: f, url: `/videos/${cat}/${f}`, category: cat, size: f.length })));
+            } catch { /* skip */ }
+          }
+          return results;
+        }
       } catch { return []; }
-    }
+    }),
 
-    // Fallback: local filesystem
-    try {
-      const files = await readdir(IMAGE_DIR);
-      return files
-        .filter(f => !f.endsWith("/"))
-        .map(f => ({ name: f, url: `/uploads/${f}`, size: f.length }));
-    } catch { return []; }
-  }),
+  // List all uploaded images by category
+  listImages: publicQuery
+    .input(z.object({ category: z.string().optional() }).optional())
+    .query(async ({ input }) => {
+      const category = input?.category;
+      if (USE_S3) {
+        try {
+          const s3 = getS3Client();
+          const prefix = category ? `uploads/${category}/` : "uploads/";
+          const result = await s3!.send(new ListObjectsV2Command({
+            Bucket: BUCKET,
+            Prefix: prefix,
+          }));
+          return (result.Contents || [])
+            .filter(item => item.Key && !item.Key.endsWith("/"))
+            .map(item => {
+              const parts = item.Key!.split("/");
+              const cat = parts.length >= 3 ? parts[1] : "general";
+              return {
+                name: parts[parts.length - 1] || item.Key!.replace(prefix, ""),
+                url: getS3Url(item.Key!),
+                category: cat,
+                size: item.Size || 0,
+              };
+            });
+        } catch { return []; }
+      }
 
-  // Delete a file
-  deleteFile: publicQuery
+      // Fallback: local filesystem
+      try {
+        if (category) {
+          const dir = join(IMAGE_DIR, category);
+          const files = await readdir(dir);
+          return files
+            .filter(f => !f.endsWith("/"))
+            .map(f => ({ name: f, url: `/uploads/${category}/${f}`, category, size: f.length }));
+        } else {
+          // List all categories
+          const results: any[] = [];
+          for (const cat of CATEGORIES) {
+            try {
+              const dir = join(IMAGE_DIR, cat);
+              const files = await readdir(dir);
+              results.push(...files
+                .filter(f => !f.endsWith("/"))
+                .map(f => ({ name: f, url: `/uploads/${cat}/${f}`, category: cat, size: f.length })));
+            } catch { /* skip */ }
+          }
+          return results;
+        }
+      } catch { return []; }
+    }),
+
+  // Delete a file (admin only)
+  deleteFile: adminQuery
     .input(z.object({ path: z.string() }))
     .mutation(async ({ input }) => {
       if (USE_S3) {
