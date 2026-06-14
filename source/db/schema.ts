@@ -57,6 +57,7 @@ export const quoteMessages = mysqlTable("quote_messages", {
   senderName: varchar("senderName", { length: 255 }),
   message: text("message").notNull(),
   read: mysqlEnum("read", ["0", "1"]).default("0").notNull(),
+  readByCustomer: mysqlEnum("readByCustomer", ["0", "1"]).default("0").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

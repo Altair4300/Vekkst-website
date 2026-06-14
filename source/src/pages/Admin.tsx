@@ -526,8 +526,11 @@ function MessagesPage() {
                       m.sender === "admin" ? "bg-[#E60012] text-white rounded-br-md" : "bg-white border border-gray-200 text-gray-800 rounded-bl-md"
                     }`}>
                       <p>{m.message}</p>
-                      <p className={`text-[10px] mt-1 ${m.sender === "admin" ? "text-white/70" : "text-gray-400"}`}>
+                      <p className={`text-[10px] mt-1 flex items-center gap-1 ${m.sender === "admin" ? "text-white/70" : "text-gray-400"}`}>
                         {m.sender === "admin" ? "You" : m.senderName || "Customer"} &middot; {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {m.sender === "customer" && m.read === "1" && (
+                          <span className="text-emerald-500">✓</span>
+                        )}
                       </p>
                     </div>
                   </div>

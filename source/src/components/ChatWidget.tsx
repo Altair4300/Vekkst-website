@@ -96,7 +96,7 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
                   >
                     <p>{msg.message}</p>
                     <p
-                      className={`text-[10px] mt-1 ${
+                      className={`text-[10px] mt-1 flex items-center gap-1 ${
                         msg.sender === "customer" ? "text-white/70" : "text-gray-400"
                       }`}
                     >
@@ -104,6 +104,9 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
+                      {msg.sender === "admin" && msg.readByCustomer === "1" && (
+                        <span className="text-emerald-500">✓</span>
+                      )}
                     </p>
                   </div>
                 </div>

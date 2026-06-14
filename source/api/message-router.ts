@@ -40,6 +40,13 @@ export const messageRouter = createRouter({
         .from(quoteMessages)
         .where(eq(quoteMessages.quoteId, input.quoteId))
         .orderBy(quoteMessages.createdAt);
+
+      // Mark customer messages as read by admin
+      await db
+        .update(quoteMessages)
+        .set({ read: "1" })
+        .where(and(eq(quoteMessages.quoteId, input.quoteId), eq(quoteMessages.sender, "customer")));
+
       return messages;
     }),
 
@@ -59,10 +66,10 @@ export const messageRouter = createRouter({
         .where(eq(quoteMessages.quoteId, input.quoteId))
         .orderBy(quoteMessages.createdAt);
 
-      // Mark admin messages as read
+      // Mark admin messages as read by customer
       await db
         .update(quoteMessages)
-        .set({ read: "1" })
+        .set({ readByCustomer: "1" })
         .where(and(eq(quoteMessages.quoteId, input.quoteId), eq(quoteMessages.sender, "admin")));
 
       return messages;

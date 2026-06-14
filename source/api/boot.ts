@@ -28,6 +28,7 @@ async function runStartupMigrations() {
       )
     `);
     await pool.query(`ALTER TABLE subadmins ADD COLUMN IF NOT EXISTS permissions VARCHAR(255) DEFAULT NULL`);
+    await pool.query(`ALTER TABLE quote_messages ADD COLUMN IF NOT EXISTS readByCustomer ENUM('0', '1') DEFAULT '0' NOT NULL`);
     await pool.end();
     console.log("[BOOT] Migrations OK: subadmins table ready");
   } catch (err) {
