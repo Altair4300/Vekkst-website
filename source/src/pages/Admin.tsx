@@ -2,38 +2,90 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import {
   LayoutDashboard, FileText, MessageSquare, Package, Image, LogOut,
-  X, Send, Loader2, Plus, Trash2, Edit3
+  X, Send, Loader2, Plus, Trash2, Edit3, Users, CheckCircle, XCircle, UserPlus
 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 
-type Page = "dashboard" | "quotes" | "messages" | "products" | "media";
+type Page = "dashboard" | "quotes" | "messages" | "products" | "media" | "team";
 
 // ─── LOGIN SCREEN ───
 function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
   const [pw, setPw] = useState("");
+  const [email, setEmail] = useState("");
+  const [showReg, setShowReg] = useState(false);
   const [error, setError] = useState(false);
-  const loginMutation = trpc.adminAuth.login.useMutation({
-    onSuccess: (data) => {
-      if (data.success && data.token) {
-        localStorage.setItem("admin_auth_token", data.token);
-        onLogin(data.token);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [regStep, setRegStep] = useState<"form" | "pending">("form");
+
+  const loginMutation = trpc.adminAuth.login.useMutation();
+  const subadminLogin = trpc.subadmin.login.useMutation();
+
+  const handleLogin = async () => {
+    if (!pw.trim()) return;
+    setError(false);
+    setErrorMsg("");
+    try {
+      // 1. First try adminAuth.login with password only
+      const adminResult = await loginMutation.mutateAsync({ password: pw.trim() });
+      if (adminResult.success && adminResult.token) {
+        localStorage.setItem("admin_auth_token", adminResult.token);
+        onLogin(adminResult.token);
+        return;
+      }
+    } catch {
+      // adminAuth.login failed, fall through to subadmin login
+    }
+    try {
+      // 2. If admin login failed, try subadmin.login with email + password
+      if (email.trim()) {
+        const subResult = await subadminLogin.mutateAsync({ email: email.trim(), password: pw.trim() });
+        if (subResult.success && subResult.token) {
+          localStorage.setItem("admin_auth_token", subResult.token);
+          onLogin(subResult.token);
+          return;
+        } else {
+          setError(true);
+          setErrorMsg(subResult.error || "Invalid credentials");
+        }
       } else {
         setError(true);
+        setErrorMsg("Invalid admin password");
       }
-    },
-    onError: () => setError(true),
-  });
-
-  const handleLogin = () => {
-    if (!pw.trim()) return;
-    loginMutation.mutate({ password: pw });
+    } catch (err: any) {
+      setError(true);
+      setErrorMsg(err?.message || "Login failed");
+    }
   };
+
+  if (showReg) {
+    return <SubadminRegister onBack={() => setShowReg(false)} onPending={() => setRegStep("pending")} />;
+  }
+
+  if (regStep === "pending") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
+        <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl text-center">
+          <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold mb-2 text-gray-800">Application Submitted</h2>
+          <p className="text-sm text-gray-500 mb-6">Your application is pending approval. You will be notified once approved.</p>
+          <button onClick={() => setRegStep("form")} className="text-sm text-[#E60012] hover:underline">Back to login</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
       <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl">
         <img src="/images/es-logo.png" alt="ES" className="h-10 mx-auto mb-5" />
         <h1 className="text-center text-xl font-semibold mb-6 text-gray-800">VEKKST Admin Panel</h1>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => { setEmail(e.target.value); setError(false); }}
+          placeholder="Email (optional for team members)"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm mb-3 focus:outline-none focus:border-[#E60012]"
+        />
         <input
           type="password"
           value={pw}
@@ -42,17 +94,80 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
           placeholder="Enter admin password"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm mb-4 focus:outline-none focus:border-[#E60012]"
         />
-        {error && <p className="text-red-500 text-xs text-center mb-3">Incorrect password</p>}
+        {error && <p className="text-red-500 text-xs text-center mb-3">{errorMsg || "Incorrect password"}</p>}
         <button
           onClick={handleLogin}
-          disabled={loginMutation.isPending}
+          disabled={loginMutation.isPending || subadminLogin.isPending}
           className="w-full py-3 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition-colors"
         >
-          {loginMutation.isPending ? "Verifying..." : "Sign In"}
+          {loginMutation.isPending || subadminLogin.isPending ? "Verifying..." : "Sign In"}
         </button>
-        <Link to="/" className="block text-center text-xs text-gray-500 mt-4 hover:text-[#E60012]">
-          Back to Website
-        </Link>
+        <div className="flex flex-col items-center gap-2 mt-4">
+          <button onClick={() => setShowReg(true)} className="text-xs text-gray-500 hover:text-[#E60012] flex items-center gap-1">
+            <UserPlus className="w-3 h-3" /> Join as Team Member
+          </button>
+          <Link to="/" className="text-xs text-gray-500 hover:text-[#E60012]">
+            Back to Website
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SubadminRegister({ onBack, onPending }: { onBack: () => void; onPending: () => void }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+
+  const register = trpc.subadmin.register.useMutation({
+    onSuccess: () => onPending(),
+    onError: (err) => setError(err.message || "Registration failed"),
+  });
+
+  const handleSubmit = () => {
+    setError("");
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setError("All fields are required");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords do not match");
+      return;
+    }
+    register.mutate({ name: name.trim(), email: email.trim(), phone: phone.trim() || undefined, password: password.trim() });
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
+      <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl">
+        <img src="/images/es-logo.png" alt="ES" className="h-10 mx-auto mb-5" />
+        <h1 className="text-center text-xl font-semibold mb-6 text-gray-800">Join as Team Member</h1>
+        <div className="space-y-3">
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (optional)" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (min 6 chars)" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Confirm Password" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+        </div>
+        {error && <p className="text-red-500 text-xs text-center mt-3">{error}</p>}
+        <button
+          onClick={handleSubmit}
+          disabled={register.isPending}
+          className="w-full mt-4 py-3 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition-colors"
+        >
+          {register.isPending ? "Submitting..." : "Submit Application"}
+        </button>
+        <button onClick={onBack} className="w-full mt-3 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
+          Back to Login
+        </button>
       </div>
     </div>
   );
@@ -68,6 +183,7 @@ function Sidebar({ page, onNavigate, onLogout, unreadCount }: {
     { id: "messages", label: "Messages", icon: <MessageSquare className="w-[18px] h-[18px]" /> },
     { id: "products", label: "Products", icon: <Package className="w-[18px] h-[18px]" /> },
     { id: "media", label: "Media", icon: <Image className="w-[18px] h-[18px]" /> },
+    { id: "team", label: "Team", icon: <Users className="w-[18px] h-[18px]" /> },
   ];
 
   return (
@@ -131,6 +247,8 @@ function StatusBadge({ status }: { status: string }) {
     quoted: "bg-purple-100 text-purple-800",
     accepted: "bg-emerald-100 text-emerald-800",
     declined: "bg-red-100 text-red-800",
+    pending: "bg-amber-100 text-amber-800",
+    approved: "bg-emerald-100 text-emerald-800",
   };
   return (
     <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-medium ${config[status] || config.new}`}>
@@ -697,6 +815,122 @@ function MediaPage() {
   );
 }
 
+// ─── TEAM PAGE ───
+function TeamPage() {
+  const { data: subadmins, refetch } = trpc.subadmin.list.useQuery();
+  const approveMutation = trpc.subadmin.approve.useMutation({ onSuccess: () => refetch() });
+  const deleteMutation = trpc.subadmin.delete.useMutation({ onSuccess: () => refetch() });
+
+  const pending = subadmins?.filter((s) => s.status === "pending") || [];
+  const approved = subadmins?.filter((s) => s.status === "approved") || [];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <StatCard label="Pending Members" value={pending.length} color="red" />
+        <StatCard label="Approved Members" value={approved.length} color="green" />
+      </div>
+
+      {/* Pending Subadmins */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100">
+          <h3 className="text-[15px] font-semibold">Pending Applications ({pending.length})</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Phone</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pending.map((s) => (
+                <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm font-medium">{s.name}</td>
+                  <td className="px-4 py-3 text-sm">{s.email}</td>
+                  <td className="px-4 py-3 text-sm">{s.phone || "-"}</td>
+                  <td className="px-4 py-3"><StatusBadge status={s.status} /></td>
+                  <td className="px-4 py-3 text-sm text-gray-500">{new Date(s.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => approveMutation.mutate({ id: s.id })}
+                        disabled={approveMutation.isPending}
+                        className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                      >
+                        <CheckCircle className="w-3 h-3" /> Approve
+                      </button>
+                      <button
+                        onClick={() => { if (confirm("Reject this application?")) deleteMutation.mutate({ id: s.id }); }}
+                        disabled={deleteMutation.isPending}
+                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                      >
+                        <XCircle className="w-3 h-3" /> Reject
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {pending.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">No pending applications</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Approved Subadmins */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100">
+          <h3 className="text-[15px] font-semibold">Approved Team Members ({approved.length})</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Phone</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {approved.map((s) => (
+                <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm font-medium">{s.name}</td>
+                  <td className="px-4 py-3 text-sm">{s.email}</td>
+                  <td className="px-4 py-3 text-sm">{s.phone || "-"}</td>
+                  <td className="px-4 py-3"><StatusBadge status={s.status} /></td>
+                  <td className="px-4 py-3 text-sm text-gray-500">{new Date(s.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => { if (confirm("Delete this team member?")) deleteMutation.mutate({ id: s.id }); }}
+                      disabled={deleteMutation.isPending}
+                      className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3" /> Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {approved.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">No approved team members yet</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN ADMIN PAGE ───
 export default function Admin() {
   const [token, setToken] = useState(() =>
@@ -727,6 +961,7 @@ export default function Admin() {
     messages: MessagesPage,
     products: ProductsPage,
     media: MediaPage,
+    team: TeamPage,
   };
   const ActiveComponent = pageComponents[page];
 

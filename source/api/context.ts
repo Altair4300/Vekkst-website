@@ -40,13 +40,13 @@ export async function createContext(
     try {
       const adminToken = opts.req.headers.get("x-admin-token");
       if (adminToken) {
-        const decoded = jwt.verify(adminToken, JWT_SECRET) as { role: string; isAdmin: boolean };
+        const decoded = jwt.verify(adminToken, JWT_SECRET) as { role: string; isAdmin: boolean; subadminId?: number };
         if (decoded.role === "admin" && decoded.isAdmin) {
           // Create a synthetic admin user for middleware checks
           ctx.user = {
             id: 0,
             unionId: null,
-            name: "Admin",
+            name: decoded.subadminId ? "Subadmin" : "Admin",
             email: "admin@vekkst.com",
             phone: null,
             avatar: null,

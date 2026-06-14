@@ -59,3 +59,13 @@ export const quoteMessages = mysqlTable("quote_messages", {
   read: mysqlEnum("read", ["0", "1"]).default("0").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+
+export const subadmins = mysqlTable("subadmins", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  phone: varchar("phone", { length: 50 }),
+  password: varchar("password", { length: 255 }).notNull(),
+  status: mysqlEnum("status", ["pending", "approved"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
