@@ -101,7 +101,7 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
       <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl">
-        <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-40 mx-auto mb-5" />
+        <img src="/images/es-logo.png" alt="ES" className="h-10 mx-auto mb-5" />
         <h1 className="text-center text-xl font-semibold mb-6 text-gray-800">{t("adminPanel", lang)}</h1>
         <input
           type="email"
@@ -172,7 +172,7 @@ function SubadminRegister({ onBack, onPending }: { onBack: () => void; onPending
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
       <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl">
-        <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-40 mx-auto mb-5" />
+        <img src="/images/es-logo.png" alt="ES" className="h-10 mx-auto mb-5" />
         <h1 className="text-center text-xl font-semibold mb-6 text-gray-800">{t("joinTeam", lang)}</h1>
         <div className="space-y-3">
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
@@ -216,7 +216,7 @@ function Sidebar({ page, onNavigate, onLogout, unreadCount }: {
   return (
     <div className="w-64 bg-[#1a1a2e] text-white fixed top-0 left-0 bottom-0 flex flex-col z-50">
       <div className="p-5 border-b border-white/10 flex items-center gap-3">
-        <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-40" />
+        <img src="/images/es-logo.png" alt="ES" className="h-8" />
         <span className="font-semibold text-base">VEKKST Admin</span>
       </div>
       <nav className="p-3 flex-1">
