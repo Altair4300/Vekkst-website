@@ -4,6 +4,23 @@ import { quoteMessages, quotes } from "@db/schema";
 import { getDb } from "./queries/connection";
 import { eq, desc, and, sql } from "drizzle-orm";
 
+// Rate limiting: max 20 messages per minute per IP
+const messageAttempts = new Map<string, { count: number; resetAt: number }>();
+const MAX_MESSAGES = 20;
+const MSG_WINDOW_MS = 60 * 1000;
+
+function checkMessageRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = messageAttempts.get(ip);
+  if (!record || now > record.resetAt) {
+    messageAttempts.set(ip, { count: 1, resetAt: now + MSG_WINDOW_MS });
+    return true;
+  }
+  if (record.count >= MAX_MESSAGES) return false;
+  record.count++;
+  return true;
+}
+
 export const messageRouter = createRouter({
   // Send a message (customer or admin)
   send: publicQuery
@@ -13,9 +30,15 @@ export const messageRouter = createRouter({
         sender: z.enum(["customer", "admin"]),
         senderName: z.string().optional(),
         message: z.string().min(1),
+        type: z.enum(["text", "image", "video"]).optional(),
+        fileUrl: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
+      if (!checkMessageRateLimit(ip)) {
+        throw new Error("Rate limit exceeded. Please slow down.");
+      }
       const db = getDb();
       // Verify quote exists
       const quote = await db.select().from(quotes).where(eq(quotes.quoteId, input.quoteId)).limit(1);
@@ -26,6 +49,8 @@ export const messageRouter = createRouter({
         sender: input.sender,
         senderName: input.senderName || null,
         message: input.message,
+        type: input.type || "text",
+        fileUrl: input.fileUrl || null,
       });
       return { success: true, id: Number(result[0].insertId) };
     }),
@@ -40,6 +65,13 @@ export const messageRouter = createRouter({
         .from(quoteMessages)
         .where(eq(quoteMessages.quoteId, input.quoteId))
         .orderBy(quoteMessages.createdAt);
+
+      // Mark customer messages as read by admin
+      await db
+        .update(quoteMessages)
+        .set({ read: "1" })
+        .where(and(eq(quoteMessages.quoteId, input.quoteId), eq(quoteMessages.sender, "customer")));
+
       return messages;
     }),
 
@@ -59,10 +91,10 @@ export const messageRouter = createRouter({
         .where(eq(quoteMessages.quoteId, input.quoteId))
         .orderBy(quoteMessages.createdAt);
 
-      // Mark admin messages as read
+      // Mark admin messages as read by customer
       await db
         .update(quoteMessages)
-        .set({ read: "1" })
+        .set({ readByCustomer: "1" })
         .where(and(eq(quoteMessages.quoteId, input.quoteId), eq(quoteMessages.sender, "admin")));
 
       return messages;
@@ -120,4 +152,31 @@ export const messageRouter = createRouter({
       .where(and(eq(quoteMessages.sender, "customer"), eq(quoteMessages.read, "0")));
     return Number(result[0].count);
   }),
+
+  // Delete a message (customer side - verifies email matches quote)
+  deleteCustomerMessage: publicQuery
+    .input(z.object({ id: z.number(), quoteId: z.string(), email: z.string() }))
+    .mutation(async ({ input }) => {
+      const db = getDb();
+      const quote = await db.select().from(quotes).where(eq(quotes.quoteId, input.quoteId)).limit(1);
+      if (!quote.length || quote[0].email.toLowerCase() !== input.email.toLowerCase()) throw new Error("Unauthorized");
+
+      const message = await db.select().from(quoteMessages).where(eq(quoteMessages.id, input.id)).limit(1);
+      if (!message.length || message[0].quoteId !== input.quoteId || message[0].sender !== "customer") throw new Error("Cannot delete");
+
+      await db.delete(quoteMessages).where(eq(quoteMessages.id, input.id));
+      return { success: true };
+    }),
+
+  // Delete a message (admin side - any admin can delete any message)
+  deleteAdminMessage: adminQuery
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = getDb();
+      const message = await db.select().from(quoteMessages).where(eq(quoteMessages.id, input.id)).limit(1);
+      if (!message.length) throw new Error("Message not found");
+
+      await db.delete(quoteMessages).where(eq(quoteMessages.id, input.id));
+      return { success: true };
+    }),
 });

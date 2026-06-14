@@ -10,6 +10,8 @@ import QuoteForm from './pages/QuoteForm'
 import TrackQuote from './pages/TrackQuote'
 import Admin from './pages/Admin'
 import NotFound from './pages/NotFound'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 
 export default function App() {
   return (
@@ -25,6 +27,8 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/admin" element={<Admin />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

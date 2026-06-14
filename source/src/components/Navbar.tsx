@@ -1,22 +1,25 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { Menu, X, Globe } from "lucide-react";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { languages, t, type Language } from "@/lib/translations";
 
 interface NavbarProps {
   onQuoteClick: () => void;
 }
 
-const navLinks = [
-  { label: "HOME", path: "/" },
-  { label: "ABOUT US", path: "/about" },
-  { label: "PRODUCT", path: "/products" },
-  { label: "TRACK QUOTE", path: "/track-quote" },
+const navLinks = (language: Language) => [
+  { label: t("home", language).toUpperCase(), path: "/" },
+  { label: t("about", language).toUpperCase(), path: "/about" },
+  { label: t("products", language).toUpperCase(), path: "/products" },
+  { label: t("trackQuote", language).toUpperCase(), path: "/track-quote" },
 ];
 
 export default function Navbar({ onQuoteClick }: NavbarProps) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [lang, setLang] = useState<"EN" | "CN">("EN");
+  const { lang, setLang } = useLanguage();
+  const links = navLinks(lang);
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
@@ -35,7 +38,7 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
@@ -48,21 +51,28 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
 
           {/* Right Side */}
           <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={() => setLang(lang === "EN" ? "CN" : "EN")}
-              className="flex items-center gap-1 text-xs text-gray-500 hover:text-amber-400 transition-colors"
-            >
-              <Globe className="w-3.5 h-3.5" />
-              {lang}
-            </button>
+            <div className="flex items-center gap-1">
+              <Globe className="w-3.5 h-3.5 text-gray-500" />
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as Language)}
+                className="bg-transparent text-xs text-gray-500 hover:text-amber-400 transition-colors border-none focus:outline-none cursor-pointer"
+              >
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code}>
+                    {l.flag} {l.name}
+                  </option>
+                ))}
+              </select>
+            </div>
             <button
               onClick={onQuoteClick}
               className="bg-amber-400 hover:bg-amber-500 text-black text-xs font-semibold px-5 py-2 rounded-full transition-colors"
             >
-              Get Free Quote
+              {t("getFreeQuote", lang)}
             </button>
             <Link to="/login" className="text-xs font-medium text-gray-400 hover:text-white transition-colors">
-              Sign In
+              {t("signIn", lang)}
             </Link>
           </div>
 
@@ -77,17 +87,32 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
       {mobileOpen && (
         <div className="md:hidden bg-[#0a0a0a] border-t border-white/5 shadow-lg">
           <div className="px-4 py-3 space-y-1">
-            {navLinks.map((link) => (
+            {links.map((link) => (
               <Link key={link.path} to={link.path} onClick={() => setMobileOpen(false)}
                 className={`block py-2 text-sm font-medium ${isActive(link.path) ? "text-amber-400" : "text-gray-400"}`}>
                 {link.label}
               </Link>
             ))}
             <div className="pt-2 border-t border-white/5 mt-2 space-y-2">
+              {/* Mobile Language Selector */}
+              <div className="flex items-center gap-2 px-1 py-2">
+                <Globe className="w-4 h-4 text-gray-500" />
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value as Language)}
+                  className="bg-[#161616] text-gray-400 text-sm border border-white/10 rounded-lg px-2 py-1.5 focus:outline-none focus:border-amber-400"
+                >
+                  {languages.map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.flag} {l.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button onClick={() => { onQuoteClick(); setMobileOpen(false); }} className="w-full bg-amber-400 text-black text-sm font-semibold py-2.5 rounded-full">
-                Get Free Quote
+                {t("getFreeQuote", lang)}
               </button>
-              <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-sm text-center text-gray-500">Sign In</Link>
+              <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-sm text-center text-gray-500">{t("signIn", lang)}</Link>
             </div>
           </div>
         </div>

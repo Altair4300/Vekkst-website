@@ -56,6 +56,20 @@ export const quoteMessages = mysqlTable("quote_messages", {
   sender: mysqlEnum("sender", ["customer", "admin"]).notNull(),
   senderName: varchar("senderName", { length: 255 }),
   message: text("message").notNull(),
+  type: mysqlEnum("type", ["text", "image", "video"]).default("text").notNull(),
+  fileUrl: varchar("fileUrl", { length: 500 }),
   read: mysqlEnum("read", ["0", "1"]).default("0").notNull(),
+  readByCustomer: mysqlEnum("readByCustomer", ["0", "1"]).default("0").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const subadmins = mysqlTable("subadmins", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  phone: varchar("phone", { length: 50 }),
+  password: varchar("password", { length: 255 }).notNull(),
+  status: mysqlEnum("status", ["pending", "approved"]).default("pending").notNull(),
+  permissions: varchar("permissions", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });

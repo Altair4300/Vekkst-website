@@ -2,57 +2,196 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import {
   LayoutDashboard, FileText, MessageSquare, Package, Image, LogOut,
-  X, Send, Loader2, Plus, Trash2, Edit3
+  X, Send, Loader2, Plus, Trash2, Edit3, Users, CheckCircle, XCircle, UserPlus, Download, Globe, Languages
 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { languages, t, type Language } from "@/lib/translations";
 
-type Page = "dashboard" | "quotes" | "messages" | "products" | "media";
+type Page = "dashboard" | "quotes" | "messages" | "products" | "media" | "team";
+
+function getPermissions(): string[] {
+  const perms = localStorage.getItem("admin_permissions") || "";
+  return perms.split(",").filter(Boolean);
+}
+function hasPermission(perm: string): boolean {
+  return getPermissions().includes(perm);
+}
+function isMainAdmin(): boolean {
+  const perms = getPermissions();
+  return perms.includes("team") || perms.length === 6;
+}
+function getDefaultPage(): Page {
+  const allPages: Page[] = ["dashboard", "quotes", "messages", "products", "media", "team"];
+  const perms = getPermissions();
+  return allPages.find((p) => perms.includes(p)) || "dashboard";
+}
+
+const EMOJIS = ["😀", "😂", "😍", "🙏", "👍", "👎", "🔥", "❤️", "😊", "🎉", "👏", "🤔", "😭", "😎", "🤝", "✅", "📎", "📸", "🎥", "🎁"];
 
 // ─── LOGIN SCREEN ───
-function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
+function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string) => void }) {
+  const { lang } = useLanguage();
   const [pw, setPw] = useState("");
+  const [email, setEmail] = useState("");
+  const [showReg, setShowReg] = useState(false);
   const [error, setError] = useState(false);
-  const loginMutation = trpc.adminAuth.login.useMutation({
-    onSuccess: (data) => {
-      if (data.success && data.token) {
-        localStorage.setItem("admin_auth_token", data.token);
-        onLogin(data.token);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [regStep, setRegStep] = useState<"form" | "pending">("form");
+
+  const loginMutation = trpc.adminAuth.login.useMutation();
+  const subadminLogin = trpc.subadmin.login.useMutation();
+
+  const handleLogin = async () => {
+    if (!pw.trim()) return;
+    setError(false);
+    setErrorMsg("");
+    try {
+      // 1. First try adminAuth.login with password only
+      const adminResult = await loginMutation.mutateAsync({ password: pw.trim() });
+      if (adminResult.success && adminResult.token) {
+        localStorage.setItem("admin_auth_token", adminResult.token);
+        localStorage.setItem("admin_permissions", adminResult.permissions || "");
+        onLogin(adminResult.token, adminResult.permissions || "");
+        return;
+      }
+    } catch {
+      // adminAuth.login failed, fall through to subadmin login
+    }
+    try {
+      // 2. If admin login failed, try subadmin.login with email + password
+      if (email.trim()) {
+        const subResult = await subadminLogin.mutateAsync({ email: email.trim(), password: pw.trim() });
+        if (subResult.success && subResult.token) {
+          localStorage.setItem("admin_auth_token", subResult.token);
+          localStorage.setItem("admin_permissions", subResult.permissions || "");
+          onLogin(subResult.token, subResult.permissions || "");
+          return;
+        } else {
+          setError(true);
+          setErrorMsg(subResult.error || "Invalid credentials");
+        }
       } else {
         setError(true);
+        setErrorMsg("Invalid admin password");
       }
-    },
-    onError: () => setError(true),
+    } catch (err: any) {
+      setError(true);
+      setErrorMsg(err?.message || "Login failed");
+    }
+  };
+
+  if (showReg) {
+    return <SubadminRegister onBack={() => setShowReg(false)} onPending={() => setRegStep("pending")} />;
+  }
+
+  if (regStep === "pending") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
+        <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl text-center">
+          <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold mb-2 text-gray-800">{t("applicationSubmitted", lang)}</h2>
+          <p className="text-sm text-gray-500 mb-6">Your application is pending approval. You will be notified once approved.</p>
+          <button onClick={() => setRegStep("form")} className="text-sm text-[#E60012] hover:underline">{t("backToLogin", lang)}</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
+      <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl">
+        <img src="/images/es-logo.png" alt="ES" className="h-10 mx-auto mb-5" />
+        <h1 className="text-center text-xl font-semibold mb-6 text-gray-800">{t("adminPanel", lang)}</h1>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => { setEmail(e.target.value); setError(false); }}
+          placeholder="Email (optional for team members)"
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm mb-3 focus:outline-none focus:border-[#E60012]"
+        />
+        <input
+          type="password"
+          value={pw}
+          onChange={(e) => { setPw(e.target.value); setError(false); }}
+          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+          placeholder={t("enterPassword", lang)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm mb-4 focus:outline-none focus:border-[#E60012]"
+        />
+        {error && <p className="text-red-500 text-xs text-center mb-3">{errorMsg || "Incorrect password"}</p>}
+        <button
+          onClick={handleLogin}
+          disabled={loginMutation.isPending || subadminLogin.isPending}
+          className="w-full py-3 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition-colors"
+        >
+          {loginMutation.isPending || subadminLogin.isPending ? t("verifying", lang) : t("signIn", lang)}
+        </button>
+        <div className="flex flex-col items-center gap-2 mt-4">
+          <button onClick={() => setShowReg(true)} className="text-xs text-gray-500 hover:text-[#E60012] flex items-center gap-1">
+            <UserPlus className="w-3 h-3" /> {t("joinTeam", lang)}
+          </button>
+          <Link to="/" className="text-xs text-gray-500 hover:text-[#E60012]">
+            {t("backToWebsite", lang)}
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SubadminRegister({ onBack, onPending }: { onBack: () => void; onPending: () => void }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+
+  const register = trpc.subadmin.register.useMutation({
+    onSuccess: () => onPending(),
+    onError: (err) => setError(err.message || "Registration failed"),
   });
 
-  const handleLogin = () => {
-    if (!pw.trim()) return;
-    loginMutation.mutate({ password: pw });
+  const handleSubmit = () => {
+    setError("");
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      setError("All fields are required");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords do not match");
+      return;
+    }
+    register.mutate({ name: name.trim(), email: email.trim(), phone: phone.trim() || undefined, password: password.trim() });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
       <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl">
         <img src="/images/es-logo.png" alt="ES" className="h-10 mx-auto mb-5" />
-        <h1 className="text-center text-xl font-semibold mb-6 text-gray-800">VEKKST Admin Panel</h1>
-        <input
-          type="password"
-          value={pw}
-          onChange={(e) => { setPw(e.target.value); setError(false); }}
-          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-          placeholder="Enter admin password"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm mb-4 focus:outline-none focus:border-[#E60012]"
-        />
-        {error && <p className="text-red-500 text-xs text-center mb-3">Incorrect password</p>}
+        <h1 className="text-center text-xl font-semibold mb-6 text-gray-800">{t("joinTeam", lang)}</h1>
+        <div className="space-y-3">
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (optional)" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (min 6 chars)" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Confirm Password" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+        </div>
+        {error && <p className="text-red-500 text-xs text-center mt-3">{error}</p>}
         <button
-          onClick={handleLogin}
-          disabled={loginMutation.isPending}
-          className="w-full py-3 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition-colors"
+          onClick={handleSubmit}
+          disabled={register.isPending}
+          className="w-full mt-4 py-3 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition-colors"
         >
-          {loginMutation.isPending ? "Verifying..." : "Sign In"}
+          {register.isPending ? t("submitting", lang) : "Submit Application"}
         </button>
-        <Link to="/" className="block text-center text-xs text-gray-500 mt-4 hover:text-[#E60012]">
-          Back to Website
-        </Link>
+        <button onClick={onBack} className="w-full mt-3 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
+          Back to Login
+        </button>
       </div>
     </div>
   );
@@ -62,13 +201,17 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
 function Sidebar({ page, onNavigate, onLogout, unreadCount }: {
   page: Page; onNavigate: (p: Page) => void; onLogout: () => void; unreadCount: number;
 }) {
-  const navItems: { id: Page; label: string; icon: React.ReactNode }[] = [
-    { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-[18px] h-[18px]" /> },
-    { id: "quotes", label: "Quotes", icon: <FileText className="w-[18px] h-[18px]" /> },
-    { id: "messages", label: "Messages", icon: <MessageSquare className="w-[18px] h-[18px]" /> },
-    { id: "products", label: "Products", icon: <Package className="w-[18px] h-[18px]" /> },
-    { id: "media", label: "Media", icon: <Image className="w-[18px] h-[18px]" /> },
+  const { lang, setLang } = useLanguage();
+  const perms = getPermissions();
+  const allNavItems: { id: Page; label: string; icon: React.ReactNode }[] = [
+    { id: "dashboard", label: t("dashboard", lang), icon: <LayoutDashboard className="w-[18px] h-[18px]" /> },
+    { id: "quotes", label: t("quotes", lang), icon: <FileText className="w-[18px] h-[18px]" /> },
+    { id: "messages", label: t("messages", lang), icon: <MessageSquare className="w-[18px] h-[18px]" /> },
+    { id: "products", label: t("products", lang), icon: <Package className="w-[18px] h-[18px]" /> },
+    { id: "media", label: t("media", lang), icon: <Image className="w-[18px] h-[18px]" /> },
+    { id: "team", label: t("team", lang), icon: <Users className="w-[18px] h-[18px]" /> },
   ];
+  const navItems = allNavItems.filter((item) => perms.includes(item.id));
 
   return (
     <div className="w-64 bg-[#1a1a2e] text-white fixed top-0 left-0 bottom-0 flex flex-col z-50">
@@ -96,11 +239,25 @@ function Sidebar({ page, onNavigate, onLogout, unreadCount }: {
         ))}
       </nav>
       <div className="p-4 border-t border-white/10">
+        <div className="flex items-center gap-2 mb-3">
+          <Globe className="w-4 h-4 text-white/50" />
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as Language)}
+            className="bg-transparent text-sm text-white/70 border-none focus:outline-none cursor-pointer flex-1"
+          >
+            {languages.map((l) => (
+              <option key={l.code} value={l.code} className="text-gray-800">
+                {l.flag} {l.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <button
           onClick={onLogout}
           className="w-full py-2.5 bg-white/10 hover:bg-white/20 rounded-md text-sm flex items-center justify-center gap-2 transition-colors"
         >
-          <LogOut className="w-4 h-4" /> Sign Out
+          <LogOut className="w-4 h-4" /> {t("signOut", lang)}
         </button>
       </div>
     </div>
@@ -131,6 +288,8 @@ function StatusBadge({ status }: { status: string }) {
     quoted: "bg-purple-100 text-purple-800",
     accepted: "bg-emerald-100 text-emerald-800",
     declined: "bg-red-100 text-red-800",
+    pending: "bg-amber-100 text-amber-800",
+    approved: "bg-emerald-100 text-emerald-800",
   };
   return (
     <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-medium ${config[status] || config.new}`}>
@@ -141,6 +300,7 @@ function StatusBadge({ status }: { status: string }) {
 
 // ─── DASHBOARD ───
 function DashboardPage() {
+  const { lang } = useLanguage();
   const { data: stats } = trpc.admin.stats.useQuery();
   const { data: quotes } = trpc.admin.quoteList.useQuery();
   const { data: conversations } = trpc.message.listConversations.useQuery();
@@ -151,27 +311,27 @@ function DashboardPage() {
   return (
     <div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Total Quotes" value={stats?.totalQuotes || 0} color="red" />
-        <StatCard label="Products" value={stats?.totalProducts || 0} color="blue" />
-        <StatCard label="Customers" value={stats?.totalCustomers || 0} color="gray" />
-        <StatCard label="Unread Messages" value={unreadCount} color={unreadCount > 0 ? "red" : "green"} />
-        <StatCard label="New Quotes" value={quotes?.filter(q => q.status === "new").length || 0} color="red" />
-        <StatCard label="Accepted" value={quotes?.filter(q => q.status === "accepted").length || 0} color="green" />
+        <StatCard label={t("totalQuotes", lang)} value={stats?.totalQuotes || 0} color="red" />
+        <StatCard label={t("products", lang)} value={stats?.totalProducts || 0} color="blue" />
+        <StatCard label={t("customers", lang)} value={stats?.totalCustomers || 0} color="gray" />
+        <StatCard label={t("unreadMessages", lang)} value={unreadCount} color={unreadCount > 0 ? "red" : "green"} />
+        <StatCard label={t("newQuotes", lang)} value={quotes?.filter(q => q.status === "new").length || 0} color="red" />
+        <StatCard label={t("accepted", lang)} value={quotes?.filter(q => q.status === "accepted").length || 0} color="green" />
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
-          <h3 className="text-[15px] font-semibold">Recent Quotes</h3>
+          <h3 className="text-[15px] font-semibold">{t("recentQuotes", lang)}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
-                <th className="px-4 py-3">Quote ID</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Product</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">{t("quoteId", lang)}</th>
+                <th className="px-4 py-3">{t("name", lang)}</th>
+                <th className="px-4 py-3">{t("product", lang)}</th>
+                <th className="px-4 py-3">{t("status", lang)}</th>
+                <th className="px-4 py-3">{t("date", lang)}</th>
               </tr>
             </thead>
             <tbody>
@@ -185,7 +345,7 @@ function DashboardPage() {
                 </tr>
               ))}
               {recentQuotes.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400 text-sm">No quotes yet</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400 text-sm">{t("noQuotes", lang)}</td></tr>
               )}
             </tbody>
           </table>
@@ -205,6 +365,7 @@ interface QuoteItem {
 }
 
 function QuotesPage() {
+  const { lang } = useLanguage();
   const { data: quotes, refetch } = trpc.admin.quoteList.useQuery();
   const updateQuote = trpc.admin.updateQuote.useMutation({ onSuccess: () => refetch() });
   const [viewing, setViewing] = useState<QuoteItem | null>(null);
@@ -213,20 +374,20 @@ function QuotesPage() {
     <div>
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-100">
-          <h3 className="text-[15px] font-semibold">All Quote Requests ({quotes?.length || 0})</h3>
+          <h3 className="text-[15px] font-semibold">{t("allQuoteRequests", lang)} ({quotes?.length || 0})</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
-                <th className="px-4 py-3">Quote ID</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Email</th>
-                <th className="px-4 py-3">Product</th>
-                <th className="px-4 py-3">Qty</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Actions</th>
+                <th className="px-4 py-3">{t("quoteId", lang)}</th>
+                <th className="px-4 py-3">{t("name", lang)}</th>
+                <th className="px-4 py-3">{t("email", lang)}</th>
+                <th className="px-4 py-3">{t("product", lang)}</th>
+                <th className="px-4 py-3">{t("quantity", lang)}</th>
+                <th className="px-4 py-3">{t("status", lang)}</th>
+                <th className="px-4 py-3">{t("date", lang)}</th>
+                <th className="px-4 py-3">{t("actions", lang)}</th>
               </tr>
             </thead>
             <tbody>
@@ -241,13 +402,13 @@ function QuotesPage() {
                   <td className="px-4 py-3 text-sm text-gray-500">{new Date(q.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <button onClick={() => setViewing(q)} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-md text-xs font-medium transition-colors">
-                      View
+                      {t("view", lang)}
                     </button>
                   </td>
                 </tr>
               ))}
               {(!quotes || quotes.length === 0) && (
-                <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400 text-sm">No quotes yet</td></tr>
+                <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400 text-sm">{t("noQuotes", lang)}</td></tr>
               )}
             </tbody>
           </table>
@@ -320,7 +481,15 @@ function MessagesPage() {
   const [activeQuoteId, setActiveQuoteId] = useState<string | null>(null);
   const [activeName, setActiveName] = useState("");
   const [text, setText] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const emojiRef = useRef<HTMLDivElement>(null);
+  const { lang } = useLanguage();
+  const [messageTranslations, setMessageTranslations] = useState<Record<number, string>>({});
+  const [translatingIds, setTranslatingIds] = useState<Record<number, boolean>>({});
+  const translateMutation = trpc.translation.translate.useMutation();
 
   const { data: messages } = trpc.message.getByQuoteId.useQuery(
     { quoteId: activeQuoteId! },
@@ -333,6 +502,71 @@ function MessagesPage() {
       refetch();
     },
   });
+  const deleteMsg = trpc.message.deleteAdminMessage.useMutation({
+    onSuccess: () => refetch(),
+  });
+  const uploadImage = trpc.media.uploadImage.useMutation();
+  const uploadVideo = trpc.media.uploadVideo.useMutation();
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeQuoteId) return;
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const isVideo = file.type.startsWith("video/");
+        const data = String(ev.target?.result);
+        const result = isVideo
+          ? await uploadVideo.mutateAsync({ data, filename: file.name, category: "general" })
+          : await uploadImage.mutateAsync({ data, filename: file.name, category: "general" });
+
+        sendMsg.mutate({
+          quoteId: activeQuoteId,
+          sender: "admin",
+          senderName: localStorage.getItem("admin_name") || "Admin",
+          message: file.name,
+          type: isVideo ? "video" : "image",
+          fileUrl: result.url,
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      alert("Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleEmoji = (emoji: string) => {
+    setText((prev) => prev + emoji);
+    setShowEmoji(false);
+  };
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) {
+        setShowEmoji(false);
+      }
+    }
+    if (showEmoji) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showEmoji]);
+
+  const handleTranslate = async (msgId: number, text: string) => {
+    if (messageTranslations[msgId]) return;
+    setTranslatingIds(prev => ({ ...prev, [msgId]: true }));
+    try {
+      const result = await translateMutation.mutateAsync({ text, target: lang });
+      if (result.success && result.translated) {
+        setMessageTranslations(prev => ({ ...prev, [msgId]: result.translated }));
+      }
+    } finally {
+      setTranslatingIds(prev => ({ ...prev, [msgId]: false }));
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -343,7 +577,7 @@ function MessagesPage() {
       {/* Sidebar */}
       <div className="w-72 border-r border-gray-200 overflow-y-auto">
         <div className="px-4 py-3 border-b border-gray-100 font-semibold text-sm">
-          Conversations ({conversations?.length || 0})
+          {t("conversations", lang)} ({conversations?.length || 0})
         </div>
         {conversations?.map((c) => (
           <button
@@ -383,12 +617,70 @@ function MessagesPage() {
               {messages && messages.length > 0 ? (
                 messages.map((m) => (
                   <div key={m.id} className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[70%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                    <div className={`relative max-w-[70%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       m.sender === "admin" ? "bg-[#E60012] text-white rounded-br-md" : "bg-white border border-gray-200 text-gray-800 rounded-bl-md"
                     }`}>
+                      {/* Delete button (admin can delete any message) */}
+                      <button
+                        onClick={() => {
+                          if (confirm("Delete this message?")) {
+                            deleteMsg.mutate({ id: m.id });
+                          }
+                        }}
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-white rounded-full shadow-sm border border-gray-200 text-gray-400 hover:text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        title={t("deleteMessage", lang)}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                      {/* File content */}
+                      {m.type === "image" && m.fileUrl && (
+                        <div className="relative">
+                          <img src={m.fileUrl} alt="Shared image" className="rounded-lg mb-1 max-w-full max-h-[200px] object-contain" />
+                          <a
+                            href={m.fileUrl}
+                            download={m.message}
+                            className="absolute bottom-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                            title={t("downloadImage", lang)}
+                          >
+                            <Download className="w-3 h-3" />
+                          </a>
+                        </div>
+                      )}
+                      {m.type === "video" && m.fileUrl && (
+                        <div className="relative">
+                          <video src={m.fileUrl} controls className="rounded-lg mb-1 max-w-full max-h-[200px]" />
+                          <a
+                            href={m.fileUrl}
+                            download={m.message}
+                            className="absolute bottom-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                            title={t("downloadVideo", lang)}
+                          >
+                            <Download className="w-3 h-3" />
+                          </a>
+                        </div>
+                      )}
                       <p>{m.message}</p>
-                      <p className={`text-[10px] mt-1 ${m.sender === "admin" ? "text-white/70" : "text-gray-400"}`}>
-                        {m.sender === "admin" ? "You" : m.senderName || "Customer"} &middot; {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {m.type === "text" && !messageTranslations[m.id] && (
+                        <button
+                          onClick={() => handleTranslate(m.id, m.message)}
+                          disabled={translatingIds[m.id]}
+                          className="text-[10px] opacity-60 hover:opacity-100 underline mt-1 flex items-center gap-0.5"
+                          title={t("translate", lang)}
+                        >
+                          <Languages className="w-3 h-3" />
+                          {translatingIds[m.id] ? "..." : t("translate", lang)}
+                        </button>
+                      )}
+                      {messageTranslations[m.id] && (
+                        <div className={`text-xs mt-1 pt-1 border-t ${m.sender === "admin" ? "border-white/20" : "border-gray-200"} opacity-80`}>
+                          {messageTranslations[m.id]}
+                        </div>
+                      )}
+                      <p className={`text-[10px] mt-1 flex items-center gap-1 ${m.sender === "admin" ? "text-white/70" : "text-gray-400"}`}>
+                        {m.senderName || (m.sender === "admin" ? "Admin" : "Customer")} &middot; {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {m.sender === "customer" && m.read === "1" && (
+                          <span className="text-emerald-500">✓</span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -396,7 +688,7 @@ function MessagesPage() {
               ) : (
                 <div className="text-center py-8 text-gray-400 text-sm">
                   <MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                  <p>No messages yet. Start the conversation!</p>
+                  <p>{t("noMessagesStart", lang)}</p>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -405,30 +697,71 @@ function MessagesPage() {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!text.trim() || !activeQuoteId) return;
-                sendMsg.mutate({ quoteId: activeQuoteId, sender: "admin", senderName: "Admin", message: text.trim() });
+                sendMsg.mutate({ quoteId: activeQuoteId, sender: "admin", senderName: localStorage.getItem("admin_name") || "Admin", message: text.trim(), type: "text" });
               }}
               className="px-4 py-3 bg-white border-t border-gray-200 flex gap-2"
             >
               <input
+                type="file"
+                accept="image/*,video/*"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+                title="Send image or video"
+              >
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
+              </button>
+              {/* Emoji picker */}
+              <div className="relative" ref={emojiRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowEmoji(!showEmoji)}
+                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors text-lg"
+                  title="Emoji"
+                >
+                  😊
+                </button>
+                {showEmoji && (
+                  <div className="absolute bottom-12 left-0 bg-white rounded-xl shadow-lg border border-gray-200 p-3 grid grid-cols-5 gap-2 w-[220px] z-50">
+                    {EMOJIS.map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => handleEmoji(emoji)}
+                        className="w-8 h-8 hover:bg-gray-100 rounded-lg flex items-center justify-center text-lg transition-colors"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <input
                 type="text"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Type your message..."
+                placeholder={t("typeMessage", lang)}
                 className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#E60012]/20"
               />
               <button
                 type="submit"
-                disabled={!text.trim() || sendMsg.isPending}
+                disabled={!text.trim() || sendMsg.isPending || uploading}
                 className="px-5 py-2.5 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-40 text-white rounded-full text-sm font-medium transition-colors flex items-center gap-1"
               >
-                {sendMsg.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                Send
+                {sendMsg.isPending || uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {t("send", lang)}
               </button>
             </form>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">
-            Select a conversation to start chatting
+            {t("selectConversation", lang)}
           </div>
         )}
       </div>
@@ -438,6 +771,7 @@ function MessagesPage() {
 
 // ─── PRODUCTS PAGE ───
 function ProductsPage() {
+  const { lang } = useLanguage();
   const { data: products, refetch } = trpc.product.list.useQuery();
   const createProduct = trpc.product.create.useMutation({ onSuccess: () => { refetch(); setEditing(null); } });
   const updateProduct = trpc.product.update.useMutation({ onSuccess: () => { refetch(); setEditing(null); } });
@@ -491,9 +825,9 @@ function ProductsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-5">
-        <h3 className="text-base font-semibold">All Products ({products?.length || 0})</h3>
+        <h3 className="text-base font-semibold">{t("products", lang)} ({products?.length || 0})</h3>
         <button onClick={openAdd} className="px-4 py-2 bg-[#E60012] hover:bg-[#c4000f] text-white rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors">
-          <Plus className="w-4 h-4" /> Add Product
+          <Plus className="w-4 h-4" /> {t("addProduct", lang)}
         </button>
       </div>
 
@@ -517,7 +851,7 @@ function ProductsPage() {
         ))}
       </div>
       {(!products || products.length === 0) && (
-        <div className="text-center py-12 text-gray-400 text-sm">No products. Add your first product!</div>
+        <div className="text-center py-12 text-gray-400 text-sm">{t("noProducts", lang)}</div>
       )}
 
       {/* Product Modal */}
@@ -697,12 +1031,206 @@ function MediaPage() {
   );
 }
 
+// ─── TEAM PAGE ───
+function TeamPage() {
+  const { lang } = useLanguage();
+  const { data: subadmins, refetch } = trpc.subadmin.list.useQuery();
+  const approveMutation = trpc.subadmin.approve.useMutation({ onSuccess: () => refetch() });
+  const deleteMutation = trpc.subadmin.delete.useMutation({ onSuccess: () => refetch() });
+  const updatePermissionsMutation = trpc.subadmin.updatePermissions.useMutation({ onSuccess: () => refetch() });
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editPerms, setEditPerms] = useState<string[]>([]);
+
+  const allPerms = [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "quotes", label: "Quotes" },
+    { id: "messages", label: "Messages" },
+    { id: "products", label: "Products" },
+    { id: "media", label: "Media" },
+    { id: "team", label: "Team" },
+  ];
+
+  const pending = subadmins?.filter((s) => s.status === "pending") || [];
+  const approved = subadmins?.filter((s) => s.status === "approved") || [];
+
+  const openEditPerms = (s: any) => {
+    setEditingId(s.id);
+    setEditPerms((s.permissions || "").split(",").filter(Boolean));
+  };
+
+  const togglePerm = (perm: string) => {
+    setEditPerms((prev) =>
+      prev.includes(perm) ? prev.filter((p) => p !== perm) : [...prev, perm]
+    );
+  };
+
+  const savePerms = () => {
+    if (editingId !== null) {
+      updatePermissionsMutation.mutate({ id: editingId, permissions: editPerms });
+      setEditingId(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <StatCard label={t("pending", lang)} value={pending.length} color="red" />
+        <StatCard label={t("approved", lang)} value={approved.length} color="green" />
+      </div>
+
+      {/* Pending Subadmins */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100">
+          <h3 className="text-[15px] font-semibold">{t("pendingApplications", lang)} ({pending.length})</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
+                <th className="px-4 py-3">{t("name", lang)}</th>
+                <th className="px-4 py-3">{t("email", lang)}</th>
+                <th className="px-4 py-3">{t("phone", lang)}</th>
+                <th className="px-4 py-3">{t("status", lang)}</th>
+                <th className="px-4 py-3">{t("date", lang)}</th>
+                <th className="px-4 py-3">{t("actions", lang)}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pending.map((s) => (
+                <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm font-medium">{s.name}</td>
+                  <td className="px-4 py-3 text-sm">{s.email}</td>
+                  <td className="px-4 py-3 text-sm">{s.phone || "-"}</td>
+                  <td className="px-4 py-3"><StatusBadge status={s.status} /></td>
+                  <td className="px-4 py-3 text-sm text-gray-500">{new Date(s.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => approveMutation.mutate({ id: s.id })}
+                        disabled={approveMutation.isPending}
+                        className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                      >
+                        <CheckCircle className="w-3 h-3" /> {t("approve", lang)}
+                      </button>
+                      <button
+                        onClick={() => { if (confirm("Reject this application?")) deleteMutation.mutate({ id: s.id }); }}
+                        disabled={deleteMutation.isPending}
+                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                      >
+                        <XCircle className="w-3 h-3" /> {t("rejected", lang)}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {pending.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">{t("pendingApplications", lang)}</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Approved Subadmins */}
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100">
+          <h3 className="text-[15px] font-semibold">{t("approvedMembers", lang)} ({approved.length})</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider bg-gray-50">
+                <th className="px-4 py-3">{t("name", lang)}</th>
+                <th className="px-4 py-3">{t("email", lang)}</th>
+                <th className="px-4 py-3">{t("phone", lang)}</th>
+                <th className="px-4 py-3">{t("editPermissions", lang)}</th>
+                <th className="px-4 py-3">{t("date", lang)}</th>
+                <th className="px-4 py-3">{t("actions", lang)}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {approved.map((s) => (
+                <tr key={s.id} className="border-t border-gray-50 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm font-medium">{s.name}</td>
+                  <td className="px-4 py-3 text-sm">{s.email}</td>
+                  <td className="px-4 py-3 text-sm">{s.phone || "-"}</td>
+                  <td className="px-4 py-3 text-sm">
+                    {(s.permissions || "").split(",").filter(Boolean).join(", ") || "None"}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-500">{new Date(s.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEditPerms(s)}
+                        className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                      >
+                        <Edit3 className="w-3 h-3" /> {t("editPermissions", lang)}
+                      </button>
+                      <button
+                        onClick={() => { if (confirm("Delete this team member?")) deleteMutation.mutate({ id: s.id }); }}
+                        disabled={deleteMutation.isPending}
+                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" /> {t("delete", lang)}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {approved.length === 0 && (
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400 text-sm">{t("approvedMembers", lang)}</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Permissions Modal */}
+      {editingId !== null && (
+        <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4" onClick={() => setEditingId(null)}>
+          <div className="bg-white rounded-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="text-[15px] font-semibold">Update Permissions</h3>
+              <button onClick={() => setEditingId(null)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-5 space-y-3">
+              {allPerms.map((perm) => (
+                <label key={perm.id} className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editPerms.includes(perm.id)}
+                    onChange={() => togglePerm(perm.id)}
+                    className="w-4 h-4 accent-[#E60012]"
+                  />
+                  <span className="text-sm">{perm.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="px-5 py-4 border-t border-gray-100 flex justify-end gap-2">
+              <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">Cancel</button>
+              <button
+                onClick={savePerms}
+                disabled={updatePermissionsMutation.isPending}
+                className="px-4 py-2 bg-[#E60012] hover:bg-[#c4000f] text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                {updatePermissionsMutation.isPending ? "Updating..." : "Update Permissions"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── MAIN ADMIN PAGE ───
 export default function Admin() {
   const [token, setToken] = useState(() =>
     localStorage.getItem("admin_auth_token")
   );
-  const [page, setPage] = useState<Page>("dashboard");
+  const [page, setPage] = useState<Page>(() => getDefaultPage());
+  const { lang } = useLanguage();
 
   const { data: conversations } = trpc.message.listConversations.useQuery(undefined, {
     enabled: !!token,
@@ -710,32 +1238,49 @@ export default function Admin() {
   });
   const unreadCount = conversations?.reduce((s, c) => s + (c.unreadCount || 0), 0) || 0;
 
-  const handleLogin = (newToken: string) => setToken(newToken);
+  const handleLogin = (newToken: string, newPermissions: string) => {
+    setToken(newToken);
+    localStorage.setItem("admin_permissions", newPermissions);
+    const firstPage = getDefaultPage();
+    setPage(firstPage);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("admin_auth_token");
+    localStorage.removeItem("admin_permissions");
     localStorage.removeItem("admin_auth"); // Clear old auth too
     setToken(null);
   };
+
+  // Validate page against permissions
+  useEffect(() => {
+    if (token && !hasPermission(page)) {
+      const firstPage = getDefaultPage();
+      setPage(firstPage);
+    }
+  }, [token, page]);
 
   if (!token) {
     return <AdminLogin onLogin={handleLogin} />;
   }
 
+  const permittedPage = hasPermission(page) ? page : getDefaultPage();
   const pageComponents: Record<Page, React.ComponentType> = {
     dashboard: DashboardPage,
     quotes: QuotesPage,
     messages: MessagesPage,
     products: ProductsPage,
     media: MediaPage,
+    team: TeamPage,
   };
-  const ActiveComponent = pageComponents[page];
+  const ActiveComponent = pageComponents[permittedPage];
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar page={page} onNavigate={setPage} onLogout={handleLogout} unreadCount={unreadCount} />
+      <Sidebar page={permittedPage} onNavigate={setPage} onLogout={handleLogout} unreadCount={unreadCount} />
       <div className="ml-64">
         <div className="sticky top-0 z-40 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-lg font-semibold capitalize">{page}</h2>
+          <h2 className="text-lg font-semibold capitalize">{t(permittedPage, lang)}</h2>
           <span className="text-sm text-gray-500">VEKKST Admin</span>
         </div>
         <div className="p-6">
