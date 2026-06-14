@@ -44,7 +44,7 @@ export default function Register() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link to="/">
-            <img src="/images/es-logo.png" alt="ES" className="h-10 w-auto mx-auto mb-4" />
+            <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-10 w-auto mx-auto mb-4" />
           </Link>
           <h1 className="text-2xl font-bold text-[#333]">Create Account</h1>
           <p className="text-gray-500 text-sm mt-1">Join us today</p>

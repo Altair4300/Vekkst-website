@@ -32,7 +32,7 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <img src="/images/es-logo.png" alt="ES" className="h-8 w-auto" />
+            <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-8 w-auto" />
             <span className="text-lg font-bold tracking-wider text-white">VEKKST</span>
           </Link>
 
