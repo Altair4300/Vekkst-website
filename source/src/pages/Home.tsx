@@ -58,13 +58,12 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* ═══════ HERO — 1-1.jpg ═══════ */}
-      <section className="relative w-full overflow-hidden bg-black">
+      {/* ═══════ HERO — Full Viewport ═══════ */}
+      <section className="relative w-full h-screen -mt-[112px] bg-black">
         <img
           src="/images/hero-main.jpg"
           alt="Premium Streetwear Manufacturer"
-          className="w-full object-cover object-center"
-          style={{ maxHeight: 750 }}
+          className="w-full h-full object-cover"
         />
       </section>
 
