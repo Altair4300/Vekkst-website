@@ -5,7 +5,10 @@ import { eq } from "drizzle-orm";
 import { getDb } from "./queries/connection";
 import * as schema from "@db/schema";
 
-const JWT_SECRET = process.env.JWT_SECRET || "vekkst-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
 
 export type TrpcContext = {
   req: Request;

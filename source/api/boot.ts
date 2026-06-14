@@ -10,6 +10,15 @@ const app = new Hono<{ Bindings: HttpBindings }>();
 
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 
+// Security headers middleware
+app.use("*", async (c, next) => {
+  c.header("X-Frame-Options", "DENY");
+  c.header("X-Content-Type-Options", "nosniff");
+  c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+  c.header("X-XSS-Protection", "1; mode=block");
+  await next();
+});
+
 // Simple health check endpoint (no DB required)
 app.get("/health", (c) => c.json({ ok: true, ts: Date.now() }));
 
