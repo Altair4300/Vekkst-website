@@ -60,7 +60,7 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
               >
                 {languages.map((l) => (
                   <option key={l.code} value={l.code}>
-                    {l.code.toUpperCase()}
+                    {l.flag} {l.name}
                   </option>
                 ))}
               </select>
@@ -94,6 +94,21 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
               </Link>
             ))}
             <div className="pt-2 border-t border-white/5 mt-2 space-y-2">
+              {/* Mobile Language Selector */}
+              <div className="flex items-center gap-2 px-1 py-2">
+                <Globe className="w-4 h-4 text-gray-500" />
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value as Language)}
+                  className="bg-[#161616] text-gray-400 text-sm border border-white/10 rounded-lg px-2 py-1.5 focus:outline-none focus:border-amber-400"
+                >
+                  {languages.map((l) => (
+                    <option key={l.code} value={l.code}>
+                      {l.flag} {l.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button onClick={() => { onQuoteClick(); setMobileOpen(false); }} className="w-full bg-amber-400 text-black text-sm font-semibold py-2.5 rounded-full">
                 {t("getFreeQuote", lang)}
               </button>

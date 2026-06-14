@@ -28,6 +28,8 @@ export default function Footer() {
               <li><Link to="/products" className="hover:text-amber-400 transition-colors">Product</Link></li>
               <li><Link to="/track-quote" className="hover:text-amber-400 transition-colors">Track Quote</Link></li>
               <li><Link to="/quote" className="hover:text-amber-400 transition-colors">Get a Quote</Link></li>
+              <li><Link to="/privacy" className="hover:text-amber-400 transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-amber-400 transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
 
