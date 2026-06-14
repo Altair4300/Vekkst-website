@@ -721,17 +721,14 @@ export default function Admin() {
     return <AdminLogin onLogin={handleLogin} />;
   }
 
-  const pageComponents: Record<Page, React.ReactNode> = {
-    dashboard: <DashboardPage />,
-    quotes: <QuotesPage />,
-    messages: <MessagesPage />,
-    products: <ProductsPage />,
-    media: <MediaPage />,
+  const pageComponents: Record<Page, React.ComponentType> = {
+    dashboard: DashboardPage,
+    quotes: QuotesPage,
+    messages: MessagesPage,
+    products: ProductsPage,
+    media: MediaPage,
   };
-
-  if (!authenticated) {
-    return <AdminLogin onLogin={handleLogin} />;
-  }
+  const ActiveComponent = pageComponents[page];
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -739,10 +736,10 @@ export default function Admin() {
       <div className="ml-64">
         <div className="sticky top-0 z-40 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-lg font-semibold capitalize">{page}</h2>
-           <span className="text-sm text-gray-500">VEKKST Admin</span>
+          <span className="text-sm text-gray-500">VEKKST Admin</span>
         </div>
         <div className="p-6">
-          {pageComponents[page]}
+          <ActiveComponent />
         </div>
       </div>
     </div>
