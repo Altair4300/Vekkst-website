@@ -459,7 +459,9 @@ function MessagesPage() {
   const [activeQuoteId, setActiveQuoteId] = useState<string | null>(null);
   const [activeName, setActiveName] = useState("");
   const [text, setText] = useState("");
+  const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: messages } = trpc.message.getByQuoteId.useQuery(
     { quoteId: activeQuoteId! },
@@ -472,6 +474,39 @@ function MessagesPage() {
       refetch();
     },
   });
+  const uploadImage = trpc.media.uploadImage.useMutation();
+  const uploadVideo = trpc.media.uploadVideo.useMutation();
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeQuoteId) return;
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const isVideo = file.type.startsWith("video/");
+        const data = String(ev.target?.result);
+        const result = isVideo
+          ? await uploadVideo.mutateAsync({ data, filename: file.name, category: "general" })
+          : await uploadImage.mutateAsync({ data, filename: file.name, category: "general" });
+
+        sendMsg.mutate({
+          quoteId: activeQuoteId,
+          sender: "admin",
+          senderName: localStorage.getItem("admin_name") || "Admin",
+          message: file.name,
+          type: isVideo ? "video" : "image",
+          fileUrl: result.url,
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      alert("Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -525,9 +560,16 @@ function MessagesPage() {
                     <div className={`max-w-[70%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       m.sender === "admin" ? "bg-[#E60012] text-white rounded-br-md" : "bg-white border border-gray-200 text-gray-800 rounded-bl-md"
                     }`}>
+                      {/* File content */}
+                      {m.type === "image" && m.fileUrl && (
+                        <img src={m.fileUrl} alt="Shared image" className="rounded-lg mb-1 max-w-full max-h-[200px] object-contain" />
+                      )}
+                      {m.type === "video" && m.fileUrl && (
+                        <video src={m.fileUrl} controls className="rounded-lg mb-1 max-w-full max-h-[200px]" />
+                      )}
                       <p>{m.message}</p>
                       <p className={`text-[10px] mt-1 flex items-center gap-1 ${m.sender === "admin" ? "text-white/70" : "text-gray-400"}`}>
-                        {m.sender === "admin" ? "You" : m.senderName || "Customer"} &middot; {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {m.senderName || (m.sender === "admin" ? "Admin" : "Customer")} &middot; {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         {m.sender === "customer" && m.read === "1" && (
                           <span className="text-emerald-500">✓</span>
                         )}
@@ -547,10 +589,26 @@ function MessagesPage() {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!text.trim() || !activeQuoteId) return;
-                sendMsg.mutate({ quoteId: activeQuoteId, sender: "admin", senderName: "Admin", message: text.trim() });
+                sendMsg.mutate({ quoteId: activeQuoteId, sender: "admin", senderName: localStorage.getItem("admin_name") || "Admin", message: text.trim(), type: "text" });
               }}
               className="px-4 py-3 bg-white border-t border-gray-200 flex gap-2"
             >
+              <input
+                type="file"
+                accept="image/*,video/*"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+                title="Send image or video"
+              >
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
+              </button>
               <input
                 type="text"
                 value={text}
@@ -560,10 +618,10 @@ function MessagesPage() {
               />
               <button
                 type="submit"
-                disabled={!text.trim() || sendMsg.isPending}
+                disabled={!text.trim() || sendMsg.isPending || uploading}
                 className="px-5 py-2.5 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-40 text-white rounded-full text-sm font-medium transition-colors flex items-center gap-1"
               >
-                {sendMsg.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {sendMsg.isPending || uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Send
               </button>
             </form>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Image, Video } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 
 interface ChatWidgetProps {
@@ -11,7 +11,9 @@ interface ChatWidgetProps {
 export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messageText, setMessageText] = useState("");
+  const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: messages, isLoading, refetch } = trpc.message.getConversation.useQuery(
     { quoteId, email },
@@ -25,6 +27,9 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
     },
   });
 
+  const uploadImage = trpc.media.uploadImage.useMutation();
+  const uploadVideo = trpc.media.uploadVideo.useMutation();
+
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!messageText.trim()) return;
@@ -33,7 +38,39 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
       sender: "customer",
       senderName: customerName || email,
       message: messageText.trim(),
+      type: "text",
     });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const isVideo = file.type.startsWith("video/");
+        const data = String(ev.target?.result);
+        const result = isVideo
+          ? await uploadVideo.mutateAsync({ data, filename: file.name, category: "general" })
+          : await uploadImage.mutateAsync({ data, filename: file.name, category: "general" });
+
+        sendMessage.mutate({
+          quoteId,
+          sender: "customer",
+          senderName: customerName || email,
+          message: file.name,
+          type: isVideo ? "video" : "image",
+          fileUrl: result.url,
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      alert("Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   // Scroll to bottom when messages change
@@ -94,6 +131,13 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
                         : "bg-white border border-gray-200 text-gray-800 rounded-bl-md"
                     }`}
                   >
+                    {/* File content */}
+                    {msg.type === "image" && msg.fileUrl && (
+                      <img src={msg.fileUrl} alt="Shared image" className="rounded-lg mb-1 max-w-full max-h-[200px] object-contain" />
+                    )}
+                    {msg.type === "video" && msg.fileUrl && (
+                      <video src={msg.fileUrl} controls className="rounded-lg mb-1 max-w-full max-h-[200px]" />
+                    )}
                     <p>{msg.message}</p>
                     <p
                       className={`text-[10px] mt-1 flex items-center gap-1 ${
@@ -115,7 +159,7 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
               <div className="text-center py-8 text-gray-400 text-sm">
                 <MessageCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
                 <p>No messages yet.</p>
-                <p className="text-xs mt-1">Send a message to start chatting with our team.</p>
+                <p className="text-xs mt-1">Send a message or share an image to start chatting.</p>
               </div>
             )}
             <div ref={messagesEndRef} />
@@ -127,6 +171,22 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
             className="px-4 py-3 border-t border-gray-200 bg-white flex items-center gap-2"
           >
             <input
+              type="file"
+              accept="image/*,video/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors"
+              title="Send image or video"
+            >
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
+            </button>
+            <input
               type="text"
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
@@ -135,10 +195,10 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
             />
             <button
               type="submit"
-              disabled={!messageText.trim() || sendMessage.isPending}
+              disabled={!messageText.trim() || sendMessage.isPending || uploading}
               className="w-10 h-10 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-40 text-white rounded-full flex items-center justify-center transition-colors"
             >
-              {sendMessage.isPending ? (
+              {sendMessage.isPending || uploading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Send className="w-4 h-4" />

@@ -13,6 +13,8 @@ export const messageRouter = createRouter({
         sender: z.enum(["customer", "admin"]),
         senderName: z.string().optional(),
         message: z.string().min(1),
+        type: z.enum(["text", "image", "video"]).optional(),
+        fileUrl: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -26,6 +28,8 @@ export const messageRouter = createRouter({
         sender: input.sender,
         senderName: input.senderName || null,
         message: input.message,
+        type: input.type || "text",
+        fileUrl: input.fileUrl || null,
       });
       return { success: true, id: Number(result[0].insertId) };
     }),
