@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, Loader2, Image, Video } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Image, Download, Trash2 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
+
+const EMOJIS = ["😀", "😂", "😍", "🙏", "👍", "👎", "🔥", "❤️", "😊", "🎉", "👏", "🤔", "😭", "😎", "🤝", "✅", "📎", "📸", "🎥", "🎁"];
 
 interface ChatWidgetProps {
   quoteId: string;
@@ -12,8 +14,10 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
   const [isOpen, setIsOpen] = useState(false);
   const [messageText, setMessageText] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emojiRef = useRef<HTMLDivElement>(null);
 
   const { data: messages, isLoading, refetch } = trpc.message.getConversation.useQuery(
     { quoteId, email },
@@ -25,6 +29,10 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
       setMessageText("");
       refetch();
     },
+  });
+
+  const deleteMsg = trpc.message.deleteCustomerMessage.useMutation({
+    onSuccess: () => refetch(),
   });
 
   const uploadImage = trpc.media.uploadImage.useMutation();
@@ -41,6 +49,22 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
       type: "text",
     });
   };
+
+  const handleEmoji = (emoji: string) => {
+    setMessageText((prev) => prev + emoji);
+    setShowEmoji(false);
+  };
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) {
+        setShowEmoji(false);
+      }
+    }
+    if (showEmoji) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showEmoji]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -122,21 +146,55 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
               messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex ${msg.sender === "customer" ? "justify-end" : "justify-start"}`}
+                  className={`flex group ${msg.sender === "customer" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                    className={`relative max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       msg.sender === "customer"
                         ? "bg-[#E60012] text-white rounded-br-md"
                         : "bg-white border border-gray-200 text-gray-800 rounded-bl-md"
                     }`}
                   >
+                    {/* Delete button on hover (only for customer messages) */}
+                    {msg.sender === "customer" && (
+                      <button
+                        onClick={() => {
+                          if (confirm("Delete this message?")) {
+                            deleteMsg.mutate({ id: msg.id, quoteId, email });
+                          }
+                        }}
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-white rounded-full shadow-sm border border-gray-200 text-gray-400 hover:text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        title="Delete message"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
                     {/* File content */}
                     {msg.type === "image" && msg.fileUrl && (
-                      <img src={msg.fileUrl} alt="Shared image" className="rounded-lg mb-1 max-w-full max-h-[200px] object-contain" />
+                      <div className="relative">
+                        <img src={msg.fileUrl} alt="Shared image" className="rounded-lg mb-1 max-w-full max-h-[200px] object-contain" />
+                        <a
+                          href={msg.fileUrl}
+                          download={msg.message}
+                          className="absolute bottom-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                          title="Download image"
+                        >
+                          <Download className="w-3 h-3" />
+                        </a>
+                      </div>
                     )}
                     {msg.type === "video" && msg.fileUrl && (
-                      <video src={msg.fileUrl} controls className="rounded-lg mb-1 max-w-full max-h-[200px]" />
+                      <div className="relative">
+                        <video src={msg.fileUrl} controls className="rounded-lg mb-1 max-w-full max-h-[200px]" />
+                        <a
+                          href={msg.fileUrl}
+                          download={msg.message}
+                          className="absolute bottom-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                          title="Download video"
+                        >
+                          <Download className="w-3 h-3" />
+                        </a>
+                      </div>
                     )}
                     <p>{msg.message}</p>
                     <p
@@ -168,7 +226,7 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
           {/* Input */}
           <form
             onSubmit={handleSend}
-            className="px-4 py-3 border-t border-gray-200 bg-white flex items-center gap-2"
+            className="px-4 py-3 border-t border-gray-200 bg-white flex items-center gap-2 relative"
           >
             <input
               type="file"
@@ -186,6 +244,31 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
             >
               {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
             </button>
+            {/* Emoji picker */}
+            <div className="relative" ref={emojiRef}>
+              <button
+                type="button"
+                onClick={() => setShowEmoji(!showEmoji)}
+                className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors text-lg"
+                title="Emoji"
+              >
+                😊
+              </button>
+              {showEmoji && (
+                <div className="absolute bottom-12 left-0 bg-white rounded-xl shadow-lg border border-gray-200 p-3 grid grid-cols-5 gap-2 w-[220px] z-50">
+                  {EMOJIS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => handleEmoji(emoji)}
+                      className="w-8 h-8 hover:bg-gray-100 rounded-lg flex items-center justify-center text-lg transition-colors"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <input
               type="text"
               value={messageText}

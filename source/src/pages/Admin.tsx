@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import {
   LayoutDashboard, FileText, MessageSquare, Package, Image, LogOut,
-  X, Send, Loader2, Plus, Trash2, Edit3, Users, CheckCircle, XCircle, UserPlus
+  X, Send, Loader2, Plus, Trash2, Edit3, Users, CheckCircle, XCircle, UserPlus, Download
 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 
@@ -24,6 +24,8 @@ function getDefaultPage(): Page {
   const perms = getPermissions();
   return allPages.find((p) => perms.includes(p)) || "dashboard";
 }
+
+const EMOJIS = ["😀", "😂", "😍", "🙏", "👍", "👎", "🔥", "❤️", "😊", "🎉", "👏", "🤔", "😭", "😎", "🤝", "✅", "📎", "📸", "🎥", "🎁"];
 
 // ─── LOGIN SCREEN ───
 function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string) => void }) {
@@ -460,8 +462,10 @@ function MessagesPage() {
   const [activeName, setActiveName] = useState("");
   const [text, setText] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const emojiRef = useRef<HTMLDivElement>(null);
 
   const { data: messages } = trpc.message.getByQuoteId.useQuery(
     { quoteId: activeQuoteId! },
@@ -473,6 +477,9 @@ function MessagesPage() {
       setText("");
       refetch();
     },
+  });
+  const deleteMsg = trpc.message.deleteAdminMessage.useMutation({
+    onSuccess: () => refetch(),
   });
   const uploadImage = trpc.media.uploadImage.useMutation();
   const uploadVideo = trpc.media.uploadVideo.useMutation();
@@ -507,6 +514,22 @@ function MessagesPage() {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
+
+  const handleEmoji = (emoji: string) => {
+    setText((prev) => prev + emoji);
+    setShowEmoji(false);
+  };
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) {
+        setShowEmoji(false);
+      }
+    }
+    if (showEmoji) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showEmoji]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -557,15 +580,47 @@ function MessagesPage() {
               {messages && messages.length > 0 ? (
                 messages.map((m) => (
                   <div key={m.id} className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[70%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                    <div className={`relative max-w-[70%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       m.sender === "admin" ? "bg-[#E60012] text-white rounded-br-md" : "bg-white border border-gray-200 text-gray-800 rounded-bl-md"
                     }`}>
+                      {/* Delete button (admin can delete any message) */}
+                      <button
+                        onClick={() => {
+                          if (confirm("Delete this message?")) {
+                            deleteMsg.mutate({ id: m.id });
+                          }
+                        }}
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-white rounded-full shadow-sm border border-gray-200 text-gray-400 hover:text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        title="Delete message"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
                       {/* File content */}
                       {m.type === "image" && m.fileUrl && (
-                        <img src={m.fileUrl} alt="Shared image" className="rounded-lg mb-1 max-w-full max-h-[200px] object-contain" />
+                        <div className="relative">
+                          <img src={m.fileUrl} alt="Shared image" className="rounded-lg mb-1 max-w-full max-h-[200px] object-contain" />
+                          <a
+                            href={m.fileUrl}
+                            download={m.message}
+                            className="absolute bottom-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                            title="Download image"
+                          >
+                            <Download className="w-3 h-3" />
+                          </a>
+                        </div>
                       )}
                       {m.type === "video" && m.fileUrl && (
-                        <video src={m.fileUrl} controls className="rounded-lg mb-1 max-w-full max-h-[200px]" />
+                        <div className="relative">
+                          <video src={m.fileUrl} controls className="rounded-lg mb-1 max-w-full max-h-[200px]" />
+                          <a
+                            href={m.fileUrl}
+                            download={m.message}
+                            className="absolute bottom-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                            title="Download video"
+                          >
+                            <Download className="w-3 h-3" />
+                          </a>
+                        </div>
                       )}
                       <p>{m.message}</p>
                       <p className={`text-[10px] mt-1 flex items-center gap-1 ${m.sender === "admin" ? "text-white/70" : "text-gray-400"}`}>
@@ -609,6 +664,31 @@ function MessagesPage() {
               >
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
               </button>
+              {/* Emoji picker */}
+              <div className="relative" ref={emojiRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowEmoji(!showEmoji)}
+                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors text-lg"
+                  title="Emoji"
+                >
+                  😊
+                </button>
+                {showEmoji && (
+                  <div className="absolute bottom-12 left-0 bg-white rounded-xl shadow-lg border border-gray-200 p-3 grid grid-cols-5 gap-2 w-[220px] z-50">
+                    {EMOJIS.map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => handleEmoji(emoji)}
+                        className="w-8 h-8 hover:bg-gray-100 rounded-lg flex items-center justify-center text-lg transition-colors"
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
               <input
                 type="text"
                 value={text}

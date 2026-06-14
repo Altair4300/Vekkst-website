@@ -131,4 +131,31 @@ export const messageRouter = createRouter({
       .where(and(eq(quoteMessages.sender, "customer"), eq(quoteMessages.read, "0")));
     return Number(result[0].count);
   }),
+
+  // Delete a message (customer side - verifies email matches quote)
+  deleteCustomerMessage: publicQuery
+    .input(z.object({ id: z.number(), quoteId: z.string(), email: z.string() }))
+    .mutation(async ({ input }) => {
+      const db = getDb();
+      const quote = await db.select().from(quotes).where(eq(quotes.quoteId, input.quoteId)).limit(1);
+      if (!quote.length || quote[0].email.toLowerCase() !== input.email.toLowerCase()) throw new Error("Unauthorized");
+
+      const message = await db.select().from(quoteMessages).where(eq(quoteMessages.id, input.id)).limit(1);
+      if (!message.length || message[0].quoteId !== input.quoteId || message[0].sender !== "customer") throw new Error("Cannot delete");
+
+      await db.delete(quoteMessages).where(eq(quoteMessages.id, input.id));
+      return { success: true };
+    }),
+
+  // Delete a message (admin side - any admin can delete any message)
+  deleteAdminMessage: adminQuery
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = getDb();
+      const message = await db.select().from(quoteMessages).where(eq(quoteMessages.id, input.id)).limit(1);
+      if (!message.length) throw new Error("Message not found");
+
+      await db.delete(quoteMessages).where(eq(quoteMessages.id, input.id));
+      return { success: true };
+    }),
 });
