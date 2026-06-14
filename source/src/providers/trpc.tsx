@@ -7,7 +7,16 @@ import type { ReactNode } from "react";
 
 export const trpc = createTRPCReact<AppRouter>();
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,     // data stays fresh for 5 minutes
+      refetchOnWindowFocus: false,   // don't re-fetch when switching tabs
+      retry: 1,                       // only retry once on failure
+      retryDelay: 2000,               // wait 2 seconds between retries
+    },
+  },
+});
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
