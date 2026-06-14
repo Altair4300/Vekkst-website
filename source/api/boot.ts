@@ -27,6 +27,7 @@ async function runStartupMigrations() {
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
       )
     `);
+    await pool.query(`ALTER TABLE subadmins ADD COLUMN IF NOT EXISTS permissions VARCHAR(255) DEFAULT NULL`);
     await pool.end();
     console.log("[BOOT] Migrations OK: subadmins table ready");
   } catch (err) {

@@ -8,8 +8,25 @@ import { trpc } from "@/providers/trpc";
 
 type Page = "dashboard" | "quotes" | "messages" | "products" | "media" | "team";
 
+function getPermissions(): string[] {
+  const perms = localStorage.getItem("admin_permissions") || "";
+  return perms.split(",").filter(Boolean);
+}
+function hasPermission(perm: string): boolean {
+  return getPermissions().includes(perm);
+}
+function isMainAdmin(): boolean {
+  const perms = getPermissions();
+  return perms.includes("team") || perms.length === 6;
+}
+function getDefaultPage(): Page {
+  const allPages: Page[] = ["dashboard", "quotes", "messages", "products", "media", "team"];
+  const perms = getPermissions();
+  return allPages.find((p) => perms.includes(p)) || "dashboard";
+}
+
 // ─── LOGIN SCREEN ───
-function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
+function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string) => void }) {
   const [pw, setPw] = useState("");
   const [email, setEmail] = useState("");
   const [showReg, setShowReg] = useState(false);
@@ -29,7 +46,8 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
       const adminResult = await loginMutation.mutateAsync({ password: pw.trim() });
       if (adminResult.success && adminResult.token) {
         localStorage.setItem("admin_auth_token", adminResult.token);
-        onLogin(adminResult.token);
+        localStorage.setItem("admin_permissions", adminResult.permissions || "");
+        onLogin(adminResult.token, adminResult.permissions || "");
         return;
       }
     } catch {
@@ -41,7 +59,8 @@ function AdminLogin({ onLogin }: { onLogin: (token: string) => void }) {
         const subResult = await subadminLogin.mutateAsync({ email: email.trim(), password: pw.trim() });
         if (subResult.success && subResult.token) {
           localStorage.setItem("admin_auth_token", subResult.token);
-          onLogin(subResult.token);
+          localStorage.setItem("admin_permissions", subResult.permissions || "");
+          onLogin(subResult.token, subResult.permissions || "");
           return;
         } else {
           setError(true);
@@ -177,7 +196,8 @@ function SubadminRegister({ onBack, onPending }: { onBack: () => void; onPending
 function Sidebar({ page, onNavigate, onLogout, unreadCount }: {
   page: Page; onNavigate: (p: Page) => void; onLogout: () => void; unreadCount: number;
 }) {
-  const navItems: { id: Page; label: string; icon: React.ReactNode }[] = [
+  const perms = getPermissions();
+  const allNavItems: { id: Page; label: string; icon: React.ReactNode }[] = [
     { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-[18px] h-[18px]" /> },
     { id: "quotes", label: "Quotes", icon: <FileText className="w-[18px] h-[18px]" /> },
     { id: "messages", label: "Messages", icon: <MessageSquare className="w-[18px] h-[18px]" /> },
@@ -185,6 +205,7 @@ function Sidebar({ page, onNavigate, onLogout, unreadCount }: {
     { id: "media", label: "Media", icon: <Image className="w-[18px] h-[18px]" /> },
     { id: "team", label: "Team", icon: <Users className="w-[18px] h-[18px]" /> },
   ];
+  const navItems = allNavItems.filter((item) => perms.includes(item.id));
 
   return (
     <div className="w-64 bg-[#1a1a2e] text-white fixed top-0 left-0 bottom-0 flex flex-col z-50">
@@ -820,9 +841,40 @@ function TeamPage() {
   const { data: subadmins, refetch } = trpc.subadmin.list.useQuery();
   const approveMutation = trpc.subadmin.approve.useMutation({ onSuccess: () => refetch() });
   const deleteMutation = trpc.subadmin.delete.useMutation({ onSuccess: () => refetch() });
+  const updatePermissionsMutation = trpc.subadmin.updatePermissions.useMutation({ onSuccess: () => refetch() });
+
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editPerms, setEditPerms] = useState<string[]>([]);
+
+  const allPerms = [
+    { id: "dashboard", label: "Dashboard" },
+    { id: "quotes", label: "Quotes" },
+    { id: "messages", label: "Messages" },
+    { id: "products", label: "Products" },
+    { id: "media", label: "Media" },
+    { id: "team", label: "Team" },
+  ];
 
   const pending = subadmins?.filter((s) => s.status === "pending") || [];
   const approved = subadmins?.filter((s) => s.status === "approved") || [];
+
+  const openEditPerms = (s: any) => {
+    setEditingId(s.id);
+    setEditPerms((s.permissions || "").split(",").filter(Boolean));
+  };
+
+  const togglePerm = (perm: string) => {
+    setEditPerms((prev) =>
+      prev.includes(perm) ? prev.filter((p) => p !== perm) : [...prev, perm]
+    );
+  };
+
+  const savePerms = () => {
+    if (editingId !== null) {
+      updatePermissionsMutation.mutate({ id: editingId, permissions: editPerms });
+      setEditingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -896,7 +948,7 @@ function TeamPage() {
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
                 <th className="px-4 py-3">Phone</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Permissions</th>
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Actions</th>
               </tr>
@@ -907,16 +959,26 @@ function TeamPage() {
                   <td className="px-4 py-3 text-sm font-medium">{s.name}</td>
                   <td className="px-4 py-3 text-sm">{s.email}</td>
                   <td className="px-4 py-3 text-sm">{s.phone || "-"}</td>
-                  <td className="px-4 py-3"><StatusBadge status={s.status} /></td>
+                  <td className="px-4 py-3 text-sm">
+                    {(s.permissions || "").split(",").filter(Boolean).join(", ") || "None"}
+                  </td>
                   <td className="px-4 py-3 text-sm text-gray-500">{new Date(s.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => { if (confirm("Delete this team member?")) deleteMutation.mutate({ id: s.id }); }}
-                      disabled={deleteMutation.isPending}
-                      className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
-                    >
-                      <Trash2 className="w-3 h-3" /> Delete
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEditPerms(s)}
+                        className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                      >
+                        <Edit3 className="w-3 h-3" /> Edit Permissions
+                      </button>
+                      <button
+                        onClick={() => { if (confirm("Delete this team member?")) deleteMutation.mutate({ id: s.id }); }}
+                        disabled={deleteMutation.isPending}
+                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-md text-xs font-medium flex items-center gap-1 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" /> Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -927,6 +989,41 @@ function TeamPage() {
           </table>
         </div>
       </div>
+
+      {/* Permissions Modal */}
+      {editingId !== null && (
+        <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4" onClick={() => setEditingId(null)}>
+          <div className="bg-white rounded-xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+              <h3 className="text-[15px] font-semibold">Update Permissions</h3>
+              <button onClick={() => setEditingId(null)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-5 space-y-3">
+              {allPerms.map((perm) => (
+                <label key={perm.id} className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editPerms.includes(perm.id)}
+                    onChange={() => togglePerm(perm.id)}
+                    className="w-4 h-4 accent-[#E60012]"
+                  />
+                  <span className="text-sm">{perm.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="px-5 py-4 border-t border-gray-100 flex justify-end gap-2">
+              <button onClick={() => setEditingId(null)} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">Cancel</button>
+              <button
+                onClick={savePerms}
+                disabled={updatePermissionsMutation.isPending}
+                className="px-4 py-2 bg-[#E60012] hover:bg-[#c4000f] text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                {updatePermissionsMutation.isPending ? "Updating..." : "Update Permissions"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -936,7 +1033,7 @@ export default function Admin() {
   const [token, setToken] = useState(() =>
     localStorage.getItem("admin_auth_token")
   );
-  const [page, setPage] = useState<Page>("dashboard");
+  const [page, setPage] = useState<Page>(() => getDefaultPage());
 
   const { data: conversations } = trpc.message.listConversations.useQuery(undefined, {
     enabled: !!token,
@@ -944,17 +1041,33 @@ export default function Admin() {
   });
   const unreadCount = conversations?.reduce((s, c) => s + (c.unreadCount || 0), 0) || 0;
 
-  const handleLogin = (newToken: string) => setToken(newToken);
+  const handleLogin = (newToken: string, newPermissions: string) => {
+    setToken(newToken);
+    localStorage.setItem("admin_permissions", newPermissions);
+    const firstPage = getDefaultPage();
+    setPage(firstPage);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("admin_auth_token");
+    localStorage.removeItem("admin_permissions");
     localStorage.removeItem("admin_auth"); // Clear old auth too
     setToken(null);
   };
+
+  // Validate page against permissions
+  useEffect(() => {
+    if (token && !hasPermission(page)) {
+      const firstPage = getDefaultPage();
+      setPage(firstPage);
+    }
+  }, [token, page]);
 
   if (!token) {
     return <AdminLogin onLogin={handleLogin} />;
   }
 
+  const permittedPage = hasPermission(page) ? page : getDefaultPage();
   const pageComponents: Record<Page, React.ComponentType> = {
     dashboard: DashboardPage,
     quotes: QuotesPage,
@@ -963,14 +1076,14 @@ export default function Admin() {
     media: MediaPage,
     team: TeamPage,
   };
-  const ActiveComponent = pageComponents[page];
+  const ActiveComponent = pageComponents[permittedPage];
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Sidebar page={page} onNavigate={setPage} onLogout={handleLogout} unreadCount={unreadCount} />
+      <Sidebar page={permittedPage} onNavigate={setPage} onLogout={handleLogout} unreadCount={unreadCount} />
       <div className="ml-64">
         <div className="sticky top-0 z-40 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-lg font-semibold capitalize">{page}</h2>
+          <h2 className="text-lg font-semibold capitalize">{permittedPage}</h2>
           <span className="text-sm text-gray-500">VEKKST Admin</span>
         </div>
         <div className="p-6">

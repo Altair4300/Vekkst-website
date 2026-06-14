@@ -95,7 +95,7 @@ export const subadminRouter = createRouter({
         JWT_SECRET,
         { expiresIn: "7d" }
       );
-      return { success: true, token };
+      return { success: true, token, permissions: rows[0].permissions || "" };
     }),
 
   list: adminQuery.query(async () => {
@@ -119,6 +119,14 @@ export const subadminRouter = createRouter({
     .mutation(async ({ input }) => {
       const db = getDb();
       await db.delete(subadmins).where(eq(subadmins.id, input.id));
+      return { success: true };
+    }),
+
+  updatePermissions: adminQuery
+    .input(z.object({ id: z.number(), permissions: z.array(z.string()) }))
+    .mutation(async ({ input }) => {
+      const db = getDb();
+      await db.update(subadmins).set({ permissions: input.permissions.join(",") }).where(eq(subadmins.id, input.id));
       return { success: true };
     }),
 });

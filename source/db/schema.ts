@@ -67,5 +67,6 @@ export const subadmins = mysqlTable("subadmins", {
   phone: varchar("phone", { length: 50 }),
   password: varchar("password", { length: 255 }).notNull(),
   status: mysqlEnum("status", ["pending", "approved"]).default("pending").notNull(),
+  permissions: varchar("permissions", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
