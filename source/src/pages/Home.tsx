@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Play } from "lucide-react";
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Play, Loader2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import SmartVideo from "@/components/SmartVideo";
+import { trpc } from "@/providers/trpc";
 import "@/components/Marquee.css";
 
 /* ─────────────── DATA ─────────────── */
@@ -21,17 +22,6 @@ const seasons = [
   { name: "Summer", img: "/images/season-summer.png" },
   { name: "Autumn", img: "/images/season-autumn.png" },
   { name: "Winter", img: "/images/season-winter.png" },
-];
-
-const portfolioProducts = [
-  { id: 1, name: "Oversized Black Pink Hoodie", img: "/images/p1.png", cat: "hoodies" },
-  { id: 2, name: "Grey Pattern Embroidered Hoodie", img: "/images/p2.png", cat: "hoodies" },
-  { id: 3, name: "Paint Splatter Bomber Jacket", img: "/images/p3.png", cat: "jackets" },
-  { id: 4, name: "Color Block Windbreaker", img: "/images/p4.png", cat: "jackets" },
-  { id: 5, name: "Retro Color Block Jacket", img: "/images/p5.png", cat: "jackets" },
-  { id: 6, name: "Dragon Print Flared Pants", img: "/images/p6.png", cat: "pants" },
-  { id: 7, name: "Gothic Letter Denim Shorts", img: "/images/p7.png", cat: "shorts" },
-  { id: 8, name: "Distressed Graffiti Tee", img: "/images/p8.png", cat: "t-shirts" },
 ];
 
 const faqs = [
@@ -63,6 +53,8 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
+
+  const { data: portfolioProducts, isLoading: portfolioLoading } = trpc.product.list.useQuery();
 
   return (
     <Layout>
@@ -304,22 +296,39 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
             <p className="text-gray-400 mt-4 text-sm max-w-xl mx-auto">Browse our styles for inspiration. Request a quote for any design.</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {portfolioProducts.map((p) => (
-              <div key={p.id} className="group bg-[#161616] rounded-xl overflow-hidden border border-white/5 hover:border-amber-400/30 transition-all">
-                <div className="relative aspect-square">
-                  <Link to={`/product/${p.id}`}><img src={p.img} alt={p.name} className="w-full h-full object-cover" /></Link>
-                  <Link to={`/product/${p.id}`} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="bg-amber-400 text-black px-4 py-2 rounded-full text-sm font-medium">View Details</span>
-                  </Link>
+
+          {portfolioLoading && (
+            <div className="flex items-center justify-center py-10">
+              <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+            </div>
+          )}
+
+          {!portfolioLoading && (!portfolioProducts || portfolioProducts.length === 0) && (
+            <div className="text-center py-10 text-gray-500">
+              <p className="text-lg mb-2">No products yet</p>
+              <p className="text-sm">Products will appear here once uploaded via the admin panel.</p>
+            </div>
+          )}
+
+          {!portfolioLoading && portfolioProducts && portfolioProducts.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+              {portfolioProducts.slice(0, 8).map((p) => (
+                <div key={p.id} className="group bg-[#161616] rounded-xl overflow-hidden border border-white/5 hover:border-amber-400/30 transition-all">
+                  <div className="relative aspect-square">
+                    <Link to={`/product/${p.id}`}><img src={p.image} alt={p.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }} /></Link>
+                    <Link to={`/product/${p.id}`} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="bg-amber-400 text-black px-4 py-2 rounded-full text-sm font-medium">View Details</span>
+                    </Link>
+                  </div>
+                  <div className="p-3">
+                    <span className="text-xs text-gray-500 uppercase">{p.category}</span>
+                    <h3 className="text-sm font-semibold text-white mt-1 truncate">{p.name}</h3>
+                  </div>
                 </div>
-                <div className="p-3">
-                  <span className="text-xs text-gray-500 uppercase">{p.cat}</span>
-                  <h3 className="text-sm font-semibold text-white mt-1 truncate">{p.name}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
           <div className="text-center mt-10">
             <Link to="/products" className="inline-block border border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-black px-8 py-3 rounded-full font-medium transition-all text-sm">View All Designs</Link>
           </div>
