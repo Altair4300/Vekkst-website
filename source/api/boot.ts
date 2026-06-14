@@ -5,10 +5,34 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "./router";
 import { createContext } from "./context";
 import { env } from "./lib/env";
+import { getDb } from "./queries/connection";
+import mysql from "mysql2/promise";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
 
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
+
+// Auto-run simple migrations on startup (production only)
+async function runStartupMigrations() {
+  try {
+    const pool = mysql.createPool(env.databaseUrl);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS subadmins (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(320) NOT NULL UNIQUE,
+        phone VARCHAR(50),
+        password VARCHAR(255) NOT NULL,
+        status ENUM('pending', 'approved') DEFAULT 'pending' NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `);
+    await pool.end();
+    console.log("[BOOT] Migrations OK: subadmins table ready");
+  } catch (err) {
+    console.error("[BOOT] Migration warning:", err);
+  }
+}
 
 // Security headers middleware
 app.use("*", async (c, next) => {
@@ -45,6 +69,7 @@ app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
 export default app;
 
 if (env.isProduction) {
+  await runStartupMigrations();
   const { serve } = await import("@hono/node-server");
   const { serveStaticFiles } = await import("./lib/vite");
   serveStaticFiles(app);
