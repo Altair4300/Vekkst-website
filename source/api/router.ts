@@ -8,6 +8,7 @@ import { adminAuthRouter } from "./admin-auth-router";
 import { messageRouter } from "./message-router";
 import { mediaRouter } from "./media-router";
 import { subadminRouter } from "./subadmin-router";
+import { translationRouter } from "./translation-router";
 
 export const appRouter = router({
   auth: authRouter,
@@ -19,6 +20,7 @@ export const appRouter = router({
   message: messageRouter,
   media: mediaRouter,
   subadmin: subadminRouter,
+  translation: translationRouter,
 });
 
 export type AppRouter = typeof appRouter;

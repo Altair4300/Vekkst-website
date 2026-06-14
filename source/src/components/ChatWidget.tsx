@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, Loader2, Image, Download, Trash2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Image, Download, Trash2, Languages } from "lucide-react";
 import { trpc } from "@/providers/trpc";
+import { useLanguage } from "@/providers/LanguageProvider";
+import { t } from "@/lib/translations";
 
 const EMOJIS = ["😀", "😂", "😍", "🙏", "👍", "👎", "🔥", "❤️", "😊", "🎉", "👏", "🤔", "😭", "😎", "🤝", "✅", "📎", "📸", "🎥", "🎁"];
 
@@ -18,6 +20,10 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const emojiRef = useRef<HTMLDivElement>(null);
+  const { lang } = useLanguage();
+  const [messageTranslations, setMessageTranslations] = useState<Record<number, string>>({});
+  const [translatingIds, setTranslatingIds] = useState<Record<number, boolean>>({});
+  const translateMutation = trpc.translation.translate.useMutation();
 
   const { data: messages, isLoading, refetch } = trpc.message.getConversation.useQuery(
     { quoteId, email },
@@ -65,6 +71,19 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
     if (showEmoji) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showEmoji]);
+
+  const handleTranslate = async (msgId: number, text: string) => {
+    if (messageTranslations[msgId]) return;
+    setTranslatingIds(prev => ({ ...prev, [msgId]: true }));
+    try {
+      const result = await translateMutation.mutateAsync({ text, target: lang });
+      if (result.success && result.translated) {
+        setMessageTranslations(prev => ({ ...prev, [msgId]: result.translated }));
+      }
+    } finally {
+      setTranslatingIds(prev => ({ ...prev, [msgId]: false }));
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -125,8 +144,8 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
           {/* Header */}
           <div className="bg-[#1a1a2e] text-white px-5 py-4 flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-sm">Chat with VEKKST</h3>
-              <p className="text-xs text-gray-400 mt-0.5">Quote: {quoteId}</p>
+              <h3 className="font-semibold text-sm">{t("chatWithVekkst", lang)}</h3>
+              <p className="text-xs text-gray-400 mt-0.5">{t("quoteLabel", lang)}: {quoteId}</p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
@@ -164,7 +183,7 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
                           }
                         }}
                         className="absolute -top-2 -right-2 w-5 h-5 bg-white rounded-full shadow-sm border border-gray-200 text-gray-400 hover:text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                        title="Delete message"
+                        title={t("deleteMessage", lang)}
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -177,7 +196,7 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
                           href={msg.fileUrl}
                           download={msg.message}
                           className="absolute bottom-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                          title="Download image"
+                          title={t("downloadImage", lang)}
                         >
                           <Download className="w-3 h-3" />
                         </a>
@@ -190,13 +209,29 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
                           href={msg.fileUrl}
                           download={msg.message}
                           className="absolute bottom-1 right-1 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                          title="Download video"
+                          title={t("downloadVideo", lang)}
                         >
                           <Download className="w-3 h-3" />
                         </a>
                       </div>
                     )}
                     <p>{msg.message}</p>
+                    {msg.type === "text" && !messageTranslations[msg.id] && (
+                      <button
+                        onClick={() => handleTranslate(msg.id, msg.message)}
+                        disabled={translatingIds[msg.id]}
+                        className="text-[10px] opacity-60 hover:opacity-100 underline mt-1 flex items-center gap-0.5"
+                        title={t("translate", lang)}
+                      >
+                        <Languages className="w-3 h-3" />
+                        {translatingIds[msg.id] ? "..." : t("translate", lang)}
+                      </button>
+                    )}
+                    {messageTranslations[msg.id] && (
+                      <div className={`text-xs mt-1 pt-1 border-t ${msg.sender === "customer" ? "border-white/20" : "border-gray-200"} opacity-80`}>
+                        {messageTranslations[msg.id]}
+                      </div>
+                    )}
                     <p
                       className={`text-[10px] mt-1 flex items-center gap-1 ${
                         msg.sender === "customer" ? "text-white/70" : "text-gray-400"
@@ -216,8 +251,8 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
             ) : (
               <div className="text-center py-8 text-gray-400 text-sm">
                 <MessageCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
-                <p>No messages yet.</p>
-                <p className="text-xs mt-1">Send a message or share an image to start chatting.</p>
+                <p>{t("noMessages", lang)}</p>
+                <p className="text-xs mt-1">{t("sendMessageStart", lang)}</p>
               </div>
             )}
             <div ref={messagesEndRef} />
@@ -273,7 +308,7 @@ export default function ChatWidget({ quoteId, email, customerName }: ChatWidgetP
               type="text"
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
-              placeholder="Type your message..."
+              placeholder={t("typeMessage", lang)}
               className="flex-1 px-4 py-2.5 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#E60012]/20"
             />
             <button

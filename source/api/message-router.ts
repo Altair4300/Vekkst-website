@@ -4,6 +4,23 @@ import { quoteMessages, quotes } from "@db/schema";
 import { getDb } from "./queries/connection";
 import { eq, desc, and, sql } from "drizzle-orm";
 
+// Rate limiting: max 20 messages per minute per IP
+const messageAttempts = new Map<string, { count: number; resetAt: number }>();
+const MAX_MESSAGES = 20;
+const MSG_WINDOW_MS = 60 * 1000;
+
+function checkMessageRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = messageAttempts.get(ip);
+  if (!record || now > record.resetAt) {
+    messageAttempts.set(ip, { count: 1, resetAt: now + MSG_WINDOW_MS });
+    return true;
+  }
+  if (record.count >= MAX_MESSAGES) return false;
+  record.count++;
+  return true;
+}
+
 export const messageRouter = createRouter({
   // Send a message (customer or admin)
   send: publicQuery
@@ -17,7 +34,11 @@ export const messageRouter = createRouter({
         fileUrl: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
+      if (!checkMessageRateLimit(ip)) {
+        throw new Error("Rate limit exceeded. Please slow down.");
+      }
       const db = getDb();
       // Verify quote exists
       const quote = await db.select().from(quotes).where(eq(quotes.quoteId, input.quoteId)).limit(1);
