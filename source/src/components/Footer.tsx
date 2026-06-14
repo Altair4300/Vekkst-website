@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-10 w-auto mb-4 brightness-0 invert" />
+            <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-40 w-auto mb-4" />
             <p className="text-sm leading-relaxed mb-4 text-gray-500">
               Committed to providing men's clothing customization services that combine quality and efficiency.
             </p>

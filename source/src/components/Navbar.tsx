@@ -29,11 +29,11 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
   return (
     <nav className="fixed top-8 left-0 right-0 bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-white/5 z-50">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-40">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-8 w-auto" />
-            <span className="text-lg font-bold tracking-wider text-white">VEKKST</span>
+          <Link to="/" className="flex items-center gap-4">
+            <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-40 w-auto" />
+            <span className="text-4xl font-bold tracking-wider text-white">VEKKST</span>
           </Link>
 
           {/* Desktop Nav */}
