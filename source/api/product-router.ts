@@ -16,7 +16,7 @@ export const productRouter = createRouter({
       let query = db.select().from(products);
       if (conditions.length > 0) query = query.where(and(...conditions)) as typeof query;
       query = query.orderBy(desc(products.createdAt)) as typeof query;
-      return query;
+      return await query;
     }),
 
   getById: publicQuery.input(z.object({ id: z.number() })).query(async ({ input }) => {
