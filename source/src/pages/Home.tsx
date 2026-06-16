@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Play, Loader2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import SmartVideo from "@/components/SmartVideo";
+import AutoPlayVideo from "@/components/AutoPlayVideo";
 import { trpc } from "@/providers/trpc";
 
 /* ─────────────── DATA ─────────────── */
@@ -347,14 +348,14 @@ export default function Home() {
                 ))}
               </div>
               <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black mb-8">
-                <SmartVideo src="/videos/factory-tour-left.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
+                <AutoPlayVideo src="/videos/factory-tour-left.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
               </div>
               <Link to="/quote" className="inline-flex items-center gap-2 mt-8 bg-amber-400 hover:bg-amber-500 text-black px-8 py-3 rounded-full font-medium transition-colors">
                 <Play className="w-4 h-4" /> Request a Factory Tour
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
-              <SmartVideo src="/videos/factory-tour.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
+              <AutoPlayVideo src="/videos/factory-tour.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
             </div>
           </div>
         </div>
