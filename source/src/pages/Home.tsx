@@ -4,17 +4,16 @@ import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Play, Loader2 } from
 import Layout from "@/components/Layout";
 import SmartVideo from "@/components/SmartVideo";
 import { trpc } from "@/providers/trpc";
-import "@/components/Marquee.css";
 
 /* ─────────────── DATA ─────────────── */
 
 const categories = [
-  { name: "Hoodies", img: "/images/cat-hoodies-new.jpg", hover: "/images/cat-hoodies-2.jpg", slug: "hoodies" },
-  { name: "T-Shirts", img: "/images/cat-tshirts-new.png", hover: "/images/cat-tshirts-2.jpg", slug: "t-shirts" },
-  { name: "Jackets", img: "/images/cat-jackets-new.png", hover: "/images/cat-jackets-2.png", slug: "jackets" },
-  { name: "Shorts", img: "/images/cat-shorts-new.png", hover: "/images/cat-shorts-2.png", slug: "shorts" },
-  { name: "Pants", img: "/images/cat-pants-new.jpg", hover: "/images/cat-pants-2.jpg", slug: "pants" },
-  { name: "Tracksuits", img: "/images/cat-tracksuits.png", hover: "/images/cat-tracksuits-hover.jpg", slug: "tracksuits" },
+  { name: "Hoodies", img: "/images/hoodies and sweatshirts.png", hover: "/images/hoodies and sweatshirts.png", slug: "hoodies" },
+  { name: "T-Shirts", img: "/images/t-shirts.png", hover: "/images/t-shirts.png", slug: "t-shirts" },
+  { name: "Jackets", img: "/images/jackets.png", hover: "/images/jackets.png", slug: "jackets" },
+  { name: "Shorts", img: "/images/shorts.png", hover: "/images/shorts.png", slug: "shorts" },
+  { name: "Pants", img: "/images/pants.png", hover: "/images/pants.png", slug: "pants" },
+  { name: "Tracksuits", img: "/images/tracksuit.png", hover: "/images/tracksuit.png", slug: "tracksuits" },
 ];
 
 const seasons = [
@@ -32,21 +31,6 @@ const faqs = [
   { q: "Can I put my design logo on the items?", a: "Yes, we specialize in custom OEM/ODM manufacturing with your own designs and logos." },
 ];
 
-const companyPhotos = [
-  "/images/showroom.jpg", "/images/team1.png", "/images/factory-cutting.jpg",
-  "/images/team2.png", "/images/factory-machine.jpg", "/images/team3.png",
-  "/images/factory-warehouse.jpg", "/images/hero-factory.png",
-  "/images/factory-dyeing.jpg", "/images/showroom.jpg", "/images/team1.png",
-  "/images/factory-cutting.jpg",
-];
-
-const feedbacks = [
-  { name: "Alexander", country: "USA", rating: 5, text: "I was instantly attracted to this sweatshirt after putting it on! It completely exceeded my expectations! Now it has become a must-have item for my daily outfit. Friends all asked me for the link. I really recommend it!", img: "/images/fb1.png" },
-  { name: "Ethan", country: "Mexico", rating: 5, text: "This sweatshirt has completely conquered me! It feels delicate, comfortable, and breathable. The color does not fade after washing. Very good quality!", img: "/images/fb2.png" },
-  { name: "Marco Rossi", country: "Italy", rating: 5, text: "The style is loose and stylish, and it is very suitable for both jeans and sweatpants. I wore it to a friend's party, and several people asked for the link! The quality is good, and I will buy it again next time!", img: "/images/p7.png" },
-  { name: "Henry", country: "USA", rating: 5, text: "The men's denim shorts I bought have a loose fit and are comfortable, the elastic waistband is fitted, the material is durable and breathable, and the details are perfect. I highly recommend!", img: "/images/fb3.png" },
-];
-
 /* ─────────────── HOME PAGE ─────────────── */
 
 export default function Home() {
@@ -58,13 +42,12 @@ export default function Home() {
 
   return (
     <Layout>
-      {/* ═══════ HERO — 1-1.jpg ═══════ */}
-      <section className="relative w-full overflow-hidden bg-black">
+      {/* ═══════ HERO — banner.png ═══════ */}
+      <section className="relative w-full overflow-hidden bg-black h-[720px]">
         <img
-          src="/images/hero-main.jpg"
+          src="/images/banner.png"
           alt="Premium Streetwear Manufacturer"
-          className="w-full object-cover object-center"
-          style={{ maxHeight: 750 }}
+          className="w-full h-full object-cover"
         />
       </section>
 
@@ -182,7 +165,9 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Factory Strength</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
-          <img src="/images/factory-strength-cropped.jpg" alt="Factory Strength" className="w-full rounded-2xl shadow-lg" />
+        </div>
+        <div className="max-w-[1920px] mx-auto">
+          <img src="/images/Factory Strength.png" alt="Factory Strength" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -194,7 +179,9 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Logo Rich Technology</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
-          <img src="/images/craftsmanship-cropped.jpg" alt="16+ Printing and Embroidery Techniques" className="w-full rounded-2xl shadow-lg" />
+        </div>
+        <div className="max-w-[1920px] mx-auto">
+          <img src="/images/Logo Rich Technology.png" alt="16+ Printing and Embroidery Techniques" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -206,7 +193,9 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Premium Custom Fabric</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
-          <img src="/images/fabric-cropped.jpg" alt="Custom Fabric Options" className="w-full rounded-2xl shadow-lg" />
+        </div>
+        <div className="max-w-[1920px] mx-auto">
+          <img src="/images/Premium Custom Fabric.jpg" alt="Custom Fabric Options" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -218,7 +207,9 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">From Idea to Bulk</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
-          <img src="/images/supply-chain-cropped.jpg" alt="From Idea to Bulk - 8 Step Process" className="w-full rounded-2xl shadow-lg" />
+        </div>
+        <div className="max-w-[1920px] mx-auto">
+          <img src="/images/From Idea to Bulk.png" alt="From Idea to Bulk - 8 Step Process" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -248,7 +239,9 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Trusted by 1100+ Brands</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
-          <img src="/images/partner-brands-cropped.jpg" alt="Trusted by 1100+ Global Streetwear Brands" className="w-full rounded-2xl shadow-lg" />
+        </div>
+        <div className="max-w-[1920px] mx-auto">
+          <img src="/images/Trusted by 1100+ Brands.png" alt="Trusted by 1100+ Global Streetwear Brands" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -260,7 +253,9 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Certifications & Compliance</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
-          <img src="/images/certificates-cropped.jpg" alt="Certifications and Compliance" className="w-full rounded-2xl shadow-lg" />
+        </div>
+        <div className="max-w-[1920px] mx-auto">
+          <img src="/images/Certifications & Compliance.png" alt="Certifications and Compliance" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -335,19 +330,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════ COMPANY PHOTO MARQUEE — DARK ═══════ */}
-      <section className="py-10 bg-[#0a0a0a] overflow-hidden">
-        <div className="marquee-container">
-          <div className="marquee-track">
-            {[...companyPhotos, ...companyPhotos].map((src, i) => (
-              <div key={i} className="flex-shrink-0 w-64 h-44 mx-2 rounded-xl overflow-hidden border border-white/5">
-                <img src={src} alt="Company" className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ═══════ VIDEO — DARK ═══════ */}
       <section className="py-20 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4">
@@ -372,18 +354,6 @@ export default function Home() {
               <SmartVideo src="/videos/company-video.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ═══════ CUSTOMER REVIEWS — WHITE BG ═══════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-6">
-            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Testimonials</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Customer Reviews</h2>
-            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
-          </div>
-          <img src="/images/customer-reviews-cropped.png" alt="Customer Reviews" className="w-full rounded-2xl shadow-lg" />
         </div>
       </section>
 
@@ -444,18 +414,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════ FEEDBACK CAROUSEL — DARK ═══════ */}
-      <section className="py-20 bg-[#0a0a0a]">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-14">
-            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Feedback</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Customer Feedback</h2>
-            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
-          </div>
-          <FeedbackCarousel feedbacks={feedbacks} />
-        </div>
-      </section>
-
       {/* ═══════ FAQ — DARK ═══════ */}
       <section className="py-20 bg-[#0f0f0f]">
         <div className="max-w-3xl mx-auto px-4">
@@ -491,58 +449,5 @@ export default function Home() {
         </div>
       </section>
     </Layout>
-  );
-}
-
-/* ───────── Feedback Carousel ───────── */
-function FeedbackCarousel({ feedbacks }: { feedbacks: { name: string; country: string; rating: number; text: string; img: string }[] }) {
-  const [current, setCurrent] = useState(0);
-  const perPage = typeof window !== "undefined" && window.innerWidth < 768 ? 1 : 2;
-  const maxIndex = Math.max(0, feedbacks.length - perPage);
-  const goPrev = () => setCurrent((c) => Math.max(0, c - 1));
-  const goNext = () => setCurrent((c) => Math.min(maxIndex, c + 1));
-
-  return (
-    <div className="relative">
-      <div className="overflow-hidden">
-        <div className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${current * (100 / perPage)}%)` }}>
-          {feedbacks.map((fb, i) => (
-            <div key={i} className="w-full md:w-1/2 flex-shrink-0 px-3">
-              <div className="bg-[#161616] rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-start border border-white/5">
-                <img src={fb.img} alt={fb.name} className="w-full md:w-40 h-48 object-cover rounded-xl flex-shrink-0" />
-                <div className="flex-1">
-                  <h4 className="font-bold text-lg text-white">{fb.name}</h4>
-                  <p className="text-gray-500 text-sm mb-2">{fb.country}</p>
-                  <div className="flex gap-0.5 mb-3">
-                    {Array.from({ length: fb.rating }).map((_, j) => (
-                      <svg key={j} className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                    ))}
-                  </div>
-                  <p className="text-gray-400 text-sm leading-relaxed">{fb.text}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="flex items-center justify-center gap-4 mt-8">
-        <button onClick={goPrev} disabled={current === 0} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-amber-400 hover:text-black hover:border-amber-400 transition-colors text-white disabled:opacity-30 disabled:cursor-not-allowed">
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <div className="flex gap-2">
-          {Array.from({ length: maxIndex + 1 }).map((_, i) => (
-            <button key={i} onClick={() => setCurrent(i)} className={`w-2.5 h-2.5 rounded-full transition-colors ${i === current ? "bg-amber-400" : "bg-gray-700"}`} />
-          ))}
-        </div>
-        <button onClick={goNext} disabled={current === maxIndex} className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-amber-400 hover:text-black hover:border-amber-400 transition-colors text-white disabled:opacity-30 disabled:cursor-not-allowed">
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-      <div className="text-center mt-4">
-        <Link to="/products" className="inline-block bg-amber-400 hover:bg-amber-500 text-black px-8 py-3 rounded-full text-sm font-medium transition-colors">
-          View more
-        </Link>
-      </div>
-    </div>
   );
 }
