@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Play, Loader2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import SmartVideo from "@/components/SmartVideo";
+import AutoPlayVideo from "@/components/AutoPlayVideo";
 import { trpc } from "@/providers/trpc";
 
 /* ─────────────── DATA ─────────────── */
@@ -354,7 +355,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
-              <SmartVideo src="/videos/company-overview.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
+              <AutoPlayVideo src="/videos/factory-tour.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
             </div>
           </div>
         </div>
