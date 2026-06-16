@@ -27,9 +27,23 @@ async function runStartupMigrations() {
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
       )
     `);
-    await pool.query(`ALTER TABLE subadmins ADD COLUMN IF NOT EXISTS permissions VARCHAR(255) DEFAULT NULL`);
-    await pool.query(`ALTER TABLE quote_messages ADD COLUMN IF NOT EXISTS type ENUM('text', 'image', 'video') DEFAULT 'text' NOT NULL`);
-    await pool.query(`ALTER TABLE quote_messages ADD COLUMN IF NOT EXISTS fileUrl VARCHAR(500) DEFAULT NULL`);
+    // MySQL 9.7.0 does not support IF NOT EXISTS in ALTER TABLE ADD COLUMN.
+    // Wrap each statement in a try-catch and ignore error 1060 (column already exists).
+    for (const ddl of [
+      `ALTER TABLE subadmins ADD COLUMN permissions VARCHAR(255) DEFAULT NULL`,
+      `ALTER TABLE quote_messages ADD COLUMN type ENUM('text', 'image', 'video') DEFAULT 'text' NOT NULL`,
+      `ALTER TABLE quote_messages ADD COLUMN fileUrl VARCHAR(500) DEFAULT NULL`,
+    ]) {
+      try {
+        await pool.query(ddl);
+      } catch (err: any) {
+        if (err?.errno === 1060) {
+          // Column already exists — safe to ignore
+        } else {
+          throw err;
+        }
+      }
+    }
     await pool.end();
     console.log("[BOOT] Migrations OK: subadmins table ready");
   } catch (err) {
