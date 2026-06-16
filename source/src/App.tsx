@@ -12,6 +12,7 @@ import Admin from './pages/Admin'
 import NotFound from './pages/NotFound'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import CustomerReviews from './pages/CustomerReviews'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
       <Route path="/admin" element={<Admin />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/customer-reviews" element={<CustomerReviews />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

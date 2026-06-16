@@ -12,6 +12,7 @@ const navLinks = (language: Language) => [
   { label: t("home", language).toUpperCase(), path: "/" },
   { label: t("about", language).toUpperCase(), path: "/about" },
   { label: t("products", language).toUpperCase(), path: "/products" },
+  { label: t("customerReviews", language).toUpperCase(), path: "/customer-reviews" },
   { label: t("trackQuote", language).toUpperCase(), path: "/track-quote" },
 ];
 
