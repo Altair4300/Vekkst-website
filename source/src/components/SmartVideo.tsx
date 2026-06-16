@@ -91,9 +91,10 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
       <video
         ref={videoRef}
         src={src}
-        controls
         loop
         playsInline
+        muted={isMuted}
+        autoPlay
         preload="metadata"
         className={className}
         poster={poster}

@@ -87,35 +87,35 @@ export default function Home() {
       <section className="py-20 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
-            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Why Us</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Why VEKKST</h2>
+            <p className="text-base tracking-[0.35em] text-amber-400 uppercase mb-3">Why Us</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-white">Why VEKKST</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
           <div className="grid md:grid-cols-5 gap-4">
             {[
               { num: "01", title: "HEAVYWEIGHT EXPERTISE", items: ["400-550 GSM Hoodies", "16+ Print & Embroidery Techniques", "9+ Specialty Washes"], icon: (
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
               )},
               { num: "02", title: "BUILT FOR INDEPENDENT BRANDS", items: ["256 Professionals", "3-7 Day Sampling", "3,600+ m2 Factory", "300K-450K+ PCS / Month"], icon: (
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
               )},
               { num: "03", title: "TRUSTED COMPLIANCE", items: ["TUV Rheinland Verified", "BSCI & AZO FREE", "100% On-Time Delivery", "4.8/5 Rating"], icon: (
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
               )},
               { num: "04", title: "COOPERATION TERMS", items: ["100% OEM/ODM", "MOQ 60 pcs", "15-25 Days Bulk", "Custom Labels & Packaging"], icon: (
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
               )},
               { num: "05", title: "GLOBAL STREETWEAR PARTNER", items: ["Serving 1100+ Global Brands", "Fast Communication", "Trend-Driven Development", "Long-Term Brand Growth"], icon: (
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               )},
             ].map((pillar) => (
-              <div key={pillar.num} className="bg-[#161616] border border-white/5 rounded-xl p-5 hover:border-amber-400/30 transition-colors">
-                <div className="text-amber-400 mb-3">{pillar.icon}</div>
-                <div className="text-amber-400 text-xs font-bold mb-1">{pillar.num}</div>
-                <h3 className="text-white text-sm font-bold mb-3 leading-tight">{pillar.title}</h3>
-                <ul className="space-y-1.5">
+              <div key={pillar.num} className="bg-[#161616] border border-white/5 rounded-xl p-6 hover:border-amber-400/30 transition-colors">
+                <div className="text-amber-400 mb-4">{pillar.icon}</div>
+                <div className="text-amber-400 text-sm font-bold mb-2">{pillar.num}</div>
+                <h3 className="text-white text-base font-bold mb-4 leading-tight">{pillar.title}</h3>
+                <ul className="space-y-2">
                   {pillar.items.map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-xs text-gray-400">
+                    <li key={item} className="flex items-start gap-2 text-sm text-gray-400">
                       <span className="text-amber-400 mt-0.5">&#10003;</span>
                       {item}
                     </li>
@@ -125,32 +125,32 @@ export default function Home() {
             ))}
           </div>
           {/* Quote/Sample/Bulk bar */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-[#161616] border border-white/5 rounded-xl p-5 flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-[#161616] border border-white/5 rounded-xl p-6 flex items-center gap-4">
+              <div className="w-14 h-14 bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               </div>
               <div>
-                <div className="text-xl font-bold text-white">QUOTE IN 24 HOURS</div>
-                <div className="text-xs text-gray-500">Fast Response. Clear Solutions.</div>
+                <div className="text-2xl font-bold text-white">QUOTE IN 24 HOURS</div>
+                <div className="text-sm text-gray-500">Fast Response. Clear Solutions.</div>
               </div>
             </div>
-            <div className="bg-[#161616] border border-white/5 rounded-xl p-5 flex items-center gap-4">
-              <div className="w-12 h-12 bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+            <div className="bg-[#161616] border border-white/5 rounded-xl p-6 flex items-center gap-4">
+              <div className="w-14 h-14 bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
               </div>
               <div>
-                <div className="text-xl font-bold text-white">SAMPLE IN 3-7 DAYS</div>
-                <div className="text-xs text-gray-500">Ready to Build Together.</div>
+                <div className="text-2xl font-bold text-white">SAMPLE IN 3-7 DAYS</div>
+                <div className="text-sm text-gray-500">Ready to Build Together.</div>
               </div>
             </div>
-            <div className="bg-[#161616] border border-white/5 rounded-xl p-5 flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            <div className="bg-[#161616] border border-white/5 rounded-xl p-6 flex items-center gap-4">
+              <div className="w-14 h-14 bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
               </div>
               <div>
-                <div className="text-xl font-bold text-white">BULK IN 15-25 DAYS</div>
-                <div className="text-xs text-gray-500">Reliable Production Timeline.</div>
+                <div className="text-2xl font-bold text-white">BULK IN 15-25 DAYS</div>
+                <div className="text-sm text-gray-500">Reliable Production Timeline.</div>
               </div>
             </div>
           </div>
