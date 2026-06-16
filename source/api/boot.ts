@@ -27,6 +27,20 @@ async function runStartupMigrations() {
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
       )
     `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS quote_messages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        quoteId VARCHAR(20) NOT NULL,
+        sender ENUM('customer', 'admin') NOT NULL,
+        senderName VARCHAR(255),
+        message TEXT NOT NULL,
+        type ENUM('text', 'image', 'video') DEFAULT 'text' NOT NULL,
+        fileUrl VARCHAR(500),
+        \`read\` ENUM('0', '1') DEFAULT '0' NOT NULL,
+        readByCustomer ENUM('0', '1') DEFAULT '0' NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `);
     // MySQL 9.7.0 does not support IF NOT EXISTS in ALTER TABLE ADD COLUMN.
     // Wrap each statement in a try-catch and ignore error 1060 (column already exists).
     for (const ddl of [
