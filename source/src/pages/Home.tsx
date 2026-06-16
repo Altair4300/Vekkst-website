@@ -39,7 +39,6 @@ export default function Home() {
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
 
   const { data: portfolioProducts, isLoading: portfolioLoading } = trpc.product.list.useQuery();
-  const { data: videos, isLoading: videosLoading } = trpc.media.listVideos.useQuery({ category: "general" });
 
   return (
     <Layout>
@@ -352,17 +351,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
-              {videosLoading ? (
-                <div className="w-full aspect-video bg-black flex items-center justify-center">
-                  <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
-                </div>
-              ) : videos && videos.length > 0 ? (
-                <SmartVideo src={videos[0].url} className="w-full aspect-video object-cover" poster="/images/choose1.png" />
-              ) : (
-                <div className="w-full aspect-video bg-black flex items-center justify-center">
-                  <p className="text-gray-400">Video coming soon. Upload via admin panel.</p>
-                </div>
-              )}
+              <SmartVideo src="/videos/company-overview.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
             </div>
           </div>
         </div>
@@ -411,7 +400,7 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex items-end">
-              <SmartVideo src="/videos/video-tour.mp4" className="w-full max-w-[360px] aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
+              <SmartVideo src="/videos/factory-tour-1.mp4" className="w-full max-w-[360px] aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
             </div>
             <div className="space-y-4">
               <SmartVideo src="/videos/video-factory.mp4" className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
