@@ -16,6 +16,8 @@ app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 async function runStartupMigrations() {
   try {
     const pool = mysql.createPool(env.databaseUrl);
+
+    // Step 1: Create subadmins table (idempotent)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS subadmins (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -27,13 +29,63 @@ async function runStartupMigrations() {
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
       )
     `);
-    await pool.query(`ALTER TABLE subadmins ADD COLUMN IF NOT EXISTS permissions VARCHAR(255) DEFAULT NULL`);
-    await pool.query(`ALTER TABLE quote_messages ADD COLUMN IF NOT EXISTS type ENUM('text', 'image', 'video') DEFAULT 'text' NOT NULL`);
-    await pool.query(`ALTER TABLE quote_messages ADD COLUMN IF NOT EXISTS fileUrl VARCHAR(500) DEFAULT NULL`);
+    console.log("[BOOT] Migration: subadmins table OK");
+
+    // Step 2: Create quote_messages table with all required columns (idempotent).
+    // Must be created BEFORE any ALTER TABLE statements that reference it.
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS quote_messages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        quoteId VARCHAR(20) NOT NULL,
+        sender ENUM('customer', 'admin') NOT NULL,
+        senderName VARCHAR(255),
+        message TEXT NOT NULL,
+        type ENUM('text', 'image', 'video') DEFAULT 'text' NOT NULL,
+        fileUrl VARCHAR(500),
+        \`read\` ENUM('0', '1') DEFAULT '0' NOT NULL,
+        readByCustomer ENUM('0', '1') DEFAULT '0' NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `);
+    console.log("[BOOT] Migration: quote_messages table OK");
+
+    // Step 3: Apply additive ALTER TABLE migrations for columns added after initial deploy.
+    // MySQL 9.7.0 does not support IF NOT EXISTS in ALTER TABLE ADD COLUMN.
+    // Wrap each statement in a try-catch and ignore error 1060 (column already exists).
+    const alterStatements: Array<{ ddl: string; label: string }> = [
+      {
+        ddl: `ALTER TABLE subadmins ADD COLUMN permissions VARCHAR(255) DEFAULT NULL`,
+        label: "subadmins.permissions",
+      },
+      {
+        ddl: `ALTER TABLE quote_messages ADD COLUMN type ENUM('text', 'image', 'video') DEFAULT 'text' NOT NULL`,
+        label: "quote_messages.type",
+      },
+      {
+        ddl: `ALTER TABLE quote_messages ADD COLUMN fileUrl VARCHAR(500) DEFAULT NULL`,
+        label: "quote_messages.fileUrl",
+      },
+    ];
+
+    for (const { ddl, label } of alterStatements) {
+      try {
+        await pool.query(ddl);
+        console.log(`[BOOT] Migration: added column ${label}`);
+      } catch (err: any) {
+        if (err?.errno === 1060) {
+          // Column already exists — safe to ignore on re-deploy
+          console.log(`[BOOT] Migration: column ${label} already exists, skipping`);
+        } else {
+          console.error(`[BOOT] Migration: failed to add column ${label}:`, err?.message || err);
+          throw err;
+        }
+      }
+    }
+
     await pool.end();
-    console.log("[BOOT] Migrations OK: subadmins table ready");
+    console.log("[BOOT] All migrations completed successfully");
   } catch (err) {
-    console.error("[BOOT] Migration warning:", err);
+    console.error("[BOOT] Migration error:", err);
   }
 }
 
