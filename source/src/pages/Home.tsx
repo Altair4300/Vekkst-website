@@ -39,6 +39,7 @@ export default function Home() {
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
 
   const { data: portfolioProducts, isLoading: portfolioLoading } = trpc.product.list.useQuery();
+  const { data: videos, isLoading: videosLoading } = trpc.media.listVideos.useQuery({ category: "general" });
 
   return (
     <Layout>
@@ -351,7 +352,17 @@ export default function Home() {
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
-              <SmartVideo src="/videos/company-video.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
+              {videosLoading ? (
+                <div className="w-full aspect-video bg-black flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+                </div>
+              ) : videos && videos.length > 0 ? (
+                <SmartVideo src={videos[0].url} className="w-full aspect-video object-cover" poster="/images/choose1.png" />
+              ) : (
+                <div className="w-full aspect-video bg-black flex items-center justify-center">
+                  <p className="text-gray-400">Video coming soon. Upload via admin panel.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
