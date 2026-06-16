@@ -58,16 +58,22 @@ export const mediaRouter = createRouter({
       const filename = `${Date.now()}_${input.filename}`;
 
       if (USE_S3) {
-        const { S3Client, PutObjectCommand } = await getS3Modules();
-        const key = `uploads/${input.category}/${filename}`;
-        const s3 = getS3Client(S3Client);
-        await s3!.send(new PutObjectCommand({
-          Bucket: BUCKET,
-          Key: key,
-          Body: buffer,
-          ContentType: "image/jpeg",
-        }));
-        return { url: getS3Url(key), category: input.category };
+        try {
+          const { S3Client, PutObjectCommand } = await getS3Modules();
+          const key = `uploads/${input.category}/${filename}`;
+          const s3 = getS3Client(S3Client);
+          await s3!.send(new PutObjectCommand({
+            Bucket: BUCKET,
+            Key: key,
+            Body: buffer,
+            ContentType: "image/jpeg",
+          }));
+          console.log(`[MEDIA] S3 uploadImage OK: ${key}`);
+          return { url: getS3Url(key), category: input.category };
+        } catch (s3Err: any) {
+          console.error("[MEDIA] S3 uploadImage failed:", s3Err?.message || s3Err);
+          throw s3Err;
+        }
       }
 
       // Fallback: local filesystem
@@ -91,16 +97,22 @@ export const mediaRouter = createRouter({
       const filename = `${Date.now()}_${input.filename}`;
 
       if (USE_S3) {
-        const { S3Client, PutObjectCommand } = await getS3Modules();
-        const key = `videos/${input.category}/${filename}`;
-        const s3 = getS3Client(S3Client);
-        await s3!.send(new PutObjectCommand({
-          Bucket: BUCKET,
-          Key: key,
-          Body: buffer,
-          ContentType: "video/mp4",
-        }));
-        return { url: getS3Url(key), category: input.category };
+        try {
+          const { S3Client, PutObjectCommand } = await getS3Modules();
+          const key = `videos/${input.category}/${filename}`;
+          const s3 = getS3Client(S3Client);
+          await s3!.send(new PutObjectCommand({
+            Bucket: BUCKET,
+            Key: key,
+            Body: buffer,
+            ContentType: "video/mp4",
+          }));
+          console.log(`[MEDIA] S3 uploadVideo OK: ${key}`);
+          return { url: getS3Url(key), category: input.category };
+        } catch (s3Err: any) {
+          console.error("[MEDIA] S3 uploadVideo failed:", s3Err?.message || s3Err);
+          throw s3Err;
+        }
       }
 
       // Fallback: local filesystem
@@ -137,7 +149,10 @@ export const mediaRouter = createRouter({
                 size: item.Size || 0,
               };
             });
-        } catch { return []; }
+        } catch (s3Err: any) {
+          console.error("[MEDIA] S3 listVideos failed:", s3Err?.message || s3Err);
+          return [];
+        }
       }
 
       // Fallback: local filesystem
@@ -191,7 +206,10 @@ export const mediaRouter = createRouter({
                 size: item.Size || 0,
               };
             });
-        } catch { return []; }
+        } catch (s3Err: any) {
+          console.error("[MEDIA] S3 listImages failed:", s3Err?.message || s3Err);
+          return [];
+        }
       }
 
       // Fallback: local filesystem
