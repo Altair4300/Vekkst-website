@@ -21,6 +21,46 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  // Attempt autoplay on mount
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Try to autoplay muted
+    video.muted = true;
+    video.play().then(() => {
+      setIsPlaying(true);
+      setIsMuted(true);
+    }).catch(() => {
+      // Autoplay blocked, will show play button
+      setIsPlaying(false);
+    });
+
+    // Listen for canplay to know when video is ready
+    const handleCanPlay = () => {
+      setIsLoaded(true);
+    };
+
+    const handleError = () => {
+      setHasError(true);
+      setIsLoaded(true);
+    };
+
+    video.addEventListener("canplay", handleCanPlay);
+    video.addEventListener("error", handleError);
+
+    // Also try to load metadata
+    video.load();
+
+    return () => {
+      video.removeEventListener("canplay", handleCanPlay);
+      video.removeEventListener("error", handleError);
+    };
+  }, [src]);
+
   // Intersection Observer - detect when video is in viewport
   useEffect(() => {
     const video = videoRef.current;
@@ -38,10 +78,19 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
             if (globalActiveVideo === video) {
               globalActiveVideo = null;
             }
+          } else {
+            // Scrolled into view - try to autoplay muted
+            video.muted = true;
+            video.play().then(() => {
+              setIsPlaying(true);
+              setIsMuted(true);
+            }).catch(() => {
+              // Autoplay blocked
+            });
           }
         });
       },
-      { threshold: 0.3 } // At least 30% visible
+      { threshold: 0.3 }
     );
 
     observer.observe(video);
@@ -54,7 +103,7 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
     if (!video) return;
 
     if (isPlaying && !isMuted) {
-      // Already playing with sound - pause
+      // Playing with sound - pause
       video.pause();
       setIsPlaying(false);
       setActiveVideo(null);
@@ -71,7 +120,6 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
       video.play().then(() => {
         setIsPlaying(true);
       }).catch(() => {
-        // Autoplay blocked, show play button state
         setIsPlaying(false);
       });
     }
@@ -94,16 +142,35 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
         loop
         playsInline
         muted={isMuted}
-        autoPlay
-        preload="metadata"
+        preload="auto"
         className={className}
         poster={poster}
         onEnded={handleEnded}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
       />
+      
+      {/* Loading state */}
+      {!isLoaded && !hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+          <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+
+      {/* Error state */}
+      {hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+          <div className="text-center">
+            <svg className="w-10 h-10 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p className="text-white text-sm">Video unavailable</p>
+          </div>
+        </div>
+      )}
+      
       {/* Play overlay when not playing */}
-      {!isPlaying && (
+      {isLoaded && !isPlaying && !hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
           <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
             <svg className="w-7 h-7 text-[#E60012] ml-1" fill="currentColor" viewBox="0 0 24 24">
@@ -112,6 +179,7 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
           </div>
         </div>
       )}
+      
       {/* Mute indicator when playing muted */}
       {isPlaying && isMuted && (
         <div className="absolute top-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
@@ -122,6 +190,7 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
           Click for sound
         </div>
       )}
+      
       {/* Sound on indicator */}
       {isPlaying && !isMuted && (
         <div className="absolute top-3 right-3 bg-[#E60012]/80 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
