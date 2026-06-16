@@ -39,7 +39,6 @@ export default function Home() {
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
 
   const { data: portfolioProducts, isLoading: portfolioLoading } = trpc.product.list.useQuery();
-  const { data: videos, isLoading: videosLoading } = trpc.media.listVideos.useQuery({ category: "general" });
 
   return (
     <Layout>
@@ -347,22 +346,15 @@ export default function Home() {
                   <p key={item} className="flex items-start gap-3"><span className="text-amber-400 mt-0.5 text-lg">&#10003;</span><span>{item}</span></p>
                 ))}
               </div>
+              <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black mb-8">
+                <SmartVideo src="/videos/factory-tour-left.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
+              </div>
               <Link to="/quote" className="inline-flex items-center gap-2 mt-8 bg-amber-400 hover:bg-amber-500 text-black px-8 py-3 rounded-full font-medium transition-colors">
                 <Play className="w-4 h-4" /> Request a Factory Tour
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
-              {videosLoading ? (
-                <div className="w-full aspect-video bg-black flex items-center justify-center">
-                  <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
-                </div>
-              ) : videos && videos.length > 0 ? (
-                <SmartVideo src={videos[0].url} className="w-full aspect-video object-cover" poster="/images/choose1.png" />
-              ) : (
-                <div className="w-full aspect-video bg-black flex items-center justify-center">
-                  <p className="text-gray-400">Video coming soon. Upload via admin panel.</p>
-                </div>
-              )}
+              <SmartVideo src="/videos/factory-tour.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
             </div>
           </div>
         </div>
