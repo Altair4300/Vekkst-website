@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import { CheckCircle } from "lucide-react";
-import Layout from "@/components/Layout";
 
 const capabilities = [
   "Custom Design & Sampling (3-7 day turnaround)",
@@ -24,7 +23,7 @@ const milestones = [
 
 export default function About() {
   return (
-    <Layout>
+    <>
       {/* Hero */}
       <section className="relative h-[300px] overflow-hidden">
         <img src="/images/hero-factory.png" alt="Factory" className="w-full h-full object-cover" />
@@ -132,6 +131,6 @@ export default function About() {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 }

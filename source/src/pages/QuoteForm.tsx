@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router";
 import { Check, Loader2, ArrowLeft, MessageCircle, Facebook, Instagram } from "lucide-react";
-import Layout from "@/components/Layout";
 import { trpc } from "@/providers/trpc";
 
 export default function QuoteForm() {
@@ -29,8 +28,7 @@ export default function QuoteForm() {
 
   if (mode === "success") {
     return (
-      <Layout>
-        <div className="min-h-screen bg-gray-50 py-16 px-4">
+      <div className="min-h-screen bg-gray-50 py-16 px-4">
           <div className="max-w-lg mx-auto text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <Check className="w-10 h-10 text-green-600" />
@@ -48,13 +46,12 @@ export default function QuoteForm() {
             </div>
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-50 py-10 px-4">
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
         <div className="max-w-3xl mx-auto">
           <Link to="/" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-amber-600 mb-6">
             <ArrowLeft className="w-4 h-4" /> Back to Home
@@ -139,6 +136,5 @@ export default function QuoteForm() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }

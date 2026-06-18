@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Play, Loader2 } from "lucide-react";
-import Layout from "@/components/Layout";
 import SmartVideo from "@/components/SmartVideo";
 import { trpc } from "@/providers/trpc";
 
@@ -41,7 +40,7 @@ export default function Home() {
   const { data: portfolioProducts, isLoading: portfolioLoading } = trpc.product.list.useQuery();
 
   return (
-    <Layout>
+    <>
       {/* ═══════ HERO — banner.png ═══════ */}
       <section className="relative w-full overflow-hidden bg-black h-[720px]">
         <img
@@ -448,6 +447,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 }

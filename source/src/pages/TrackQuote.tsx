@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Search, Loader2, Package, Clock, CheckCircle, XCircle, FileText } from "lucide-react";
-import Layout from "@/components/Layout";
 import ChatWidget from "@/components/ChatWidget";
 import { trpc } from "@/providers/trpc";
 
@@ -29,8 +28,7 @@ export default function TrackQuote() {
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-2xl mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-8">
@@ -171,6 +169,6 @@ export default function TrackQuote() {
           />
         )}
       </div>
-    </Layout>
+    </div>
   );
 }
