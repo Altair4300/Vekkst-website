@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { SlidersHorizontal, X, Loader2 } from "lucide-react";
-import Layout from "@/components/Layout";
 import { trpc } from "@/providers/trpc";
 
 const catOptions = [
@@ -43,7 +42,7 @@ export default function Products() {
   const hasFilters = activeCategory || activeSeason;
 
   return (
-    <Layout>
+    <>
       <section className="relative h-[200px] overflow-hidden">
         <img src="/images/showroom.jpg" alt="Products" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50" />
@@ -126,6 +125,6 @@ export default function Products() {
           )}
         </div>
       </section>
-    </Layout>
+    </>
   );
 }
