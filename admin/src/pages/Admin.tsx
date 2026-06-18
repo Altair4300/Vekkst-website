@@ -60,8 +60,16 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
         onLogin(adminResult.token, adminResult.permissions || "");
         return;
       }
-    } catch {
-      // adminAuth.login failed, fall through to subadmin login
+      // Admin login returned error - show it
+      if (adminResult.error) {
+        setError(true);
+        setErrorMsg(adminResult.error);
+        return;
+      }
+    } catch (err: unknown) {
+      setError(true);
+      setErrorMsg(err instanceof Error ? err.message : "Admin login failed");
+      return;
     }
     try {
       // 2. If admin login failed, try subadmin.login with email + password
@@ -78,7 +86,7 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
         }
       } else {
         setError(true);
-        setErrorMsg("Invalid admin password");
+        setErrorMsg("Invalid admin password — no email provided for subadmin login");
       }
     } catch (err: unknown) {
       setError(true);

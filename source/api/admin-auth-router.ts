@@ -35,6 +35,7 @@ export const adminAuthRouter = createRouter({
     .input(z.object({ password: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
+      console.log(`[ADMIN_LOGIN] IP: ${ip}, received password length: ${input.password.length}, stored password length: ${ADMIN_PASSWORD.length}, match: ${input.password === ADMIN_PASSWORD}`);
       if (!checkRateLimit(ip)) {
         return { success: false, error: "Too many attempts. Try again in 15 minutes." };
       }
