@@ -75,6 +75,9 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
             <Link to="/login" className="text-xs font-medium text-gray-400 hover:text-white transition-colors">
               {t("signIn", lang)}
             </Link>
+            <Link to="/admin" className="text-xs font-medium tracking-wider text-gray-400 hover:text-white transition-colors">
+              {t("admin", lang).toUpperCase()}
+            </Link>
           </div>
 
           {/* Mobile Hamburger */}
@@ -114,6 +117,7 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
                 {t("getFreeQuote", lang)}
               </button>
               <Link to="/login" onClick={() => setMobileOpen(false)} className="block text-sm text-center text-gray-500">{t("signIn", lang)}</Link>
+              <Link to="/admin" onClick={() => setMobileOpen(false)} className="block text-sm text-center font-medium tracking-wider text-gray-400">{t("admin", lang).toUpperCase()}</Link>
             </div>
           </div>
         </div>
