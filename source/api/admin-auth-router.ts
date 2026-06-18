@@ -42,6 +42,12 @@ export const adminAuthRouter = createRouter({
       const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
       const storedPw = getAdminPassword();
       console.log(`[ADMIN_LOGIN] IP: ${ip}, received password length: ${input.password.length}, stored password length: ${storedPw.length}, match: ${input.password === storedPw}`);
+      
+      // Also log to Railway's standard output
+      if (process.env.NODE_ENV === "production") {
+        console.error(`[ADMIN_LOGIN] IP: ${ip}, received pw len: ${input.password.length}, stored pw len: ${storedPw.length}, match: ${input.password === storedPw}`);
+      }
+      
       if (!checkRateLimit(ip)) {
         return { success: false, error: "Too many attempts. Try again in 15 minutes." };
       }
