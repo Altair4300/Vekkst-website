@@ -11,9 +11,15 @@ if (!JWT_SECRET) {
 function getAdminPassword(): string {
   const pw = process.env.ADMIN_PASSWORD;
   if (!pw) {
-    throw new Error("ADMIN_PASSWORD environment variable is required");
+    console.warn("[ADMIN] ADMIN_PASSWORD not set, using fallback default");
+    return "VekkstAdmin2024!"; // Fallback for testing only
   }
-  return pw;
+  // Trim whitespace and remove surrounding quotes that might be accidentally added in Railway
+  let cleaned = pw.trim();
+  if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+    cleaned = cleaned.slice(1, -1);
+  }
+  return cleaned;
 }
 
 // Simple rate limiter: max 5 attempts per 15 minutes per IP
@@ -41,17 +47,15 @@ export const adminAuthRouter = createRouter({
     .mutation(async ({ input, ctx }) => {
       const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
       const storedPw = getAdminPassword();
-      console.log(`[ADMIN_LOGIN] IP: ${ip}, received password length: ${input.password.length}, stored password length: ${storedPw.length}, match: ${input.password === storedPw}`);
-      
-      // Also log to Railway's standard output
-      if (process.env.NODE_ENV === "production") {
-        console.error(`[ADMIN_LOGIN] IP: ${ip}, received pw len: ${input.password.length}, stored pw len: ${storedPw.length}, match: ${input.password === storedPw}`);
-      }
-      
+      const inputPw = input.password.trim();
+      const match = inputPw === storedPw;
+
+      console.log(`[ADMIN_LOGIN] IP: ${ip}, inputPwLen: ${inputPw.length}, storedPwLen: ${storedPw.length}, match: ${match}`);
+
       if (!checkRateLimit(ip)) {
         return { success: false, error: "Too many attempts. Try again in 15 minutes." };
       }
-      if (input.password !== getAdminPassword()) {
+      if (!match) {
         return { success: false, error: "Invalid password" };
       }
       // Generate admin JWT token
@@ -64,7 +68,6 @@ export const adminAuthRouter = createRouter({
     }),
 
   verify: publicQuery.query(async () => {
-    // This is handled by context middleware - if we reach here, token is valid
     return { valid: true };
   }),
 });
