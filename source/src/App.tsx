@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router'
+import { Routes, Route, Outlet } from 'react-router'
+import Layout from './components/Layout'
 import Home from './pages/Home'
 import About from './pages/About'
 import Products from './pages/Products'
@@ -14,23 +15,33 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import CustomerReviews from './pages/CustomerReviews'
 
+function LayoutWrapper() {
+  return (
+    <Layout>
+      <Outlet />
+    </Layout>
+  )
+}
+
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/products" element={<Products />} />
-      <Route path="/product/:id" element={<ProductDetail />} />
-      <Route path="/quote" element={<QuoteForm />} />
-      <Route path="/quote/:productRef" element={<QuoteForm />} />
-      <Route path="/track-quote" element={<TrackQuote />} />
-      <Route path="/account" element={<Account />} />
+      <Route element={<LayoutWrapper />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/quote" element={<QuoteForm />} />
+        <Route path="/quote/:productRef" element={<QuoteForm />} />
+        <Route path="/track-quote" element={<TrackQuote />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/customer-reviews" element={<CustomerReviews />} />
+      </Route>
+      <Route path="/admin" element={<Admin />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/admin" element={<Admin />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
-      <Route path="/terms" element={<TermsOfService />} />
-      <Route path="/customer-reviews" element={<CustomerReviews />} />
+      <Route path="/account" element={<Account />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

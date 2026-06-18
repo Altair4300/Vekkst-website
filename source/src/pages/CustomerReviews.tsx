@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import Layout from "@/components/Layout";
 import { Star, ArrowLeft } from "lucide-react";
 
 /* ─────────────── CUSTOMER REVIEWS DATA ─────────────── */
@@ -47,7 +46,7 @@ const reviews = [
 
 export default function CustomerReviews() {
   return (
-    <Layout>
+    <>
       {/* Hero Header */}
       <section className="pt-[160px] pb-16 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4">
@@ -135,6 +134,6 @@ export default function CustomerReviews() {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 }

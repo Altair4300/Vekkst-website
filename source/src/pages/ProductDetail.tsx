@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import Layout from "@/components/Layout";
 import { trpc } from "@/providers/trpc";
 
 export default function ProductDetail() {
@@ -23,27 +22,23 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <Layout>
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-[#E60012]" />
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-[#E60012]" />
+      </div>
     );
   }
 
   if (!product) {
     return (
-      <Layout>
-        <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-          <Link to="/products" className="text-[#E60012]">Back to Portfolio</Link>
-        </div>
-      </Layout>
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
+        <Link to="/products" className="text-[#E60012]">Back to Portfolio</Link>
+      </div>
     );
   }
 
   return (
-    <Layout>
+    <>
       <section className="py-10 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <Link to="/products" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#E60012] mb-6">
@@ -121,6 +116,6 @@ export default function ProductDetail() {
           )}
         </div>
       </section>
-    </Layout>
+    </>
   );
 }
