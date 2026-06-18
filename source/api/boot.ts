@@ -122,6 +122,10 @@ app.use("*", async (c, next) => {
 // Simple health check endpoint (no DB required)
 app.get("/health", (c) => c.json({ ok: true, ts: Date.now() }));
 
+// Server-side redirect for /admin to separate admin panel service
+// (Works with HashRouter — client-side /admin route is kept as fallback)
+app.get("/admin", (c) => c.redirect("https://vekkst-admin-vkkst.up.railway.app", 302));
+
 // tRPC API handler - match both /api/trpc and /api/trpc/*
 app.use("/api/trpc", async (c) => {
   return fetchRequestHandler({
