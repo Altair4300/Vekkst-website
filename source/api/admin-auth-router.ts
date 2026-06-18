@@ -6,9 +6,14 @@ const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is required");
 }
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-if (!ADMIN_PASSWORD) {
-  throw new Error("ADMIN_PASSWORD environment variable is required");
+
+// Lazy check for ADMIN_PASSWORD — only validate at runtime so the module can be loaded during build
+function getAdminPassword(): string {
+  const pw = process.env.ADMIN_PASSWORD;
+  if (!pw) {
+    throw new Error("ADMIN_PASSWORD environment variable is required");
+  }
+  return pw;
 }
 
 // Simple rate limiter: max 5 attempts per 15 minutes per IP
@@ -35,11 +40,12 @@ export const adminAuthRouter = createRouter({
     .input(z.object({ password: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
-      console.log(`[ADMIN_LOGIN] IP: ${ip}, received password length: ${input.password.length}, stored password length: ${ADMIN_PASSWORD.length}, match: ${input.password === ADMIN_PASSWORD}`);
+      const storedPw = getAdminPassword();
+      console.log(`[ADMIN_LOGIN] IP: ${ip}, received password length: ${input.password.length}, stored password length: ${storedPw.length}, match: ${input.password === storedPw}`);
       if (!checkRateLimit(ip)) {
         return { success: false, error: "Too many attempts. Try again in 15 minutes." };
       }
-      if (input.password !== ADMIN_PASSWORD) {
+      if (input.password !== getAdminPassword()) {
         return { success: false, error: "Invalid password" };
       }
       // Generate admin JWT token
