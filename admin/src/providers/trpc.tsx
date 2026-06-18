@@ -21,9 +21,11 @@ const queryClient = new QueryClient({
 // VITE_API_URL can be set to point at the backend in production,
 // e.g. https://api.yourdomain.com. Falls back to a relative /api/trpc
 // path which works when the dev-server proxy is active.
-const apiBase = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api/trpc`
-  : "/api/trpc";
+let apiBaseUrl = import.meta.env.VITE_API_URL;
+if (apiBaseUrl && !apiBaseUrl.startsWith("http://") && !apiBaseUrl.startsWith("https://")) {
+  apiBaseUrl = `https://${apiBaseUrl}`;
+}
+const apiBase = apiBaseUrl ? `${apiBaseUrl}/api/trpc` : "/api/trpc";
 
 const trpcClient = trpc.createClient({
   links: [
