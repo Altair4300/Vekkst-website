@@ -91,6 +91,26 @@ async function runStartupMigrations() {
 
 // Security headers middleware
 app.use("*", async (c, next) => {
+  // CORS: allow admin panel and any origin for API calls
+  const origin = c.req.header("origin") || "";
+  const allowedOrigins = [
+    "https://vekkst-admin-vkkst.up.railway.app",
+    "https://intuitive-wonder-vkkst.up.railway.app",
+  ];
+  if (allowedOrigins.includes(origin) || origin.endsWith(".railway.app")) {
+    c.header("Access-Control-Allow-Origin", origin);
+  } else {
+    c.header("Access-Control-Allow-Origin", "*");
+  }
+  c.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+  c.header("Access-Control-Allow-Headers", "Content-Type, Authorization, x-admin-token, x-local-auth-token");
+  c.header("Access-Control-Allow-Credentials", "true");
+  
+  // Handle preflight OPTIONS requests
+  if (c.req.method === "OPTIONS") {
+    return c.text("", 204);
+  }
+  
   c.header("X-Frame-Options", "DENY");
   c.header("X-Content-Type-Options", "nosniff");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");

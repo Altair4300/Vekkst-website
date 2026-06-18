@@ -32,4 +32,7 @@ export default defineConfig({
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: true,
   },
+  preview: {
+    allowedHosts: ["vekkst-admin-vkkst.up.railway.app", ".railway.app"],
+  },
 });
