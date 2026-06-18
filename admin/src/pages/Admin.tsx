@@ -51,46 +51,36 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
     if (!pw.trim()) return;
     setError(false);
     setErrorMsg("");
+    console.log("[FRONTEND] Attempting login with password length:", pw.trim().length);
+    
     try {
       // 1. First try adminAuth.login with password only
       const adminResult = await loginMutation.mutateAsync({ password: pw.trim() });
+      console.log("[FRONTEND] Admin login result:", JSON.stringify(adminResult));
+      
       if (adminResult.success && adminResult.token) {
         localStorage.setItem("admin_auth_token", adminResult.token);
         localStorage.setItem("admin_permissions", adminResult.permissions || "");
         onLogin(adminResult.token, adminResult.permissions || "");
         return;
       }
+      
       // Admin login returned error - show it
       if (adminResult.error) {
         setError(true);
         setErrorMsg(adminResult.error);
         return;
       }
-    } catch (err: unknown) {
+      
+      // Unexpected response
       setError(true);
-      setErrorMsg(err instanceof Error ? err.message : "Admin login failed");
+      setErrorMsg("Unexpected response from server");
       return;
-    }
-    try {
-      // 2. If admin login failed, try subadmin.login with email + password
-      if (email.trim()) {
-        const subResult = await subadminLogin.mutateAsync({ email: email.trim(), password: pw.trim() });
-        if (subResult.success && subResult.token) {
-          localStorage.setItem("admin_auth_token", subResult.token);
-          localStorage.setItem("admin_permissions", subResult.permissions || "");
-          onLogin(subResult.token, subResult.permissions || "");
-          return;
-        } else {
-          setError(true);
-          setErrorMsg(subResult.error || "Invalid credentials");
-        }
-      } else {
-        setError(true);
-        setErrorMsg("Invalid admin password — no email provided for subadmin login");
-      }
-    } catch (err: unknown) {
+    } catch (err: any) {
+      console.error("[FRONTEND] Admin login error:", err);
       setError(true);
-      setErrorMsg(err instanceof Error ? err.message : "Login failed");
+      setErrorMsg(err?.message || "Network error - check console");
+      return;
     }
   };
 

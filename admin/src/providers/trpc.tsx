@@ -26,6 +26,7 @@ if (apiBaseUrl && !apiBaseUrl.startsWith("http://") && !apiBaseUrl.startsWith("h
   apiBaseUrl = `https://${apiBaseUrl}`;
 }
 const apiBase = apiBaseUrl ? `${apiBaseUrl}/api/trpc` : "/api/trpc";
+console.log("[TRPC] API URL:", apiBase, "Raw VITE_API_URL:", import.meta.env.VITE_API_URL);
 
 const trpcClient = trpc.createClient({
   links: [
