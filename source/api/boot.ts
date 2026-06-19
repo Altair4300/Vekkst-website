@@ -60,13 +60,21 @@ async function runStartupMigrations() {
         content TEXT NOT NULL,
         label VARCHAR(255),
         sort_order INT DEFAULT 0,
-        is_active BOOLEAN DEFAULT TRUE,
+        is_active ENUM('0', '1') DEFAULT '1' NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         UNIQUE KEY unique_page_section (page, section)
       )
     `);
     console.log("[BOOT] Migration: page_sections table OK");
+
+    // Fix: if page_sections was created with BOOLEAN is_active, convert to ENUM
+    try {
+      await pool.query(`ALTER TABLE page_sections MODIFY COLUMN is_active ENUM('0', '1') DEFAULT '1' NOT NULL`);
+      console.log("[BOOT] Migration: fixed page_sections.is_active column type");
+    } catch (e: any) {
+      if (e.code !== '1060') console.log("[BOOT] Note: page_sections.is_active column type fix skipped or already correct");
+    }
 
     // Step 3: Apply additive ALTER TABLE migrations for columns added after initial deploy.
     // MySQL 9.7.0 does not support IF NOT EXISTS in ALTER TABLE ADD COLUMN.
