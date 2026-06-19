@@ -128,20 +128,32 @@ app.get("/admin", (c) => c.redirect("https://vekkst-admin-vkkst.up.railway.app",
 
 // tRPC API handler - match both /api/trpc and /api/trpc/*
 app.use("/api/trpc", async (c) => {
-  return fetchRequestHandler({
+  const res = await fetchRequestHandler({
     endpoint: "/api/trpc",
     req: c.req.raw,
     router: appRouter,
     createContext,
   });
+  // Merge CORS headers from context into the tRPC response
+  const newHeaders = new Headers(res.headers);
+  c.res.headers.forEach((value, key) => {
+    newHeaders.set(key, value);
+  });
+  return new Response(res.body, { status: res.status, headers: newHeaders });
 });
 app.use("/api/trpc/*", async (c) => {
-  return fetchRequestHandler({
+  const res = await fetchRequestHandler({
     endpoint: "/api/trpc",
     req: c.req.raw,
     router: appRouter,
     createContext,
   });
+  // Merge CORS headers from context into the tRPC response
+  const newHeaders = new Headers(res.headers);
+  c.res.headers.forEach((value, key) => {
+    newHeaders.set(key, value);
+  });
+  return new Response(res.body, { status: res.status, headers: newHeaders });
 });
 
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
