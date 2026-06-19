@@ -10,6 +10,8 @@ import { mediaRouter } from "./media-router";
 import { subadminRouter } from "./subadmin-router";
 import { translationRouter } from "./translation-router";
 
+import { contentRouter } from "./content-router";
+
 export const appRouter = router({
   auth: authRouter,
   localAuth: localAuthRouter,
@@ -21,6 +23,7 @@ export const appRouter = router({
   media: mediaRouter,
   subadmin: subadminRouter,
   translation: translationRouter,
+  content: contentRouter,
 });
 
 export type AppRouter = typeof appRouter;

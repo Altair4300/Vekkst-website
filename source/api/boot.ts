@@ -49,6 +49,25 @@ async function runStartupMigrations() {
     `);
     console.log("[BOOT] Migration: quote_messages table OK");
 
+    // Step 2.5: Create page_sections table for CMS content management (idempotent).
+    // Stores dynamic content (images, videos, text) per page/section.
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS page_sections (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        page VARCHAR(50) NOT NULL,
+        section VARCHAR(100) NOT NULL,
+        type ENUM('image', 'video', 'text', 'html') DEFAULT 'text' NOT NULL,
+        content TEXT NOT NULL,
+        label VARCHAR(255),
+        sort_order INT DEFAULT 0,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_page_section (page, section)
+      )
+    `);
+    console.log("[BOOT] Migration: page_sections table OK");
+
     // Step 3: Apply additive ALTER TABLE migrations for columns added after initial deploy.
     // MySQL 9.7.0 does not support IF NOT EXISTS in ALTER TABLE ADD COLUMN.
     // Wrap each statement in a try-catch and ignore error 1060 (column already exists).

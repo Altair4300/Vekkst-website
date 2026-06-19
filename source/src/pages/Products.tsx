@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { SlidersHorizontal, X, Loader2 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
+import { usePageContent } from "@/hooks/usePageContent";
 
 const catOptions = [
   { label: "All", value: "" },
@@ -41,10 +42,13 @@ export default function Products() {
 
   const hasFilters = activeCategory || activeSeason;
 
+  const { getSection } = usePageContent("products");
+  const cms = (key: string, fallback: string) => getSection(key)?.content || fallback;
+
   return (
     <>
       <section className="relative h-[200px] overflow-hidden">
-        <img src="/images/showroom.jpg" alt="Products" className="w-full h-full object-cover" />
+        <img src={cms("hero-banner", "/images/showroom.jpg")} alt="Products" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center justify-center text-white">
           <div className="text-center">

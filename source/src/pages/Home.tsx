@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Play, Loader2 } from "lucide-react";
 import SmartVideo from "@/components/SmartVideo";
 import { trpc } from "@/providers/trpc";
+import { usePageContent } from "@/hooks/usePageContent";
 
 /* ─────────────── DATA ─────────────── */
 
@@ -38,13 +39,17 @@ export default function Home() {
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
 
   const { data: portfolioProducts, isLoading: portfolioLoading } = trpc.product.list.useQuery();
+  const { getSection } = usePageContent("home");
+
+  // Helper: get CMS content or fallback
+  const cms = (key: string, fallback: string) => getSection(key)?.content || fallback;
 
   return (
     <>
       {/* ═══════ HERO — banner.png ═══════ */}
       <section className="relative w-full overflow-hidden bg-black h-[720px]">
         <img
-          src="/images/banner.png"
+          src={cms("hero-banner", "/images/banner.png")}
           alt="Premium Streetwear Manufacturer"
           className="w-full h-full object-cover"
         />
@@ -166,7 +171,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src="/images/Factory Strength.png" alt="Factory Strength" className="w-full h-[720px] object-cover" />
+          <img src={cms("factory-strength", "/images/Factory Strength.png")} alt="Factory Strength" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -180,7 +185,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src="/images/Logo Rich Technology.png" alt="16+ Printing and Embroidery Techniques" className="w-full h-[720px] object-cover" />
+          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.png")} alt="16+ Printing and Embroidery Techniques" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -194,7 +199,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src="/images/Premium Custom Fabric.jpg" alt="Custom Fabric Options" className="w-full h-[720px] object-cover" />
+          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.jpg")} alt="Custom Fabric Options" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -208,7 +213,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src="/images/From Idea to Bulk.png" alt="From Idea to Bulk - 8 Step Process" className="w-full h-[720px] object-cover" />
+          <img src={cms("supply-chain", "/images/From Idea to Bulk.png")} alt="From Idea to Bulk - 8 Step Process" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -221,7 +226,7 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
           <div className="max-w-3xl mx-auto">
-            <img src="/images/team-photo.jpg" alt="VEKKST Garment Team" className="w-full rounded-2xl shadow-lg" />
+            <img src={cms("team-photo", "/images/team-photo.jpg")} alt="VEKKST Garment Team" className="w-full rounded-2xl shadow-lg" />
             <p className="text-center text-gray-500 text-sm mt-6 max-w-xl mx-auto">
               Over 256 skilled professionals dedicated to delivering premium quality streetwear 
               for independent brands worldwide. Built for quality. Made to deliver.
@@ -240,7 +245,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src="/images/Trusted by 1100+ Brands.png" alt="Trusted by 1100+ Global Streetwear Brands" className="w-full h-[720px] object-cover" />
+          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.png")} alt="Trusted by 1100+ Global Streetwear Brands" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -254,7 +259,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src="/images/Certifications & Compliance.png" alt="Certifications and Compliance" className="w-full h-[720px] object-cover" />
+          <img src={cms("certifications", "/images/Certifications & Compliance.png")} alt="Certifications and Compliance" className="w-full h-[720px] object-cover" />
         </div>
       </section>
 
@@ -350,7 +355,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
-              <SmartVideo src="/videos/company-overview.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.png" />
+              <SmartVideo src={cms("company-overview-video", "/videos/company-overview.mp4")} className="w-full aspect-video object-cover" poster="/images/choose1.png" />
             </div>
           </div>
         </div>
@@ -399,10 +404,10 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex items-end">
-              <SmartVideo src="/videos/factory-tour-1.mp4" className="w-full max-w-[360px] aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
+              <SmartVideo src={cms("factory-tour-1", "/videos/factory-tour-1.mp4")} className="w-full max-w-[360px] aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
             </div>
             <div className="space-y-4">
-              <SmartVideo src="/videos/video-factory.mp4" className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
+              <SmartVideo src={cms("factory-tour-2", "/videos/video-factory.mp4")} className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
               <p className="text-gray-400 text-sm leading-relaxed">
                 We strictly select high-quality fabrics, such as breathable and skin-friendly cotton materials, 
                 and high-tech functional materials, combined with exquisite workmanship, and strictly control 

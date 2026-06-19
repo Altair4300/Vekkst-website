@@ -64,7 +64,7 @@ export const adminAuthRouter = createRouter({
         JWT_SECRET,
         { expiresIn: "7d" }
       );
-      return { success: true, token, permissions: "dashboard,quotes,messages,products,media,team" };
+      return { success: true, token, permissions: "dashboard,quotes,messages,products,media,team,pages" };
     }),
 
   verify: publicQuery.query(async () => {

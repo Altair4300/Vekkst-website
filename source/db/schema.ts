@@ -1,4 +1,4 @@
-import { mysqlTable, serial, varchar, text, timestamp, mysqlEnum } from "drizzle-orm/mysql-core";
+import { mysqlTable, serial, varchar, text, timestamp, mysqlEnum, uniqueIndex, int } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: serial("id").primaryKey(),
@@ -73,3 +73,19 @@ export const subadmins = mysqlTable("subadmins", {
   permissions: varchar("permissions", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+
+export const pageSections = mysqlTable("page_sections", {
+  id: serial("id").primaryKey(),
+  page: varchar("page", { length: 50 }).notNull(),
+  section: varchar("section", { length: 100 }).notNull(),
+  type: mysqlEnum("type", ["image", "video", "text", "html"]).default("text").notNull(),
+  content: text("content").notNull(),
+  label: varchar("label", { length: 255 }),
+  sortOrder: int("sort_order").default(0).notNull(),
+  isActive: mysqlEnum("is_active", ["0", "1"]).default("1").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  uniquePageSection: uniqueIndex("unique_page_section").on(table.page, table.section),
+}));
+

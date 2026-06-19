@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { CheckCircle } from "lucide-react";
+import { usePageContent } from "@/hooks/usePageContent";
 
 const capabilities = [
   "Custom Design & Sampling (3-7 day turnaround)",
@@ -22,11 +23,14 @@ const milestones = [
 ];
 
 export default function About() {
+  const { getSection } = usePageContent("about");
+  const cms = (key: string, fallback: string) => getSection(key)?.content || fallback;
+
   return (
     <>
       {/* Hero */}
       <section className="relative h-[300px] overflow-hidden">
-        <img src="/images/hero-factory.png" alt="Factory" className="w-full h-full object-cover" />
+        <img src={cms("hero-banner", "/images/hero-factory.png")} alt="Factory" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center justify-center text-white text-center px-4">
           <div>
@@ -71,8 +75,8 @@ export default function About() {
               </div>
             </div>
             <div className="space-y-4">
-              <img src="/images/factory-machine.jpg" alt="Factory" className="w-full h-56 object-cover rounded-lg" />
-              <img src="/images/showroom.jpg" alt="Showroom" className="w-full h-56 object-cover rounded-lg" />
+              <img src={cms("factory-image", "/images/factory-machine.jpg")} alt="Factory" className="w-full h-56 object-cover rounded-lg" />
+              <img src={cms("showroom-image", "/images/showroom.jpg")} alt="Showroom" className="w-full h-56 object-cover rounded-lg" />
             </div>
           </div>
         </div>
