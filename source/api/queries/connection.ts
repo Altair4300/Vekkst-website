@@ -11,7 +11,7 @@ let instance: ReturnType<typeof drizzle<typeof fullSchema>>;
 export function getDb() {
   if (!instance) {
     const pool = mysql.createPool(env.databaseUrl);
-    instance = drizzle(pool, { schema: fullSchema });
+    instance = drizzle(pool, { schema: fullSchema, mode: "default" });
   }
   return instance;
 }
