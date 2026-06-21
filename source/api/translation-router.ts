@@ -54,14 +54,17 @@ export const translationRouter = createRouter({
       }
 
       // Fallback 1: MyMemory API (free, no key, 1000 requests/day)
+      // Note: MyMemory doesn't support "auto" source - use "en" as default or detect simple cases
       try {
-        const sourceLang = input.source || "auto";
+        const sourceLang = (input.source && input.source !== "auto") ? input.source : "en";
         const targetLang = input.target;
         const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(input.text)}&langpair=${sourceLang}|${targetLang}`;
         const response = await fetch(url, { method: "GET" });
         if (response.ok) {
           const data = await response.json();
-          if (data.responseData?.translatedText && data.responseData.translatedText !== input.text) {
+          if (data.responseData?.translatedText && 
+              data.responseData.translatedText !== input.text &&
+              !data.responseData.translatedText.includes("INVALID SOURCE LANGUAGE")) {
             return { success: true, translated: data.responseData.translatedText };
           }
         }
