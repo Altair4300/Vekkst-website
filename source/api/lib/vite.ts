@@ -9,6 +9,12 @@ type App = Hono<{ Bindings: HttpBindings }>;
 export function serveStaticFiles(app: App) {
   // Use process.cwd() since npm start runs from /app/source where dist/public exists
   const distPath = path.resolve(process.cwd(), "dist/public");
+  const uploadsPath = path.resolve(process.cwd(), "public", "uploads");
+  const videosPath = path.resolve(process.cwd(), "public", "videos");
+
+  // Serve uploaded images and videos from public/uploads and public/videos
+  app.use("/uploads/*", serveStatic({ root: uploadsPath }));
+  app.use("/videos/*", serveStatic({ root: videosPath }));
 
   app.use("*", serveStatic({ root: distPath }));
 
