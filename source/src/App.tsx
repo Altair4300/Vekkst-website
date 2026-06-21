@@ -13,6 +13,8 @@ import TrackQuote from './pages/TrackQuote'
 import NotFound from './pages/NotFound'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import ReturnPolicy from './pages/ReturnPolicy'
+import ShippingPolicy from './pages/ShippingPolicy'
 import CustomerReviews from './pages/CustomerReviews'
 
 // Admin is now a separate service at vekkst-admin-vkkst.up.railway.app
@@ -44,6 +46,8 @@ export default function App() {
         <Route path="/track-quote" element={<TrackQuote />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/returns" element={<ReturnPolicy />} />
+        <Route path="/shipping" element={<ShippingPolicy />} />
         <Route path="/customer-reviews" element={<CustomerReviews />} />
       </Route>
       <Route path="/admin" element={<AdminRedirect />} />
