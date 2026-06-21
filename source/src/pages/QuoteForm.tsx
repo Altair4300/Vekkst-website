@@ -1,10 +1,13 @@
 import { useState, useRef } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 import { Check, Loader2, ArrowLeft, MessageCircle, Facebook, Instagram, Image } from "lucide-react";
 import { trpc } from "@/providers/trpc";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function QuoteForm() {
   const { productRef } = useParams<{ productRef?: string }>();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [mode, setMode] = useState<"choose" | "form" | "success">("choose");
   const [resultQuoteId, setResultQuoteId] = useState("");
   const [form, setForm] = useState({
@@ -63,6 +66,40 @@ export default function QuoteForm() {
   const removeFile = (index: number) => {
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
+
+  // Auth gate: redirect to login if not authenticated
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#E60012]" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-16 px-4">
+        <div className="max-w-lg mx-auto text-center">
+          <Link to="/">
+            <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-10 w-auto mx-auto mb-6" />
+          </Link>
+          <h1 className="text-2xl font-bold text-[#333] mb-3">Sign In Required</h1>
+          <p className="text-gray-500 mb-8">Please sign in or create an account to request a free quote. This helps us ensure you're a serious buyer and allows you to track your quote.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to={`/login?redirect=${encodeURIComponent("/quote")}`} className="inline-block bg-[#E60012] hover:bg-[#c4000f] text-white px-8 py-3 rounded-full font-semibold transition-colors">
+              Sign In
+            </Link>
+            <Link to={`/register?redirect=${encodeURIComponent("/quote")}`} className="inline-block border border-[#E60012] text-[#E60012] hover:bg-[#E60012] hover:text-white px-8 py-3 rounded-full font-semibold transition-all">
+              Create Account
+            </Link>
+          </div>
+          <Link to="/" className="inline-block mt-6 text-sm text-gray-500 hover:text-[#E60012]">
+            &larr; Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (mode === "success") {
     return (

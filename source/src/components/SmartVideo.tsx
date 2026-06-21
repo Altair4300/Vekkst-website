@@ -146,8 +146,7 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
         loop
         playsInline
         muted={isMuted}
-        autoPlay
-        preload="auto"
+        preload="metadata"
         className={className}
         poster={poster}
         onError={handleError}

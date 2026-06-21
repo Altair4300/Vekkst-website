@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,8 @@ import { UserPlus } from "lucide-react";
 
 export default function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/";
   const { isAuthenticated } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,13 +22,13 @@ export default function Register() {
   const registerMutation = trpc.localAuth.register.useMutation({
     onSuccess: (data) => {
       localStorage.setItem("local_auth_token", data.token);
-      window.location.href = "/";
+      window.location.href = redirect;
     },
     onError: (err) => setError(err.message),
   });
 
   if (isAuthenticated) {
-    navigate("/");
+    navigate(redirect);
     return null;
   }
 
@@ -80,7 +82,7 @@ export default function Register() {
 
           <div className="text-center text-sm text-gray-500 mt-4">
             Already have an account?{" "}
-            <Link to="/login" className="text-[#E60012] hover:underline font-medium">Sign in</Link>
+            <Link to={`/login?redirect=${encodeURIComponent(redirect)}`} className="text-[#E60012] hover:underline font-medium">Sign in</Link>
           </div>
         </div>
       </div>

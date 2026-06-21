@@ -47,11 +47,12 @@ export default function Home() {
   return (
     <>
       {/* ═══════ HERO — banner.png ═══════ */}
-      <section className="relative w-full overflow-hidden bg-black h-[720px]">
+      <section className="relative w-full overflow-hidden bg-black h-[50vh] min-h-[300px] md:h-[720px]">
         <img
           src={cms("hero-banner", "/images/banner.png")}
           alt="Premium Streetwear Manufacturer"
           className="w-full h-full object-cover"
+          decoding="async"
         />
       </section>
 
@@ -171,7 +172,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src={cms("factory-strength", "/images/Factory Strength.png")} alt="Factory Strength" className="w-full h-[720px] object-cover" />
+          <img src={cms("factory-strength", "/images/Factory Strength.png")} alt="Factory Strength" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
         </div>
       </section>
 
@@ -185,7 +186,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.png")} alt="16+ Printing and Embroidery Techniques" className="w-full h-[720px] object-cover" />
+          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.png")} alt="16+ Printing and Embroidery Techniques" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
         </div>
       </section>
 
@@ -199,7 +200,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.jpg")} alt="Custom Fabric Options" className="w-full h-[720px] object-cover" />
+          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.jpg")} alt="Custom Fabric Options" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
         </div>
       </section>
 
@@ -213,7 +214,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src={cms("supply-chain", "/images/From Idea to Bulk.png")} alt="From Idea to Bulk - 8 Step Process" className="w-full h-[720px] object-cover" />
+          <img src={cms("supply-chain", "/images/From Idea to Bulk.png")} alt="From Idea to Bulk - 8 Step Process" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
         </div>
       </section>
 
@@ -227,7 +228,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.png")} alt="Trusted by 1100+ Global Streetwear Brands" className="w-full h-[720px] object-cover" />
+          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.png")} alt="Trusted by 1100+ Global Streetwear Brands" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
         </div>
       </section>
 
@@ -241,7 +242,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto">
-          <img src={cms("certifications", "/images/Certifications & Compliance.png")} alt="Certifications and Compliance" className="w-full h-[720px] object-cover" />
+          <img src={cms("certifications", "/images/Certifications & Compliance.png")} alt="Certifications and Compliance" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
         </div>
       </section>
 

@@ -1,7 +1,24 @@
 import { z } from "zod";
-import { createRouter, publicQuery, adminQuery } from "./middleware";
+import { createRouter, publicQuery, authedQuery } from "./middleware";
 import { writeFile, mkdir, unlink, readdir } from "fs/promises";
 import { join } from "path";
+
+// ─── Rate limiting for authenticated uploads ───
+const uploadAttempts = new Map<string, { count: number; resetAt: number }>();
+const MAX_UPLOADS = 5;
+const UPLOAD_WINDOW_MS = 60 * 1000;
+
+function checkUploadRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = uploadAttempts.get(ip);
+  if (!record || now > record.resetAt) {
+    uploadAttempts.set(ip, { count: 1, resetAt: now + UPLOAD_WINDOW_MS });
+    return true;
+  }
+  if (record.count >= MAX_UPLOADS) return false;
+  record.count++;
+  return true;
+}
 
 // ─── S3 config ───
 const USE_S3 = !!process.env.S3_BUCKET_NAME;
@@ -45,14 +62,18 @@ const VIDEO_DIR = join(process.cwd(), "public", "videos");
 const IMAGE_DIR = join(process.cwd(), "public", "uploads");
 
 export const mediaRouter = createRouter({
-  // Upload an image (organized by category)
-  uploadImage: adminQuery
+  // Upload an image (authenticated users only — rate limited)
+  uploadImage: authedQuery
     .input(z.object({
       data: z.string(),
       filename: z.string(),
       category: z.string().default("general"),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
+      if (!checkUploadRateLimit(ip)) {
+        throw new Error("Upload rate limit exceeded. Please try again later.");
+      }
       const base64Data = input.data.replace(/^data:image\/\w+;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
       const filename = `${Date.now()}_${input.filename}`;
@@ -84,14 +105,18 @@ export const mediaRouter = createRouter({
       return { url: `/uploads/${input.category}/${filename}`, category: input.category };
     }),
 
-  // Upload a video (organized by category)
-  uploadVideo: adminQuery
+  // Upload a video (authenticated users only — rate limited)
+  uploadVideo: authedQuery
     .input(z.object({
       data: z.string(),
       filename: z.string(),
       category: z.string().default("general"),
     }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
+      const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
+      if (!checkUploadRateLimit(ip)) {
+        throw new Error("Upload rate limit exceeded. Please try again later.");
+      }
       const base64Data = input.data.replace(/^data:video\/\w+;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
       const filename = `${Date.now()}_${input.filename}`;

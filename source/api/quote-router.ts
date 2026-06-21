@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createRouter, publicQuery } from "./middleware";
+import { createRouter, publicQuery, authedQuery } from "./middleware";
 import { quotes } from "@db/schema";
 import { getDb } from "./queries/connection";
 import { eq, desc } from "drizzle-orm";
@@ -12,7 +12,7 @@ function generateQuoteId(): string {
 }
 
 export const quoteRouter = createRouter({
-  submit: publicQuery
+  submit: authedQuery
     .input(
       z.object({
         name: z.string().min(1),
@@ -29,13 +29,15 @@ export const quoteRouter = createRouter({
         productRef: z.string().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const db = getDb();
       const quoteId = generateQuoteId();
+      // Use authenticated user's email to prevent spoofing
+      const userEmail = ctx.user!.email;
       await db.insert(quotes).values({
         quoteId,
         name: input.name,
-        email: input.email,
+        email: userEmail,
         company: input.company || null,
         phone: input.phone || null,
         productType: input.productType || null,
@@ -50,14 +52,15 @@ export const quoteRouter = createRouter({
       return { success: true, quoteId };
     }),
 
-  track: publicQuery
-    .input(z.object({ email: z.string().email(), quoteId: z.string() }))
-    .query(async ({ input }) => {
+  track: authedQuery
+    .input(z.object({ quoteId: z.string() }))
+    .query(async ({ input, ctx }) => {
       const db = getDb();
       const result = await db.select().from(quotes).where(eq(quotes.quoteId, input.quoteId)).limit(1);
       if (!result.length) throw new Error("Quote not found");
       const q = result[0];
-      if (q.email.toLowerCase() !== input.email.toLowerCase()) throw new Error("Email does not match");
+      // Use authenticated user's email to verify ownership
+      if (q.email.toLowerCase() !== ctx.user!.email.toLowerCase()) throw new Error("Email does not match");
       return q;
     }),
 

@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router";
 import { Search, Loader2, Package, Clock, CheckCircle, XCircle, FileText } from "lucide-react";
 import ChatWidget from "@/components/ChatWidget";
 import { trpc } from "@/providers/trpc";
+import { useAuth } from "@/hooks/useAuth";
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
   new: { label: "New", color: "bg-yellow-100 text-yellow-700", icon: Package },
@@ -13,19 +14,34 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
 };
 
 export default function TrackQuote() {
-  const [email, setEmail] = useState("");
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const navigate = useNavigate();
   const [quoteId, setQuoteId] = useState("");
   const [searched, setSearched] = useState(false);
 
   const { data: quote, isLoading, error } = trpc.quote.track.useQuery(
-    { email, quoteId },
-    { enabled: searched && !!email && !!quoteId }
+    { quoteId },
+    { enabled: searched && !!quoteId && isAuthenticated }
   );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && quoteId) setSearched(true);
+    if (quoteId) setSearched(true);
   };
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate(`/login?redirect=${encodeURIComponent("/track-quote")}`);
+    }
+  }, [authLoading, isAuthenticated, navigate]);
+
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#E60012]" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -37,35 +53,22 @@ export default function TrackQuote() {
               <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-10 w-auto mx-auto mb-4" />
             </Link>
             <h1 className="text-2xl font-bold text-[#333]">Track Your Quote</h1>
-            <p className="text-gray-500 text-sm mt-1">Enter your email and Quote ID to check the status</p>
+            <p className="text-gray-500 text-sm mt-1">Enter your Quote ID to check the status</p>
           </div>
 
           {/* Search Form */}
           <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">Email Address</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => { setEmail(e.target.value); setSearched(false); }}
-                    placeholder="you@company.com"
-                    className="w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#E60012]"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1.5">Quote ID</label>
-                  <input
-                    type="text"
-                    value={quoteId}
-                    onChange={(e) => { setQuoteId(e.target.value.toUpperCase()); setSearched(false); }}
-                    placeholder="e.g. Q250611-A3B2"
-                    className="w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#E60012] uppercase"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Quote ID</label>
+                <input
+                  type="text"
+                  value={quoteId}
+                  onChange={(e) => { setQuoteId(e.target.value.toUpperCase()); setSearched(false); }}
+                  placeholder="E.g. Q250611-A3B2"
+                  className="w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[#E60012] uppercase"
+                  required
+                />
               </div>
               <button
                 type="submit"
