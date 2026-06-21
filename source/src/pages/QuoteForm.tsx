@@ -169,7 +169,7 @@ export default function QuoteForm() {
                   <div className="md:col-span-2"><label className="block text-sm font-medium mb-1.5">Special Requirements</label><textarea value={form.requirements} onChange={e => setForm({...form, requirements: e.target.value})} rows={4} className="w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-amber-400 resize-none" placeholder="Custom labels, packaging, printing method, etc." /></div>
                 </div>
 
-                {/* Design File Upload */}
+                {/* Design File Upload — v2 */}
                 <div className="md:col-span-2 mt-4">
                   <label className="block text-sm font-medium mb-1.5">Design Files (Images or Videos)</label>
                   <input
