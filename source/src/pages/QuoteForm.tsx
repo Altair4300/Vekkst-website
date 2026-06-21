@@ -169,9 +169,9 @@ export default function QuoteForm() {
                   <div className="md:col-span-2"><label className="block text-sm font-medium mb-1.5">Special Requirements</label><textarea value={form.requirements} onChange={e => setForm({...form, requirements: e.target.value})} rows={4} className="w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-amber-400 resize-none" placeholder="Custom labels, packaging, printing method, etc." /></div>
                 </div>
 
-                {/* Design File Upload — v2 */}
+                {/* Design File Upload — v5 */}
                 <div className="md:col-span-2 mt-4">
-                  <label className="block text-sm font-medium mb-1.5">Design Files (Images or Videos) — v4</label>
+                  <label className="block text-sm font-medium mb-1.5">Design Files (Images or Videos) — v5</label>
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -189,7 +189,7 @@ export default function QuoteForm() {
                     {uploading ? <Loader2 className="w-5 h-5 animate-spin text-amber-500" /> : <Image className="w-5 h-5" />}
                     {uploading ? "Uploading..." : "Click to upload design images or videos"}
                   </button>
-                  <p className="text-xs text-gray-400 mt-1">Upload your design files, mood boards, reference images, or product videos. Max 50MB per file. (Build v3)</p>
+                  <p className="text-xs text-gray-400 mt-1">Upload your design files, mood boards, reference images, or product videos. Max 50MB per file. (Build v5)</p>
 
                   {/* Uploaded files preview */}
                   {uploadedFiles.length > 0 && (
