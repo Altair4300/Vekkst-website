@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Routes, Route, Outlet } from 'react-router'
 import Layout from './components/Layout'
 import Home from './pages/Home'
@@ -16,7 +17,13 @@ import ReturnPolicy from './pages/ReturnPolicy'
 import ShippingPolicy from './pages/ShippingPolicy'
 import CustomerReviews from './pages/CustomerReviews'
 
-import Admin from './pages/Admin'
+// Admin is now a separate service at vekkst-admin-vkkst.up.railway.app
+function AdminRedirect() {
+  useEffect(() => {
+    window.location.href = "https://vekkst-admin-vkkst.up.railway.app";
+  }, []);
+  return <div className="min-h-screen flex items-center justify-center bg-black text-white">Redirecting to admin panel...</div>;
+}
 
 function LayoutWrapper() {
   return (
@@ -43,7 +50,7 @@ export default function App() {
         <Route path="/shipping" element={<ShippingPolicy />} />
         <Route path="/customer-reviews" element={<CustomerReviews />} />
       </Route>
-      <Route path="/admin" element={<Admin />} />
+      <Route path="/admin" element={<AdminRedirect />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/account" element={<Account />} />
