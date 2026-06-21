@@ -31,8 +31,8 @@ export const translationRouter = createRouter({
         return { success: false, error: "Rate limit exceeded. Try again later.", translated: "" };
       }
 
+      // Try LibreTranslate first (free, no key)
       try {
-        // Use LibreTranslate API (free, no key required for basic usage)
         const response = await fetch("https://libretranslate.de/translate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -43,12 +43,33 @@ export const translationRouter = createRouter({
             format: "text",
           }),
         });
-
-        if (!response.ok) throw new Error("Translation service error");
-        const data = await response.json();
-        return { success: true, translated: data.translatedText || input.text };
-      } catch {
-        return { success: false, error: "Translation failed", translated: input.text };
+        if (response.ok) {
+          const data = await response.json();
+          if (data.translatedText) {
+            return { success: true, translated: data.translatedText };
+          }
+        }
+      } catch (e) {
+        console.warn("[TRANSLATE] LibreTranslate failed, trying fallback...");
       }
+
+      // Fallback 1: MyMemory API (free, no key, 1000 requests/day)
+      try {
+        const sourceLang = input.source || "auto";
+        const targetLang = input.target;
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(input.text)}&langpair=${sourceLang}|${targetLang}`;
+        const response = await fetch(url, { method: "GET" });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.responseData?.translatedText && data.responseData.translatedText !== input.text) {
+            return { success: true, translated: data.responseData.translatedText };
+          }
+        }
+      } catch (e) {
+        console.warn("[TRANSLATE] MyMemory fallback failed...");
+      }
+
+      // Fallback 2: Simply return original text (graceful degradation)
+      return { success: false, error: "Translation services unavailable. Displaying original text.", translated: input.text };
     }),
 });
