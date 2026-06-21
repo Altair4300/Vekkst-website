@@ -148,6 +148,37 @@ export default function TrackQuote() {
                   </div>
                 )}
 
+                {/* Design Files */}
+                {quote.designFiles && (
+                  <div className="pt-4">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Design Files:</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {(() => {
+                        try {
+                          const files = JSON.parse(quote.designFiles) as string[];
+                          return files.map((url: string, idx: number) => {
+                            const isVideo = url.match(/\.(mp4|webm|mov|avi)$/i);
+                            return (
+                              <div key={idx} className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                                {isVideo ? (
+                                  <video src={url} controls className="w-full h-24 object-cover" />
+                                ) : (
+                                  <img src={url} alt={`Design ${idx + 1}`} className="w-full h-24 object-cover" />
+                                )}
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/30 transition-colors">
+                                  <span className="text-white text-xs opacity-0 hover:opacity-100 font-medium">View</span>
+                                </a>
+                              </div>
+                            );
+                          });
+                        } catch {
+                          return <p className="text-sm text-gray-500">{quote.designFiles}</p>;
+                        }
+                      })()}
+                    </div>
+                  </div>
+                )}
+
                 <p className="text-xs text-gray-400 text-center pt-4">
                   Submitted on {new Date(quote.createdAt).toLocaleDateString()}
                 </p>

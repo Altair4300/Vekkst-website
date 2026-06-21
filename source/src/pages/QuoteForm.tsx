@@ -189,7 +189,7 @@ export default function QuoteForm() {
                     {uploading ? <Loader2 className="w-5 h-5 animate-spin text-amber-500" /> : <Image className="w-5 h-5" />}
                     {uploading ? "Uploading..." : "Click to upload design images or videos"}
                   </button>
-                  <p className="text-xs text-gray-400 mt-1">Upload your design files, mood boards, reference images, or product videos. Max 50MB per file. (Build v5)</p>
+                  <p className="text-xs text-gray-400 mt-1">Upload your design files, mood boards, reference images, or product videos. Max 50MB per file. (Build v6)</p>
 
                   {/* Uploaded files preview */}
                   {uploadedFiles.length > 0 && (

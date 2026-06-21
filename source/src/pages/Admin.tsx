@@ -360,8 +360,40 @@ interface QuoteItem {
   id: number; quoteId: string; name: string; email: string;
   company: string | null; phone: string | null; productType: string | null;
   quantity: string | null; fabric: string | null; sizeRange: string | null;
-  deadline: string | null; requirements: string | null;
-  status: string | null; createdAt: Date;
+  deadline: string | null; requirements: string | null; designFiles: string | null;
+  productRef: string | null; status: string | null; createdAt: Date;
+}
+
+function DesignFilesDisplay({ designFiles }: { designFiles: string | null }) {
+  if (!designFiles) return null;
+  try {
+    const files = JSON.parse(designFiles) as string[];
+    if (!Array.isArray(files) || files.length === 0) return null;
+    return (
+      <div className="pt-2">
+        <p className="font-medium mb-2">Design Files ({files.length}):</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {files.map((url, idx) => {
+            const isVideo = url.match(/\.(mp4|webm|mov|avi)$/i);
+            return (
+              <div key={idx} className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                {isVideo ? (
+                  <video src={url} controls className="w-full h-24 object-cover" />
+                ) : (
+                  <img src={url} alt={`Design ${idx + 1}`} className="w-full h-24 object-cover" />
+                )}
+                <a href={url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/30 transition-colors">
+                  <span className="text-white text-xs opacity-0 hover:opacity-100 font-medium">View</span>
+                </a>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  } catch {
+    return <p className="text-sm text-gray-500">Design files: {designFiles}</p>;
+  }
 }
 
 function QuotesPage() {
@@ -441,6 +473,7 @@ function QuotesPage() {
                   <p className="text-gray-600 text-sm">{viewing.requirements}</p>
                 </div>
               )}
+              <DesignFilesDisplay designFiles={viewing.designFiles} />
               <div className="pt-4 border-t border-gray-100">
                 <p className="font-medium text-sm mb-2">Update Status</p>
                 <div className="flex gap-2">
