@@ -10,5 +10,5 @@ rootDir = "source"
 enabled = true
 
 [deploy]
-buildCommand = "npm run build"
+buildCommand = "echo 'Cache-bust: v3' && npm run build"
 startCommand = "npm start"

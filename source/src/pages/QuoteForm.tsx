@@ -171,7 +171,7 @@ export default function QuoteForm() {
 
                 {/* Design File Upload — v2 */}
                 <div className="md:col-span-2 mt-4">
-                  <label className="block text-sm font-medium mb-1.5">Design Files (Images or Videos)</label>
+                  <label className="block text-sm font-medium mb-1.5">Design Files (Images or Videos) — v3</label>
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -189,7 +189,7 @@ export default function QuoteForm() {
                     {uploading ? <Loader2 className="w-5 h-5 animate-spin text-amber-500" /> : <Image className="w-5 h-5" />}
                     {uploading ? "Uploading..." : "Click to upload design images or videos"}
                   </button>
-                  <p className="text-xs text-gray-400 mt-1">Upload your design files, mood boards, reference images, or product videos. Max 50MB per file.</p>
+                  <p className="text-xs text-gray-400 mt-1">Upload your design files, mood boards, reference images, or product videos. Max 50MB per file. (Build v3)</p>
 
                   {/* Uploaded files preview */}
                   {uploadedFiles.length > 0 && (
