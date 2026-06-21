@@ -14,7 +14,8 @@ export function serveStaticFiles(app: App) {
 
   app.notFound((c) => {
     const accept = c.req.header("accept") ?? "";
-    if (!accept.includes("text/html")) {
+    // Serve index.html for browser requests (HTML or wildcard */*)
+    if (!accept.includes("text/html") && !accept.includes("*/*")) {
       return c.json({ error: "Not Found" }, 404);
     }
     const indexPath = path.resolve(distPath, "index.html");
