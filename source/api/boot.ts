@@ -48,6 +48,51 @@ async function runStartupMigrations() {
     `);
     console.log("[BOOT] Migration: users table OK");
 
+    // Step 1.6: Create products table (idempotent).
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS products (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL UNIQUE,
+        category VARCHAR(50) NOT NULL,
+        season VARCHAR(20) DEFAULT NULL,
+        description TEXT DEFAULT NULL,
+        image VARCHAR(500) NOT NULL,
+        badge VARCHAR(20) DEFAULT NULL,
+        sizes VARCHAR(100) DEFAULT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )
+    `);
+    console.log("[BOOT] Migration: products table OK");
+
+    // Step 1.7: Create quotes table (idempotent).
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS quotes (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        quoteId VARCHAR(20) NOT NULL UNIQUE,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(320) NOT NULL,
+        company VARCHAR(255) DEFAULT NULL,
+        phone VARCHAR(50) DEFAULT NULL,
+        productType VARCHAR(100) DEFAULT NULL,
+        quantity VARCHAR(50) DEFAULT NULL,
+        fabric VARCHAR(255) DEFAULT NULL,
+        sizeRange VARCHAR(100) DEFAULT NULL,
+        deadline VARCHAR(50) DEFAULT NULL,
+        requirements TEXT DEFAULT NULL,
+        designFiles TEXT DEFAULT NULL,
+        productRef VARCHAR(255) DEFAULT NULL,
+        status ENUM('new', 'processing', 'quoted', 'accepted', 'declined') DEFAULT 'new',
+        adminNotes TEXT DEFAULT NULL,
+        quotePrice VARCHAR(100) DEFAULT NULL,
+        quoteTimeline VARCHAR(100) DEFAULT NULL,
+        quoteMou VARCHAR(100) DEFAULT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+      )
+    `);
+    console.log("[BOOT] Migration: quotes table OK");
+
     // Step 2: Create quote_messages table with all required columns (idempotent).
     // Must be created BEFORE any ALTER TABLE statements that reference it.
     await pool.query(`
