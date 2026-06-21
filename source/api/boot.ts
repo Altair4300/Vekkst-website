@@ -31,6 +31,23 @@ async function runStartupMigrations() {
     `);
     console.log("[BOOT] Migration: subadmins table OK");
 
+    // Step 1.5: Create users table for customer authentication (idempotent).
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        unionId VARCHAR(255),
+        name VARCHAR(255),
+        email VARCHAR(320) NOT NULL UNIQUE,
+        phone VARCHAR(20),
+        avatar TEXT,
+        role ENUM('user', 'admin') DEFAULT 'user' NOT NULL,
+        password VARCHAR(255),
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+      )
+    `);
+    console.log("[BOOT] Migration: users table OK");
+
     // Step 2: Create quote_messages table with all required columns (idempotent).
     // Must be created BEFORE any ALTER TABLE statements that reference it.
     await pool.query(`
