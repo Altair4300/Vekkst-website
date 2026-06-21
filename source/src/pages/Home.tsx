@@ -217,24 +217,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════ TEAM — WHITE BG ═══════ */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-6">
-            <p className="text-sm tracking-[0.35em] text-amber-600 uppercase mb-3">Our People</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Meet Our Team</h2>
-            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
-          </div>
-          <div className="max-w-3xl mx-auto">
-            <img src={cms("team-photo", "/images/team-photo.jpg")} alt="VEKKST Garment Team" className="w-full rounded-2xl shadow-lg" />
-            <p className="text-center text-gray-500 text-sm mt-6 max-w-xl mx-auto">
-              Over 256 skilled professionals dedicated to delivering premium quality streetwear 
-              for independent brands worldwide. Built for quality. Made to deliver.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* ═══════ PARTNER BRANDS — WHITE BG ═══════ */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">

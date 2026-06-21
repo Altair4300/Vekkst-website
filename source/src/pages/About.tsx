@@ -82,6 +82,19 @@ export default function About() {
         </div>
       </section>
 
+      {/* Team Photo */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold mb-2">Meet Our Team</h2>
+            <p className="text-gray-500 text-sm">Over 256 skilled professionals dedicated to delivering premium quality streetwear</p>
+          </div>
+          <div className="max-w-4xl mx-auto">
+            <img src={cms("team-photo", "/images/team-photo.jpg")} alt="VEKKST Garment Team" className="w-full rounded-2xl shadow-lg" />
+          </div>
+        </div>
+      </section>
+
       {/* Capabilities */}
       <section className="py-16 bg-[#F5F5F5]">
         <div className="max-w-7xl mx-auto px-4">
