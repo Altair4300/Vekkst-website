@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router";
-import { X, Check, Loader2, MessageCircle, Facebook, Instagram } from "lucide-react";
+import { X, Check, Loader2, MessageCircle, Facebook, Instagram, Image } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 
 interface QuoteModalProps {
@@ -15,6 +15,9 @@ export default function QuoteModal({ productRef, onClose }: QuoteModalProps) {
     name: "", email: "", company: "", phone: "", productType: "",
     quantity: "", fabric: "", sizeRange: "", deadline: "", requirements: "",
   });
+  const [uploadedFiles, setUploadedFiles] = useState<{ url: string; name: string; type: "image" | "video" }[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const submitQuote = trpc.quote.submit.useMutation({
     onSuccess: (data) => {
@@ -23,10 +26,45 @@ export default function QuoteModal({ productRef, onClose }: QuoteModalProps) {
     },
   });
 
+  const uploadImage = trpc.media.uploadImage.useMutation();
+  const uploadVideo = trpc.media.uploadVideo.useMutation();
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    try {
+      const newFiles: { url: string; name: string; type: "image" | "video" }[] = [];
+      for (const file of Array.from(files)) {
+        const isVideo = file.type.startsWith("video/");
+        const data = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(String(ev.target?.result));
+          reader.readAsDataURL(file);
+        });
+        const result = isVideo
+          ? await uploadVideo.mutateAsync({ data, filename: file.name, category: "general" })
+          : await uploadImage.mutateAsync({ data, filename: file.name, category: "general" });
+        newFiles.push({ url: result.url, name: file.name, type: isVideo ? "video" : "image" });
+      }
+      setUploadedFiles((prev) => [...prev, ...newFiles]);
+    } catch {
+      alert("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email) return;
-    submitQuote.mutate({ ...form, productRef: productRef || undefined });
+    const designFiles = uploadedFiles.length > 0 ? JSON.stringify(uploadedFiles.map(f => f.url)) : undefined;
+    submitQuote.mutate({ ...form, productRef: productRef || undefined, designFiles });
   };
 
   return (
@@ -111,8 +149,58 @@ export default function QuoteModal({ productRef, onClose }: QuoteModalProps) {
               <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Deadline</label><input type="date" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" /></div>
               <div className="md:col-span-2"><label className="block text-sm font-medium mb-1">Requirements</label><textarea value={form.requirements} onChange={e => setForm({...form, requirements: e.target.value})} rows={3} className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400 resize-none" placeholder="Special requirements..." /></div>
             </div>
+
+            {/* Design File Upload — v4 */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium mb-1.5">Design Files (Images or Videos)</label>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*,video/*"
+                multiple
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full border-2 border-dashed border-gray-300 hover:border-amber-400 rounded-lg px-4 py-4 flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-amber-600 transition-colors"
+              >
+                {uploading ? <Loader2 className="w-5 h-5 animate-spin text-amber-500" /> : <Image className="w-5 h-5" />}
+                {uploading ? "Uploading..." : "Click to upload design images or videos"}
+              </button>
+              <p className="text-xs text-gray-400 mt-1">Upload your design files, mood boards, reference images, or product videos. Max 50MB per file. (Build v4)</p>
+
+              {/* Uploaded files preview */}
+              {uploadedFiles.length > 0 && (
+                <div className="mt-3 grid grid-cols-4 md:grid-cols-6 gap-2">
+                  {uploadedFiles.map((file, i) => (
+                    <div key={i} className="relative group">
+                      {file.type === "image" ? (
+                        <img src={file.url} alt={file.name} className="w-full h-20 object-cover rounded-lg border" />
+                      ) : (
+                        <div className="w-full h-20 bg-gray-100 rounded-lg border flex items-center justify-center">
+                          <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4zM14 13h-3v3H9v-3H6v-2h3V8h2v3h3v2z"/></svg>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeFile(i)}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove"
+                      >
+                        ×
+                      </button>
+                      <p className="text-[10px] text-gray-500 mt-0.5 truncate max-w-full">{file.name}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {productRef && <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">Referencing product: <strong>#{productRef}</strong></div>}
-            <button type="submit" disabled={submitQuote.isPending} className="w-full bg-amber-400 hover:bg-amber-500 text-black py-3 rounded-lg font-medium transition-colors disabled:opacity-50">{submitQuote.isPending ? <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</span> : "Submit Quote Request"}</button>
+            <button type="submit" disabled={submitQuote.isPending || uploading} className="w-full bg-amber-400 hover:bg-amber-500 text-black py-3 rounded-lg font-medium transition-colors disabled:opacity-50">{submitQuote.isPending || uploading ? <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</span> : "Submit Quote Request"}</button>
             <button type="button" onClick={() => setMode("choose")} className="w-full text-sm text-gray-500 hover:text-gray-700 py-2">&larr; Back to options</button>
           </form>
         )}
