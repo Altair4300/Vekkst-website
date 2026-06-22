@@ -11,30 +11,19 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const [hasError, setHasError] = useState(false);
 
-  // Always preload metadata so the video knows its dimensions and can play
-  // On mobile, don't autoplay - just show the play button
+  // Try muted autoplay on mount (desktop usually works, mobile is blocked)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Reset when src changes
-    setHasError(false);
-    setIsPlaying(false);
-    setIsMuted(true);
-
-    // Try muted autoplay (desktop will work, mobile will block)
     video.muted = true;
-    video.play().then(() => {
-      setIsPlaying(true);
-    }).catch(() => {
-      // Autoplay blocked - expected on mobile, show play button
-      setIsPlaying(false);
-    });
+    video.play()
+      .then(() => setIsPlaying(true))
+      .catch(() => setIsPlaying(false));
   }, [src]);
 
-  // Intersection Observer - pause when scrolled out of view
+  // Pause when scrolled out of view
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -42,7 +31,7 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) {
+          if (!entry.isIntersecting && isPlaying) {
             video.pause();
             video.muted = true;
             setIsPlaying(false);
@@ -55,37 +44,24 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
 
     observer.observe(video);
     return () => observer.disconnect();
-  }, []);
+  }, [isPlaying]);
 
-  // Handle click - play/pause
+  // Click to play/pause
   const handleClick = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
 
     if (isPlaying) {
-      // Pause
       video.pause();
       setIsPlaying(false);
     } else {
-      // Try to play
-      setHasError(false);
       video.muted = false;
       setIsMuted(false);
-      video.play().then(() => {
-        setIsPlaying(true);
-      }).catch(() => {
-        // Still can't play - show error
-        setIsPlaying(false);
-        setHasError(true);
-      });
+      video.play()
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false));
     }
   }, [isPlaying]);
-
-  // Handle error
-  const handleError = useCallback(() => {
-    setHasError(true);
-    setIsPlaying(false);
-  }, []);
 
   return (
     <div className="relative group cursor-pointer" onClick={handleClick}>
@@ -95,32 +71,16 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
         loop
         playsInline
         muted={isMuted}
-        preload="metadata"
+        preload="auto"
         className={className}
         poster={poster}
-        onError={handleError}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
       />
 
-      {/* Error state - show poster with play button */}
-      {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          {poster && <img src={poster} alt="Video poster" className="w-full h-full object-cover" />}
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg mx-auto mb-3">
-                <Play className="w-7 h-7 text-[#E60012] ml-1" fill="currentColor" />
-              </div>
-              <p className="text-white text-sm font-medium">Tap to play</p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Play button overlay when not playing */}
-      {!isPlaying && !hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+      {!isPlaying && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
           <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
             <Play className="w-7 h-7 text-[#E60012] ml-1" fill="currentColor" />
           </div>
