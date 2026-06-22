@@ -85,6 +85,7 @@
     "superjson": "^2.2.6",
     "tailwind-merge": "^3.4.0",
     "vaul": "^1.1.2",
+    "tsx": "^4.19.0",
     "zod": "^4.3.5",
     "zustand": "^5.0.14"
   },
@@ -110,7 +111,6 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
-    "vitest": "^4.0.16",
-    "tsx": "^4.19.0"
+    "vitest": "^4.0.16"
   }
 }
