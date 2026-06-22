@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback, useState } from "react";
+import { Play } from "lucide-react";
 
 interface SmartVideoProps {
   src: string;
@@ -22,33 +23,30 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Attempt autoplay on mount and when src changes
+  // Detect mobile on mount
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
-    setIsLoading(true);
+  // Reset state when src changes
+  useEffect(() => {
+    setIsLoading(false);
     setHasError(false);
     setIsPlaying(false);
     setIsMuted(true);
-
-    // Try to autoplay muted
-    video.muted = true;
-    const playPromise = video.play();
-    if (playPromise) {
-      playPromise.then(() => {
-        setIsPlaying(true);
-        setIsMuted(true);
-      }).catch(() => {
-        // Autoplay blocked or not ready, will show play button
-        setIsPlaying(false);
-      });
-    }
+    setRetryCount(0);
   }, [src]);
 
-  // Intersection Observer - detect when video is in viewport
+  // Intersection Observer - only autoplay on desktop
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -65,14 +63,14 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
             if (globalActiveVideo === video) {
               globalActiveVideo = null;
             }
-          } else {
-            // Scrolled into view - try to autoplay muted
+          } else if (!isMobile) {
+            // Desktop: try to autoplay muted
             video.muted = true;
             video.play().then(() => {
               setIsPlaying(true);
               setIsMuted(true);
             }).catch(() => {
-              // Autoplay blocked or still loading
+              // Autoplay blocked
             });
           }
         });
@@ -82,12 +80,51 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
 
     observer.observe(video);
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
 
-  // Handle click on video
+  // Load video with retry
+  const loadVideo = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    setIsLoading(true);
+    setHasError(false);
+
+    // On mobile, load with preload="metadata" first
+    if (isMobile) {
+      video.preload = "metadata";
+    } else {
+      video.preload = "auto";
+    }
+
+    video.load();
+
+    // Set a timeout for loading
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        setIsLoading(false);
+        if (retryCount < 2) {
+          setRetryCount((c) => c + 1);
+          loadVideo(); // Retry
+        } else {
+          setHasError(true);
+        }
+      }
+    }, 15000); // 15 second timeout for large files
+
+    return () => clearTimeout(timeout);
+  }, [isMobile, retryCount, isLoading]);
+
+  // Handle click on video / poster
   const handleClick = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    // On first click or if not loaded, load the video
+    if (!video.src || video.readyState === 0) {
+      loadVideo();
+      return;
+    }
 
     if (isPlaying && !isMuted) {
       // Playing with sound - pause
@@ -104,24 +141,38 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
       video.muted = false;
       setIsMuted(false);
       setActiveVideo(video);
+      setIsLoading(true);
       video.play().then(() => {
         setIsPlaying(true);
+        setIsLoading(false);
       }).catch(() => {
         setIsPlaying(false);
+        setIsLoading(false);
+        setHasError(true);
       });
     }
-  }, [isPlaying, isMuted]);
+  }, [isPlaying, isMuted, loadVideo]);
 
   // Handle video events
   const handleError = useCallback(() => {
-    setHasError(true);
     setIsLoading(false);
-    setIsPlaying(false);
-  }, []);
+    if (retryCount < 2) {
+      setRetryCount((c) => c + 1);
+      // Retry after a short delay
+      setTimeout(() => {
+        const video = videoRef.current;
+        if (video) {
+          video.load();
+        }
+      }, 1000);
+    } else {
+      setHasError(true);
+    }
+  }, [retryCount]);
 
   const handleCanPlay = useCallback(() => {
-    setHasError(false);
     setIsLoading(false);
+    setHasError(false);
   }, []);
 
   const handleLoadedData = useCallback(() => {
@@ -138,6 +189,11 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
     setIsPlaying(true);
   }, []);
 
+  const handleStalled = useCallback(() => {
+    // Network stalled - show loading but don't error immediately
+    setIsLoading(true);
+  }, []);
+
   return (
     <div className="relative group cursor-pointer" onClick={handleClick}>
       <video
@@ -146,7 +202,7 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
         loop
         playsInline
         muted={isMuted}
-        preload="metadata"
+        preload={isMobile ? "none" : "metadata"}
         className={className}
         poster={poster}
         onError={handleError}
@@ -154,12 +210,13 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
         onLoadedData={handleLoadedData}
         onWaiting={handleWaiting}
         onPlaying={handlePlaying}
+        onStalled={handleStalled}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
       />
 
       {/* Loading state */}
-      {isLoading && !hasError && (
+      {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50">
           <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
         </div>
@@ -171,11 +228,11 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
           <img src={poster} alt="Video poster" className="w-full h-full object-cover" />
           <div className="absolute inset-0 flex items-center justify-center bg-black/40">
             <div className="text-center">
-              <svg className="w-10 h-10 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              <svg className="w-10 h-10 text-amber-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <p className="text-white text-sm font-medium">Video unavailable</p>
-              <p className="text-gray-400 text-xs mt-1">Click to retry</p>
+              <p className="text-white text-sm font-medium">Tap to play video</p>
             </div>
           </div>
         </div>
@@ -185,21 +242,29 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
       {hasError && !poster && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/60">
           <div className="text-center">
-            <svg className="w-10 h-10 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            <svg className="w-10 h-10 text-amber-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <p className="text-white text-sm">Video unavailable</p>
+            <p className="text-white text-sm">Tap to play</p>
           </div>
         </div>
       )}
 
-      {/* Play overlay when not playing and not loading */}
-      {!isPlaying && !isLoading && !hasError && (
+      {/* Initial state on mobile: show play button overlay */}
+      {!isPlaying && !isLoading && !hasError && isMobile && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+          <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+            <Play className="w-7 h-7 text-[#E60012] ml-1" fill="currentColor" />
+          </div>
+        </div>
+      )}
+
+      {/* Play overlay on desktop when not playing and not loading */}
+      {!isPlaying && !isLoading && !hasError && !isMobile && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
           <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-            <svg className="w-7 h-7 text-[#E60012] ml-1" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
+            <Play className="w-7 h-7 text-[#E60012] ml-1" fill="currentColor" />
           </div>
         </div>
       )}
@@ -211,7 +276,7 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
           </svg>
-          Click for sound
+          Tap for sound
         </div>
       )}
 
