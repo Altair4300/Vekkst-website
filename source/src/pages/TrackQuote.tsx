@@ -115,12 +115,12 @@ export default function TrackQuote() {
                     const stepIdx = ["new", "processing", "quoted", "accepted"].indexOf(quote.status ?? "new");
                     const isActive = idx <= stepIdx;
                     return (
-                      <div key={step} className="flex flex-col items-center gap-1 flex-1">
+                      <div key={step} className="flex flex-col items-center gap-1 flex-1 relative">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isActive ? "bg-[#E60012] text-white" : "bg-gray-200 text-gray-400"}`}>
                           {idx < stepIdx ? "✓" : idx + 1}
                         </div>
                         <span className={`text-xs ${isActive ? "text-[#E60012] font-medium" : "text-gray-400"}`}>{stepConfig.label}</span>
-                        {idx < 3 && <div className={`absolute h-0.5 w-full top-4 left-1/2 -z-10 ${isActive ? "bg-[#E60012]" : "bg-gray-200"}`} style={{ transform: "translateX(50%)" }} />}
+                        {idx < 3 && <div className={`absolute h-0.5 w-1/2 top-4 left-1/2 -z-10 ${isActive ? "bg-[#E60012]" : "bg-gray-200"}`} />}
                       </div>
                     );
                   })}
