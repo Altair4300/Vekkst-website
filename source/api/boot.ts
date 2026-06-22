@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { bodyLimit } from "hono/body-limit";
 import type { HttpBindings } from "@hono/node-server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "./router";
@@ -10,7 +9,41 @@ import mysql from "mysql2/promise";
 
 const app = new Hono<{ Bindings: HttpBindings }>();
 
-app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
+// ─── CORS FIRST — must run before any middleware that might return a response ───
+app.use("*", async (c, next) => {
+  const origin = c.req.header("origin") || "";
+  const allowedOrigins = [
+    "https://vekkst-admin-vkkst.up.railway.app",
+    "https://intuitive-wonder-vkkst.up.railway.app",
+  ];
+  if (allowedOrigins.includes(origin) || origin.endsWith(".railway.app")) {
+    c.header("Access-Control-Allow-Origin", origin);
+  } else {
+    c.header("Access-Control-Allow-Origin", "*");
+  }
+  c.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+  c.header("Access-Control-Allow-Headers", "Content-Type, Authorization, x-admin-token, x-local-auth-token");
+  c.header("Access-Control-Allow-Credentials", "true");
+  
+  if (c.req.method === "OPTIONS") {
+    return c.text("", 204);
+  }
+  
+  await next();
+});
+
+// ─── Safe body limit — only checks Content-Length header, never consumes body ───
+app.use("/api/*", async (c, next) => {
+  const maxSize = 100 * 1024 * 1024; // 100MB
+  const contentLength = c.req.raw.headers.get("content-length");
+  if (contentLength) {
+    const size = parseInt(contentLength);
+    if (!isNaN(size) && size > maxSize) {
+      return c.json({ error: "Payload too large. Max 100MB." }, 413);
+    }
+  }
+  await next();
+});
 
 // Auto-run simple migrations on startup (production only)
 async function runStartupMigrations() {
@@ -178,28 +211,8 @@ async function runStartupMigrations() {
   }
 }
 
-// Security headers middleware
+// Security headers middleware (CORS is already set above)
 app.use("*", async (c, next) => {
-  // CORS: allow admin panel and any origin for API calls
-  const origin = c.req.header("origin") || "";
-  const allowedOrigins = [
-    "https://vekkst-admin-vkkst.up.railway.app",
-    "https://intuitive-wonder-vkkst.up.railway.app",
-  ];
-  if (allowedOrigins.includes(origin) || origin.endsWith(".railway.app")) {
-    c.header("Access-Control-Allow-Origin", origin);
-  } else {
-    c.header("Access-Control-Allow-Origin", "*");
-  }
-  c.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
-  c.header("Access-Control-Allow-Headers", "Content-Type, Authorization, x-admin-token, x-local-auth-token");
-  c.header("Access-Control-Allow-Credentials", "true");
-  
-  // Handle preflight OPTIONS requests
-  if (c.req.method === "OPTIONS") {
-    return c.text("", 204);
-  }
-  
   c.header("X-Frame-Options", "DENY");
   c.header("X-Content-Type-Options", "nosniff");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -246,6 +259,25 @@ app.use("/api/trpc/*", async (c) => {
 });
 
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
+
+// Global error handler — ensures CORS headers are always present on error responses
+app.onError((err, c) => {
+  const origin = c.req.header("origin") || "";
+  const allowedOrigins = [
+    "https://vekkst-admin-vkkst.up.railway.app",
+    "https://intuitive-wonder-vkkst.up.railway.app",
+  ];
+  if (allowedOrigins.includes(origin) || origin.endsWith(".railway.app")) {
+    c.header("Access-Control-Allow-Origin", origin);
+  } else {
+    c.header("Access-Control-Allow-Origin", "*");
+  }
+  c.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+  c.header("Access-Control-Allow-Headers", "Content-Type, Authorization, x-admin-token, x-local-auth-token");
+  c.header("Access-Control-Allow-Credentials", "true");
+  console.error("[ERROR]", err);
+  return c.json({ error: "Internal server error" }, 500);
+});
 
 export default app;
 
