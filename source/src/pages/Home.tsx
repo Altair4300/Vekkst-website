@@ -47,14 +47,16 @@ export default function Home() {
   return (
     <>
       {/* ═══════ HERO — banner.png ═══════ */}
-      <section className="relative w-full overflow-hidden bg-black h-[60vh] min-h-[400px] md:h-[720px]">
-        <img
-          src={cms("hero-banner", "/images/banner.png")}
-          alt="Premium Streetwear Manufacturer"
-          className="w-full h-full object-cover object-[center_25%] md:object-center"
-          decoding="async"
-          loading="eager"
-        />
+      <section className="relative w-full bg-black">
+        <div className="h-[50vh] min-h-[400px] md:h-[720px] overflow-x-auto md:overflow-x-hidden">
+          <img
+            src={cms("hero-banner", "/images/banner.png")}
+            alt="Premium Streetwear Manufacturer"
+            className="h-full w-auto md:w-full md:object-cover max-w-none"
+            decoding="async"
+            loading="eager"
+          />
+        </div>
       </section>
 
       {/* ═══════ CATEGORIES — DARK ═══════ */}
