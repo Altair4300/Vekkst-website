@@ -80,6 +80,7 @@ export const pageSections = mysqlTable("page_sections", {
   section: varchar("section", { length: 100 }).notNull(),
   type: mysqlEnum("type", ["image", "video", "text", "html"]).default("text").notNull(),
   content: text("content").notNull(),
+  mobileContent: text("mobile_content"), // Mobile version of the content
   label: varchar("label", { length: 255 }),
   sortOrder: int("sort_order").default(0).notNull(),
   isActive: mysqlEnum("is_active", ["0", "1"]).default("1").notNull(),

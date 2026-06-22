@@ -56,6 +56,7 @@ export const contentRouter = createRouter({
         section: z.string().min(1),
         type: z.enum(["image", "video", "text", "html"]),
         content: z.string().min(1),
+        mobileContent: z.string().optional(),
         label: z.string().optional(),
         sortOrder: z.number().optional(),
         isActive: z.string().optional(), // "1" or "0"
@@ -73,6 +74,7 @@ export const contentRouter = createRouter({
             section: input.section,
             type: input.type,
             content: input.content,
+            mobileContent: input.mobileContent || null,
             label: input.label || null,
             sortOrder: input.sortOrder ?? 0,
             isActive: input.isActive === "0" ? "0" : "1",
@@ -100,6 +102,7 @@ export const contentRouter = createRouter({
           .set({
             type: input.type,
             content: input.content,
+            mobileContent: input.mobileContent || null,
             label: input.label || null,
             sortOrder: input.sortOrder ?? 0,
             isActive: input.isActive === "0" ? "0" : "1",
@@ -115,6 +118,7 @@ export const contentRouter = createRouter({
         section: input.section,
         type: input.type,
         content: input.content,
+        mobileContent: input.mobileContent || null,
         label: input.label || null,
         sortOrder: input.sortOrder ?? 0,
         isActive: input.isActive === "0" ? "0" : "1",

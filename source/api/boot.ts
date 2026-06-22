@@ -176,6 +176,10 @@ async function runStartupMigrations() {
     // Wrap each statement in a try-catch and ignore error 1060 (column already exists).
     const alterStatements: Array<{ ddl: string; label: string }> = [
       {
+        ddl: `ALTER TABLE page_sections ADD COLUMN mobile_content TEXT`,
+        label: "page_sections.mobile_content",
+      },
+      {
         ddl: `ALTER TABLE subadmins ADD COLUMN permissions VARCHAR(255) DEFAULT NULL`,
         label: "subadmins.permissions",
       },
