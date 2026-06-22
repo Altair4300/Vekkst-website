@@ -1,21 +1,32 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, Outlet } from 'react-router'
 import Layout from './components/Layout'
-import Home from './pages/Home'
-import About from './pages/About'
-import Products from './pages/Products'
-import ProductDetail from './pages/ProductDetail'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Account from './pages/Account'
-import QuoteForm from './pages/QuoteForm'
-import TrackQuote from './pages/TrackQuote'
-import NotFound from './pages/NotFound'
-import PrivacyPolicy from './pages/PrivacyPolicy'
-import TermsOfService from './pages/TermsOfService'
-import ReturnPolicy from './pages/ReturnPolicy'
-import ShippingPolicy from './pages/ShippingPolicy'
-import CustomerReviews from './pages/CustomerReviews'
+
+// Lazy load all pages for code splitting
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const Products = lazy(() => import('./pages/Products'));
+const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Account = lazy(() => import('./pages/Account'));
+const QuoteForm = lazy(() => import('./pages/QuoteForm'));
+const TrackQuote = lazy(() => import('./pages/TrackQuote'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const ReturnPolicy = lazy(() => import('./pages/ReturnPolicy'));
+const ShippingPolicy = lazy(() => import('./pages/ShippingPolicy'));
+const CustomerReviews = lazy(() => import('./pages/CustomerReviews'));
+
+// Loading fallback for lazy routes
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 // Admin is now a separate service at vekkst-admin-vkkst.up.railway.app
 function AdminRedirect() {
@@ -28,7 +39,9 @@ function AdminRedirect() {
 function LayoutWrapper() {
   return (
     <Layout>
-      <Outlet />
+      <Suspense fallback={<PageLoader />}>
+        <Outlet />
+      </Suspense>
     </Layout>
   )
 }

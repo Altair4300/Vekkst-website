@@ -8,19 +8,19 @@ import { usePageContent } from "@/hooks/usePageContent";
 /* ─────────────── DATA ─────────────── */
 
 const categories = [
-  { name: "Hoodies", img: "/images/hoodies and sweatshirts.png", hover: "/images/hoodies and sweatshirts.png", slug: "hoodies" },
-  { name: "T-Shirts", img: "/images/t-shirts.png", hover: "/images/t-shirts.png", slug: "t-shirts" },
-  { name: "Jackets", img: "/images/jackets.png", hover: "/images/jackets.png", slug: "jackets" },
-  { name: "Shorts", img: "/images/shorts.png", hover: "/images/shorts.png", slug: "shorts" },
-  { name: "Pants", img: "/images/pants.png", hover: "/images/pants.png", slug: "pants" },
-  { name: "Tracksuits", img: "/images/tracksuit.png", hover: "/images/tracksuit.png", slug: "tracksuits" },
+  { name: "Hoodies", img: "/images/hoodies and sweatshirts.webp", hover: "/images/hoodies and sweatshirts.webp", slug: "hoodies" },
+  { name: "T-Shirts", img: "/images/t-shirts.webp", hover: "/images/t-shirts.webp", slug: "t-shirts" },
+  { name: "Jackets", img: "/images/jackets.webp", hover: "/images/jackets.webp", slug: "jackets" },
+  { name: "Shorts", img: "/images/shorts.webp", hover: "/images/shorts.webp", slug: "shorts" },
+  { name: "Pants", img: "/images/pants.webp", hover: "/images/pants.webp", slug: "pants" },
+  { name: "Tracksuits", img: "/images/tracksuit.webp", hover: "/images/tracksuit.webp", slug: "tracksuits" },
 ];
 
 const seasons = [
-  { name: "Spring", img: "/images/season-spring.png" },
-  { name: "Summer", img: "/images/season-summer.png" },
-  { name: "Autumn", img: "/images/season-autumn.png" },
-  { name: "Winter", img: "/images/season-winter.png" },
+  { name: "Spring", img: "/images/season-spring.webp" },
+  { name: "Summer", img: "/images/season-summer.webp" },
+  { name: "Autumn", img: "/images/season-autumn.webp" },
+  { name: "Winter", img: "/images/season-winter.webp" },
 ];
 
 const faqs = [
@@ -46,14 +46,17 @@ export default function Home() {
 
   return (
     <>
-      {/* ═══════ HERO — banner.png ═══════ */}
-      <section className="relative w-full overflow-hidden bg-black h-[50vh] min-h-[300px] md:h-[720px]">
-        <img
-          src={cms("hero-banner", "/images/banner.png")}
-          alt="Premium Streetwear Manufacturer"
-          className="w-full h-full object-cover"
-          decoding="async"
-        />
+      {/* ═══════ HERO ═══════ */}
+      <section className="relative w-full bg-black">
+        <div className="h-[50vh] min-h-[400px] md:h-[720px] overflow-x-auto md:overflow-x-hidden">
+          <img
+            src={cms("hero-banner", "/images/banner.webp")}
+            alt="Premium Streetwear Manufacturer"
+            className="h-full w-auto md:w-full md:object-cover max-w-none"
+            decoding="async"
+            loading="eager"
+          />
+        </div>
       </section>
 
       {/* ═══════ CATEGORIES — DARK ═══════ */}
@@ -77,6 +80,7 @@ export default function Home() {
                   src={hoveredCat === i ? cat.hover : cat.img}
                   alt={cat.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                 <div className="absolute bottom-4 left-5">
@@ -171,8 +175,8 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto">
-          <img src={cms("factory-strength", "/images/Factory Strength.png")} alt="Factory Strength" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
+        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
+          <img src={cms("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -185,8 +189,8 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto">
-          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.png")} alt="16+ Printing and Embroidery Techniques" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
+        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
+          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -199,8 +203,8 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto">
-          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.jpg")} alt="Custom Fabric Options" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
+        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
+          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -213,8 +217,8 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto">
-          <img src={cms("supply-chain", "/images/From Idea to Bulk.png")} alt="From Idea to Bulk - 8 Step Process" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
+        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
+          <img src={cms("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -227,8 +231,8 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto">
-          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.png")} alt="Trusted by 1100+ Global Streetwear Brands" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
+        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
+          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -241,8 +245,8 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto">
-          <img src={cms("certifications", "/images/Certifications & Compliance.png")} alt="Certifications and Compliance" className="w-full h-auto md:h-[720px] object-cover" decoding="async" />
+        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
+          <img src={cms("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -257,7 +261,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {seasons.map((s) => (
               <Link to={`/products?season=${s.name.toLowerCase()}`} key={s.name} className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-white/5">
-                <img src={s.img} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={s.img} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4">
                   <h3 className="text-lg font-bold text-white">{s.name}</h3>
@@ -297,7 +301,7 @@ export default function Home() {
               {portfolioProducts.slice(0, 8).map((p) => (
                 <div key={p.id} className="group bg-[#161616] rounded-xl overflow-hidden border border-white/5 hover:border-amber-400/30 transition-all">
                   <div className="relative aspect-square">
-                    <Link to={`/product/${p.id}`}><img src={p.image} alt={p.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }} /></Link>
+                    <Link to={`/product/${p.id}`}><img src={p.image} alt={p.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.webp"; }} /></Link>
                     <Link to={`/product/${p.id}`} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span className="bg-amber-400 text-black px-4 py-2 rounded-full text-sm font-medium">View Details</span>
                     </Link>
@@ -338,7 +342,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
-              <SmartVideo src={cms("company-overview-video", "/videos/company-overview.mp4")} className="w-full aspect-video object-cover" poster="/images/choose1.png" />
+              <SmartVideo src={cms("company-overview-video", "/videos/company-overview.mp4")} className="w-full aspect-video object-cover" poster="/images/choose1.webp" />
             </div>
           </div>
         </div>
@@ -354,14 +358,14 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Customized design capabilities", icon: "/images/A1.png", hover: "/images/A2.png" },
-              { label: "Professional QC quality inspection", icon: "/images/B1.png", hover: "/images/B2.png" },
-              { label: "Flexible supply chain", icon: "/images/C1.png", hover: "/images/C3.png" },
-              { label: "Global market layout", icon: "/images/D1.png", hover: "/images/D2.png" },
-              { label: "Digital innovation", icon: "/images/E1.png", hover: "/images/E2.png" },
-              { label: "Strengthening local services", icon: "/images/F1.png", hover: "/images/F2.png" },
-              { label: "Sustainable development", icon: "/images/G1.png", hover: "/images/G2.png" },
-              { label: "Humanistic care and team stability", icon: "/images/H1.png", hover: "/images/H2.png" },
+              { label: "Customized design capabilities", icon: "/images/A1.webp", hover: "/images/A2.webp" },
+              { label: "Professional QC quality inspection", icon: "/images/B1.webp", hover: "/images/B2.webp" },
+              { label: "Flexible supply chain", icon: "/images/C1.webp", hover: "/images/C3.webp" },
+              { label: "Global market layout", icon: "/images/D1.webp", hover: "/images/D2.webp" },
+              { label: "Digital innovation", icon: "/images/E1.webp", hover: "/images/E2.webp" },
+              { label: "Strengthening local services", icon: "/images/F1.webp", hover: "/images/F2.webp" },
+              { label: "Sustainable development", icon: "/images/G1.webp", hover: "/images/G2.webp" },
+              { label: "Humanistic care and team stability", icon: "/images/H1.webp", hover: "/images/H2.webp" },
             ].map((f, i) => (
               <div
                 key={f.label}
@@ -369,7 +373,7 @@ export default function Home() {
                 onMouseEnter={() => setHoveredFeature(i)}
                 onMouseLeave={() => setHoveredFeature(null)}
               >
-                <img src={hoveredFeature === i ? f.hover : f.icon} alt={f.label} className="w-full aspect-square object-cover" />
+                <img src={hoveredFeature === i ? f.hover : f.icon} alt={f.label} className="w-full aspect-square object-cover" loading="lazy" />
                 <p className="text-xs text-center text-gray-400 py-3 px-2 bg-[#161616]">{f.label}</p>
               </div>
             ))}
@@ -387,10 +391,10 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex items-end">
-              <SmartVideo src={cms("factory-tour-1", "/videos/factory-tour-1.mp4")} className="w-full max-w-[360px] aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
+              <SmartVideo src={cms("factory-tour-new", "/videos/factory-tour-2024.mp4")} className="w-full max-w-[360px] aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/factory-machine.webp" />
             </div>
             <div className="space-y-4">
-              <SmartVideo src={cms("factory-tour-2", "/videos/video-factory.mp4")} className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" />
+              <SmartVideo src={cms("factory-tour-2", "/videos/video-factory.mp4")} className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/showroom.webp" />
               <p className="text-gray-400 text-sm leading-relaxed">
                 We strictly select high-quality fabrics, such as breathable and skin-friendly cotton materials, 
                 and high-tech functional materials, combined with exquisite workmanship, and strictly control 

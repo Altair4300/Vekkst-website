@@ -48,7 +48,7 @@ export default function Products() {
   return (
     <>
       <section className="relative h-[200px] overflow-hidden">
-        <img src={cms("hero-banner", "/images/showroom.jpg")} alt="Products" className="w-full h-full object-cover" />
+        <img src={cms("hero-banner", "/images/showroom.webp")} alt="Products" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center justify-center text-white">
           <div className="text-center">
