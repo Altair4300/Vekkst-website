@@ -30,7 +30,7 @@ export default function About() {
     <>
       {/* Hero */}
       <section className="relative h-[300px] overflow-hidden">
-        <img src={cms("hero-banner", "/images/hero-factory.png")} alt="Factory" className="w-full h-full object-cover" />
+        <img src={cms("hero-banner", "/images/hero-factory.webp")} alt="Factory" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center justify-center text-white text-center px-4">
           <div>
@@ -75,8 +75,8 @@ export default function About() {
               </div>
             </div>
             <div className="space-y-4">
-              <img src={cms("factory-image", "/images/factory-machine.jpg")} alt="Factory" className="w-full h-56 object-cover rounded-lg" />
-              <img src={cms("showroom-image", "/images/showroom.jpg")} alt="Showroom" className="w-full h-56 object-cover rounded-lg" />
+              <img src={cms("factory-image", "/images/factory-machine.webp")} alt="Factory" className="w-full h-56 object-cover rounded-lg" />
+              <img src={cms("showroom-image", "/images/showroom.webp")} alt="Showroom" className="w-full h-56 object-cover rounded-lg" />
             </div>
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function About() {
             <p className="text-gray-500 text-sm">Over 256 skilled professionals dedicated to delivering premium quality streetwear</p>
           </div>
           <div className="max-w-4xl mx-auto">
-            <img src={cms("team-photo", "/images/team-photo.jpg")} alt="VEKKST Garment Team" className="w-full rounded-2xl shadow-lg" />
+            <img src={cms("team-photo", "/images/team-photo.webp")} alt="VEKKST Garment Team" className="w-full rounded-2xl shadow-lg" />
           </div>
         </div>
       </section>

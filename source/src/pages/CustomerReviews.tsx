@@ -10,7 +10,7 @@ const reviews = [
     country: "USA",
     rating: 5,
     text: "I was instantly attracted to this sweatshirt after putting it on! It completely exceeded my expectations! Now it has become a must-have item for my daily outfit. Friends all asked me for the link. I really recommend it!",
-    img: "/images/fb1.png",
+    img: "/images/fb1.webp",
     product: "Premium Sweatshirt",
   },
   {
@@ -19,7 +19,7 @@ const reviews = [
     country: "Mexico",
     rating: 5,
     text: "This sweatshirt has completely conquered me! It feels delicate, comfortable, and breathable. The color does not fade after washing. Very good quality!",
-    img: "/images/fb2.png",
+    img: "/images/fb2.webp",
     product: "Heavyweight Hoodie",
   },
   {
@@ -28,7 +28,7 @@ const reviews = [
     country: "Italy",
     rating: 5,
     text: "The style is loose and stylish, and it is very suitable for both jeans and sweatpants. I wore it to a friend's party, and several people asked for the link! The quality is good, and I will buy it again next time!",
-    img: "/images/p7.png",
+    img: "/images/p7.webp",
     product: "Streetwear Set",
   },
   {
@@ -37,7 +37,7 @@ const reviews = [
     country: "USA",
     rating: 5,
     text: "The men's denim shorts I bought have a loose fit and are comfortable, the elastic waistband is fitted, the material is durable and breathable, and the details are perfect. I highly recommend!",
-    img: "/images/fb3.png",
+    img: "/images/fb3.webp",
     product: "Denim Shorts",
   },
 ];

@@ -81,7 +81,7 @@ export default function QuoteForm() {
       <div className="min-h-screen bg-gray-50 py-16 px-4">
         <div className="max-w-lg mx-auto text-center">
           <Link to="/">
-            <img src="/images/vekkst-logo.png" alt="VEKKST" className="h-10 w-auto mx-auto mb-6" />
+            <img src="/images/vekkst-logo.webp" alt="VEKKST" className="h-10 w-auto mx-auto mb-6" />
           </Link>
           <h1 className="text-2xl font-bold text-[#333] mb-3">Sign In Required</h1>
           <p className="text-gray-500 mb-8">Please sign in or create an account to request a free quote. This helps us ensure you're a serious buyer and allows you to track your quote.</p>
