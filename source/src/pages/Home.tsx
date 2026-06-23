@@ -234,9 +234,9 @@ export default function Home() {
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
-          <img src={cms("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          <img src="/images/From Idea to Bulk.webp" alt="From Idea to Bulk - 8 Step Process" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
-          <img src={cmsMobile("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
+          <img src="/images/From Idea to Bulk.webp" alt="From Idea to Bulk - 8 Step Process" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
