@@ -48,7 +48,7 @@ export default function Home() {
         <div className="h-[50vh] min-h-[400px] md:h-[720px]">
           {/* Desktop image */}
           <img
-            src={cms("hero-banner", "/images/banner.webp")}
+            src="/images/banner.webp"
             alt="Premium Streetwear Manufacturer"
             className="hidden md:block h-full w-full object-cover"
             decoding="async"
@@ -56,7 +56,7 @@ export default function Home() {
           />
           {/* Mobile image — uses mobileContent if set, otherwise falls back to desktop */}
           <img
-            src={cmsMobile("hero-banner", "/images/banner.webp")}
+            src="/images/banner.webp"
             alt="Premium Streetwear Manufacturer"
             className="md:hidden h-full w-full object-cover"
             decoding="async"
@@ -183,9 +183,9 @@ export default function Home() {
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
-          <img src={cms("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Factory Strength.webp" alt="Factory Strength" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
-          <img src={cmsMobile("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Factory Strength.webp" alt="Factory Strength" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -200,9 +200,9 @@ export default function Home() {
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
-          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Logo Rich Technology.webp" alt="16+ Printing and Embroidery Techniques" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
-          <img src={cmsMobile("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Logo Rich Technology.webp" alt="16+ Printing and Embroidery Techniques" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -217,9 +217,9 @@ export default function Home() {
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
-          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Premium Custom Fabric.webp" alt="Custom Fabric Options" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
-          <img src={cmsMobile("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Premium Custom Fabric.webp" alt="Custom Fabric Options" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -251,9 +251,9 @@ export default function Home() {
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
-          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Trusted by 1100+ Brands.webp" alt="Trusted by 1100+ Global Streetwear Brands" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
-          <img src={cmsMobile("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Trusted by 1100+ Brands.webp" alt="Trusted by 1100+ Global Streetwear Brands" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -268,9 +268,9 @@ export default function Home() {
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
-          <img src={cms("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Certifications & Compliance.webp" alt="Certifications and Compliance" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
-          <img src={cmsMobile("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
+          <img src="/images/Certifications & Compliance.webp" alt="Certifications and Compliance" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -418,7 +418,7 @@ export default function Home() {
               <SmartVideo src="/videos/video-tour.mp4" className="w-full md:max-w-[360px] aspect-video md:aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/factory-machine.webp" />
             </div>
             <div className="space-y-4">
-              <SmartVideo src={cms("factory-tour-2", "/videos/video-factory.mp4")} className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/showroom.webp" />
+              <SmartVideo src="/videos/video-factory.mp4" className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/showroom.webp" />
               <p className="text-gray-400 text-sm leading-relaxed">
                 We strictly select high-quality fabrics, such as breathable and skin-friendly cotton materials, 
                 and high-tech functional materials, combined with exquisite workmanship, and strictly control 
