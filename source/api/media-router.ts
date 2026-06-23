@@ -31,6 +31,11 @@ async function getS3Modules() {
   return { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command };
 }
 
+async function getPresignerModule() {
+  const { getSignedUrl } = await import("@aws-sdk/s3-request-presigner");
+  return getSignedUrl;
+}
+
 function getS3Client(S3Client: any) {
   if (!USE_S3) return null;
   const config: any = {
@@ -52,6 +57,16 @@ function getS3Url(key: string) {
   return `https://pub-a2177565917e494a9eb3b3e59a5ab93b.r2.dev/${key}`;
 }
 
+// Generate a pre-signed URL for direct browser upload to R2
+async function createPresignedUrl(key: string, contentType: string) {
+  const getSignedUrl = await getPresignerModule();
+  const { S3Client, PutObjectCommand } = await getS3Modules();
+  const s3 = getS3Client(S3Client);
+  if (!s3) return null;
+  const command = new PutObjectCommand({ Bucket: BUCKET, Key: key, ContentType: contentType });
+  return getSignedUrl(s3, command, { expiresIn: 300 }); // 5 minutes
+}
+
 // ─── Categories ───
 const CATEGORIES = ["hoodies", "t-shirts", "jackets", "shorts", "pants", "tracksuits", "general"];
 
@@ -60,6 +75,29 @@ const VIDEO_DIR = join(process.cwd(), "public", "videos");
 const IMAGE_DIR = join(process.cwd(), "public", "uploads");
 
 export const mediaRouter = createRouter({
+  // Get a pre-signed URL for direct browser upload to R2 (fast, no base64)
+  getPresignedUploadUrl: authedQuery
+    .input(z.object({
+      filename: z.string(),
+      type: z.enum(["image", "video"]),
+      category: z.string().default("general"),
+    }))
+    .query(async ({ input }) => {
+      if (!USE_S3) {
+        throw new Error("S3 storage is not configured.");
+      }
+      const ext = input.filename.split(".").pop() || (input.type === "video" ? "mp4" : "jpg");
+      const filename = `${Date.now()}_${input.filename.replace(/\s+/g, "_")}`;
+      const prefix = input.type === "video" ? "videos" : "uploads";
+      const key = `${prefix}/${input.category}/${filename}`;
+      const contentType = input.type === "video" ? `video/${ext}` : `image/${ext}`;
+      const presignedUrl = await createPresignedUrl(key, contentType);
+      if (!presignedUrl) {
+        throw new Error("Failed to generate upload URL.");
+      }
+      return { url: presignedUrl, publicUrl: getS3Url(key), key };
+    }),
+
   // Upload an image (authenticated users only — rate limited)
   uploadImage: authedQuery
     .input(z.object({
