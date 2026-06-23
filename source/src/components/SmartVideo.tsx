@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Play } from "lucide-react";
 
 interface SmartVideoProps {
@@ -11,17 +11,42 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Click to play or pause
   const handleClick = () => {
     const video = videoRef.current;
     if (!video) return;
 
     if (isPlaying) {
       video.pause();
+      video.muted = true;
       setIsPlaying(false);
     } else {
+      video.muted = false;
       video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
     }
   };
+
+  // Pause and mute when scrolled out of view
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting && isPlaying) {
+            video.pause();
+            video.muted = true;
+            setIsPlaying(false);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, [isPlaying]);
 
   return (
     <div className="relative cursor-pointer" onClick={handleClick}>
@@ -30,7 +55,7 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
         src={src}
         loop
         playsInline
-        preload="none"
+        preload="metadata"
         className={className}
         poster={poster}
       />
