@@ -108,7 +108,7 @@ export const mediaRouter = createRouter({
   // Upload a video (authenticated users only — rate limited)
   uploadVideo: authedQuery
     .input(z.object({
-      data: z.string(),
+      data: z.string().max(100 * 1024 * 1024, "Video data too large. Max 75MB after base64 encoding."), // ~75MB base64 = ~56MB video
       filename: z.string(),
       category: z.string().default("general"),
     }))
@@ -117,35 +117,50 @@ export const mediaRouter = createRouter({
       if (!checkUploadRateLimit(ip)) {
         throw new Error("Upload rate limit exceeded. Please try again later.");
       }
-      const base64Data = input.data.replace(/^data:video\/\w+;base64,/, "");
-      const buffer = Buffer.from(base64Data, "base64");
-      const filename = `${Date.now()}_${input.filename}`;
+      
+      console.log(`[UPLOAD] Starting video upload from ${ip}, filename: ${input.filename}, data length: ${input.data.length} chars`);
+      
+      try {
+        const base64Data = input.data.replace(/^data:video\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64Data, "base64");
+        const filename = `${Date.now()}_${input.filename}`;
 
-      if (USE_S3) {
-        try {
-          const { S3Client, PutObjectCommand } = await getS3Modules();
-          const key = `videos/${input.category}/${filename}`;
-          const s3 = getS3Client(S3Client);
-          await s3!.send(new PutObjectCommand({
-            Bucket: BUCKET,
-            Key: key,
-            Body: buffer,
-            ContentType: "video/mp4",
-          }));
-          console.log(`[MEDIA] S3 uploadVideo OK: ${key}`);
-          return { url: getS3Url(key), category: input.category };
-        } catch (s3Err: any) {
-          console.error("[MEDIA] S3 uploadVideo failed:", s3Err?.message || s3Err);
-          throw s3Err;
+        console.log(`[UPLOAD] Decoded base64, buffer size: ${buffer.length} bytes`);
+
+        if (buffer.length > 50 * 1024 * 1024) {
+          throw new Error(`Video file too large (${(buffer.length / 1024 / 1024).toFixed(1)}MB). Maximum is 50MB. Please compress your video before uploading.`);
         }
-      }
 
-      // Fallback: local filesystem
-      const videoDir = join(process.cwd(), "public", "videos", input.category);
-      try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
-      const filePath = join(videoDir, filename);
-      await writeFile(filePath, buffer);
-      return { url: `/videos/${input.category}/${filename}`, category: input.category };
+        if (USE_S3) {
+          try {
+            const { S3Client, PutObjectCommand } = await getS3Modules();
+            const key = `videos/${input.category}/${filename}`;
+            const s3 = getS3Client(S3Client);
+            await s3!.send(new PutObjectCommand({
+              Bucket: BUCKET,
+              Key: key,
+              Body: buffer,
+              ContentType: "video/mp4",
+            }));
+            console.log(`[MEDIA] S3 uploadVideo OK: ${key}`);
+            return { url: getS3Url(key), category: input.category };
+          } catch (s3Err: any) {
+            console.error("[MEDIA] S3 uploadVideo failed:", s3Err?.message || s3Err);
+            throw s3Err;
+          }
+        }
+
+        // Fallback: local filesystem
+        const videoDir = join(process.cwd(), "public", "videos", input.category);
+        try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
+        const filePath = join(videoDir, filename);
+        await writeFile(filePath, buffer);
+        console.log(`[UPLOAD] Local save OK: ${filePath}`);
+        return { url: `/videos/${input.category}/${filename}`, category: input.category };
+      } catch (err: any) {
+        console.error(`[UPLOAD] Video upload failed:`, err?.message || err);
+        throw new Error(`Upload failed: ${err?.message || "Unknown error"}`);
+      }
     }),
 
   // List all videos by category

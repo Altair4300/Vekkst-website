@@ -296,7 +296,14 @@ if (env.isProduction) {
   console.log(`[BOOT] NODE_ENV=${process.env.NODE_ENV}`);
   console.log(`[BOOT] CWD=${process.cwd()}`);
   
-  serve({ fetch: app.fetch, port }, () => {
+  const server = serve({ fetch: app.fetch, port }, () => {
     console.log(`[BOOT] Server running on port ${port}`);
   });
+
+  // Increase timeouts for large file uploads (videos up to 50MB)
+  server.setTimeout(300000); // 5 minutes total request timeout
+  server.requestTimeout = 300000; // 5 minutes for entire request
+  server.headersTimeout = 120000; // 2 minutes for headers
+  server.keepAliveTimeout = 65000; // 65 seconds for keep-alive
+  console.log("[BOOT] Server timeouts configured for large uploads");
 }
