@@ -15,10 +15,22 @@ export interface PageSection {
   updatedAt: string | Date;
 }
 
+// Add cache-busting query param to file URLs based on updatedAt timestamp
+function addCacheBust(url: string, updatedAt?: string | Date | null): string {
+  if (!url || (!url.startsWith("/") && !url.startsWith("http"))) return url;
+  // Only add cache-busting to actual file URLs (images, videos, uploads)
+  if (!url.match(/\.(webp|png|jpg|jpeg|mp4|webm|mov|pdf|svg|gif)(\?|$)/i)) return url;
+  const ts = updatedAt
+    ? new Date(updatedAt).getTime()
+    : Date.now();
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}v=${ts}`;
+}
+
 export function usePageContent(page: string) {
   const { data, isLoading, error } = trpc.content.list.useQuery(
     { page },
-    { staleTime: 1000 * 60 * 5 } // Cache for 5 minutes
+    { staleTime: 0, refetchOnWindowFocus: true } // No stale time — always fetch fresh
   );
 
   const sections = useMemo(() => {
@@ -30,19 +42,20 @@ export function usePageContent(page: string) {
     return (sectionKey: string) => sections.find((s: any) => s.section === sectionKey) || null;
   }, [sections]);
 
-  // Helper: get content with mobile fallback
+  // Helper: get content with cache-busting
   const cms = useMemo(() => {
     return (sectionKey: string, fallback: string) => {
       const section = sections.find((s: any) => s.section === sectionKey);
-      return section?.content || fallback;
+      return addCacheBust(section?.content || fallback, section?.updatedAt);
     };
   }, [sections]);
 
-  // Helper: get mobile content with fallback to desktop
+  // Helper: get mobile content with fallback to desktop + cache-busting
   const cmsMobile = useMemo(() => {
     return (sectionKey: string, fallback: string) => {
       const section = sections.find((s: any) => s.section === sectionKey);
-      return section?.mobileContent || section?.content || fallback;
+      const content = section?.mobileContent || section?.content || fallback;
+      return addCacheBust(content, section?.updatedAt);
     };
   }, [sections]);
 
@@ -62,8 +75,8 @@ export function usePageSection(page: string, sectionKey: string) {
 
   return {
     section,
-    content: section?.content || "",
-    mobileContent: section?.mobileContent || section?.content || "",
+    content: addCacheBust(section?.content || "", section?.updatedAt),
+    mobileContent: addCacheBust(section?.mobileContent || section?.content || "", section?.updatedAt),
     type: section?.type || "text",
     label: section?.label || "",
     isLoading,
