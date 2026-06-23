@@ -23,14 +23,16 @@ const milestones = [
 ];
 
 export default function About() {
-  const { getSection } = usePageContent("about");
-  const cms = (key: string, fallback: string) => getSection(key)?.content || fallback;
+  const { cms, cmsMobile } = usePageContent("about");
 
   return (
     <>
       {/* Hero */}
       <section className="relative h-[300px] overflow-hidden">
-        <img src={cms("hero-banner", "/images/hero-factory.webp")} alt="Factory" className="w-full h-full object-cover" />
+        {/* Desktop image */}
+        <img src={cms("hero-banner", "/images/hero-factory.webp")} alt="Factory" className="hidden md:block w-full h-full object-cover" />
+        {/* Mobile image */}
+        <img src={cmsMobile("hero-banner", "/images/hero-factory.webp")} alt="Factory" className="md:hidden w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center justify-center text-white text-center px-4">
           <div>
@@ -41,7 +43,7 @@ export default function About() {
       </section>
 
       {/* Company Overview */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -83,7 +85,7 @@ export default function About() {
       </section>
 
       {/* Team Photo */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold mb-2">Meet Our Team</h2>
@@ -96,7 +98,7 @@ export default function About() {
       </section>
 
       {/* Capabilities */}
-      <section className="py-16 bg-[#F5F5F5]">
+      <section className="py-16 bg-[#F5F5F5] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold mb-2">Our Capabilities</h2>
@@ -114,7 +116,7 @@ export default function About() {
       </section>
 
       {/* Timeline */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white overflow-hidden">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold mb-2">Our Journey</h2>
@@ -138,7 +140,7 @@ export default function About() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-[#E60012] text-white text-center">
+      <section className="py-16 bg-[#E60012] text-white text-center overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to Start Your Project?</h2>
           <p className="text-white/80 mb-6 max-w-xl mx-auto">Get a free quote within 24 hours. Low MOQ from 60 pieces. Custom samples in 3-7 days.</p>

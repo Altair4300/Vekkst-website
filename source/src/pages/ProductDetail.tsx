@@ -76,7 +76,7 @@ export default function ProductDetail() {
               </div>
 
               {/* MOQ Info */}
-              <div className="flex items-center gap-4 mb-6 text-sm">
+              <div className="flex flex-wrap items-center gap-4 mb-6 text-sm">
                 <div className="bg-green-50 text-green-700 px-3 py-1.5 rounded-full font-medium">MOQ: 60 pcs</div>
                 <div className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full font-medium">Sample: 3-7 days</div>
                 <div className="bg-purple-50 text-purple-700 px-3 py-1.5 rounded-full font-medium">OEM/ODM</div>

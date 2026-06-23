@@ -7,6 +7,7 @@ export interface PageSection {
   section: string;
   type: "image" | "video" | "text" | "html";
   content: string;
+  mobileContent: string | null;
   label: string | null;
   sortOrder: number;
   isActive: string | boolean;
@@ -29,21 +30,40 @@ export function usePageContent(page: string) {
     return (sectionKey: string) => sections.find((s: any) => s.section === sectionKey) || null;
   }, [sections]);
 
+  // Helper: get content with mobile fallback
+  const cms = useMemo(() => {
+    return (sectionKey: string, fallback: string) => {
+      const section = sections.find((s: any) => s.section === sectionKey);
+      return section?.content || fallback;
+    };
+  }, [sections]);
+
+  // Helper: get mobile content with fallback to desktop
+  const cmsMobile = useMemo(() => {
+    return (sectionKey: string, fallback: string) => {
+      const section = sections.find((s: any) => s.section === sectionKey);
+      return section?.mobileContent || section?.content || fallback;
+    };
+  }, [sections]);
+
   return {
     sections,
     getSection,
+    cms,
+    cmsMobile,
     isLoading,
     error,
   };
 }
 
 export function usePageSection(page: string, sectionKey: string) {
-  const { getSection, isLoading, error } = usePageContent(page);
+  const { getSection, cms, cmsMobile, isLoading, error } = usePageContent(page);
   const section = getSection(sectionKey);
 
   return {
     section,
     content: section?.content || "",
+    mobileContent: section?.mobileContent || section?.content || "",
     type: section?.type || "text",
     label: section?.label || "",
     isLoading,

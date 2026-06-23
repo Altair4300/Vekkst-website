@@ -39,20 +39,26 @@ export default function Home() {
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
 
   const { data: portfolioProducts, isLoading: portfolioLoading } = trpc.product.list.useQuery();
-  const { getSection } = usePageContent("home");
-
-  // Helper: get CMS content or fallback
-  const cms = (key: string, fallback: string) => getSection(key)?.content || fallback;
+  const { cms, cmsMobile } = usePageContent("home");
 
   return (
     <>
       {/* ═══════ HERO ═══════ */}
-      <section className="relative w-full bg-black">
-        <div className="h-[50vh] min-h-[400px] md:h-[720px] overflow-x-auto md:overflow-x-hidden">
+      <section className="relative w-full bg-black overflow-hidden">
+        <div className="h-[50vh] min-h-[400px] md:h-[720px]">
+          {/* Desktop image */}
           <img
             src={cms("hero-banner", "/images/banner.webp")}
             alt="Premium Streetwear Manufacturer"
-            className="h-full w-auto md:w-full md:object-cover max-w-none"
+            className="hidden md:block h-full w-full object-cover"
+            decoding="async"
+            loading="eager"
+          />
+          {/* Mobile image — uses mobileContent if set, otherwise falls back to desktop */}
+          <img
+            src={cmsMobile("hero-banner", "/images/banner.webp")}
+            alt="Premium Streetwear Manufacturer"
+            className="md:hidden h-full w-full object-cover"
             decoding="async"
             loading="eager"
           />
@@ -60,7 +66,7 @@ export default function Home() {
       </section>
 
       {/* ═══════ CATEGORIES — DARK ═══════ */}
-      <section className="py-20 bg-[#0a0a0a]">
+      <section className="py-20 bg-[#0a0a0a] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Our Specialties</p>
@@ -93,7 +99,7 @@ export default function Home() {
       </section>
 
       {/* ═══════ WHY VEKKST — DARK HTML ═══════ */}
-      <section className="py-20 bg-[#0a0a0a]">
+      <section className="py-20 bg-[#0a0a0a] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <p className="text-base tracking-[0.35em] text-amber-400 uppercase mb-3">Why Us</p>
@@ -175,8 +181,11 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
+        <div className="max-w-[1920px] mx-auto overflow-hidden">
+          {/* Desktop image */}
+          <img src={cms("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -189,8 +198,11 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
+        <div className="max-w-[1920px] mx-auto overflow-hidden">
+          {/* Desktop image */}
+          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -203,8 +215,11 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
+        <div className="max-w-[1920px] mx-auto overflow-hidden">
+          {/* Desktop image */}
+          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -217,8 +232,11 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
+        <div className="max-w-[1920px] mx-auto overflow-hidden">
+          {/* Desktop image */}
+          <img src={cms("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -231,8 +249,11 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
+        <div className="max-w-[1920px] mx-auto overflow-hidden">
+          {/* Desktop image */}
+          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -245,13 +266,16 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
+        <div className="max-w-[1920px] mx-auto overflow-hidden">
+          {/* Desktop image */}
+          <img src={cms("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
       {/* ═══════ SEASONS — DARK ═══════ */}
-      <section className="py-20 bg-[#0a0a0a]">
+      <section className="py-20 bg-[#0a0a0a] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Collections</p>
@@ -274,7 +298,7 @@ export default function Home() {
       </section>
 
       {/* ═══════ PORTFOLIO PRODUCTS — DARK ═══════ */}
-      <section className="py-20 bg-[#0f0f0f]">
+      <section className="py-20 bg-[#0f0f0f] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Portfolio</p>
@@ -322,7 +346,7 @@ export default function Home() {
       </section>
 
       {/* ═══════ VIDEO — DARK ═══════ */}
-      <section className="py-20 bg-[#0a0a0a]">
+      <section className="py-20 bg-[#0a0a0a] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Showcase</p>
@@ -349,7 +373,7 @@ export default function Home() {
       </section>
 
       {/* ═══════ WHY CHOOSE US (features) — DARK ═══════ */}
-      <section className="py-20 bg-[#0a0a0a]">
+      <section className="py-20 bg-[#0a0a0a] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-14">
             <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Advantages</p>
@@ -382,7 +406,7 @@ export default function Home() {
       </section>
 
       {/* ═══════ VIDEO 2 — DARK ═══════ */}
-      <section className="py-20 bg-[#0f0f0f]">
+      <section className="py-20 bg-[#0f0f0f] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="mb-8">
             <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Behind the Scenes</p>
@@ -390,8 +414,8 @@ export default function Home() {
             <p className="text-gray-400 max-w-md">See our production process and quality standards in action.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="flex items-end">
-              <SmartVideo src={cms("factory-tour-new", "/videos/factory-tour-2024.mp4")} className="w-full max-w-[360px] aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/factory-machine.webp" />
+            <div className="flex items-end justify-center md:justify-start">
+              <SmartVideo src={cms("factory-tour-1", "/videos/factory-tour-2024.mp4")} className="w-full md:max-w-[360px] aspect-video md:aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/factory-machine.webp" />
             </div>
             <div className="space-y-4">
               <SmartVideo src={cms("factory-tour-2", "/videos/video-factory.mp4")} className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/showroom.webp" />
@@ -406,7 +430,7 @@ export default function Home() {
       </section>
 
       {/* ═══════ FAQ — DARK ═══════ */}
-      <section className="py-20 bg-[#0f0f0f]">
+      <section className="py-20 bg-[#0f0f0f] overflow-hidden">
         <div className="max-w-3xl mx-auto px-4">
           <div className="text-center mb-14">
             <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Support</p>
@@ -428,7 +452,7 @@ export default function Home() {
       </section>
 
       {/* ═══════ CTA — DARK ═══════ */}
-      <section className="py-24 bg-gradient-to-br from-[#0a0a0a] via-[#1a1200] to-[#0a0a0a]">
+      <section className="py-24 bg-gradient-to-br from-[#0a0a0a] via-[#1a1200] to-[#0a0a0a] overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Start Today</p>
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Ready to Build Your Brand?</h2>

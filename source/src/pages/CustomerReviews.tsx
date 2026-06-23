@@ -48,7 +48,7 @@ export default function CustomerReviews() {
   return (
     <>
       {/* Hero Header */}
-      <section className="pt-[160px] pb-16 bg-[#0a0a0a]">
+      <section className="pt-[160px] pb-16 bg-[#0a0a0a] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <Link to="/" className="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-8">
             <ArrowLeft className="w-4 h-4" />
@@ -66,7 +66,7 @@ export default function CustomerReviews() {
       </section>
 
       {/* Reviews Grid */}
-      <section className="py-20 bg-[#0f0f0f]">
+      <section className="py-20 bg-[#0f0f0f] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8">
             {reviews.map((review) => (
@@ -109,7 +109,7 @@ export default function CustomerReviews() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-[#0a0a0a] via-[#1a1200] to-[#0a0a0a]">
+      <section className="py-24 bg-gradient-to-br from-[#0a0a0a] via-[#1a1200] to-[#0a0a0a] overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Join Our Clients</p>
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Ready to Build Your Brand?</h2>
