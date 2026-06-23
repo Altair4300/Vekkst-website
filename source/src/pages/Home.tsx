@@ -176,7 +176,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
+          <img src={cms("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -190,7 +190,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
+          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -204,7 +204,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
+          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -218,7 +218,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
+          <img src={cms("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -232,7 +232,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
+          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -246,7 +246,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-x-auto md:overflow-x-hidden">
-          <img src={cms("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="h-auto md:h-[720px] md:object-cover w-[640px] md:w-full max-w-none" decoding="async" loading="lazy" />
+          <img src={cms("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="h-auto md:h-[720px] md:object-cover w-auto md:w-full max-w-none" decoding="async" loading="lazy" />
         </div>
       </section>
 
