@@ -366,7 +366,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
-              <SmartVideo src={cms("factory-tour-1", "/videos/factory-overview-v2.mp4")} className="w-full aspect-video object-cover" poster="/images/choose1.webp" />
+              <SmartVideo src="/videos/factory-overview-v2.mp4" className="w-full aspect-video object-cover" poster="/images/choose1.webp" />
             </div>
           </div>
         </div>
