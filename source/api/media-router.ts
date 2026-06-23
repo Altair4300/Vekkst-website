@@ -48,10 +48,8 @@ function getS3Client(S3Client: any) {
 }
 
 function getS3Url(key: string) {
-  if (ENDPOINT) {
-    return `${ENDPOINT}/${BUCKET}/${key}`;
-  }
-  return `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
+  // Use Cloudflare R2 public development URL for publicly accessible files
+  return `https://pub-a2177565917e494a9eb3b3e59a5ab93b.r2.dev/${key}`;
 }
 
 // ─── Categories ───

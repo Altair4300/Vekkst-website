@@ -15,10 +15,13 @@ export interface PageSection {
   updatedAt: string | Date;
 }
 
-// Add cache-busting query param to file URLs based on updatedAt timestamp
+// Add cache-busting query param to LOCAL file URLs based on updatedAt timestamp
+// Skip external URLs (S3/R2, CDN, etc.)
 function addCacheBust(url: string, updatedAt?: string | Date | null): string {
-  if (!url || (!url.startsWith("/") && !url.startsWith("http"))) return url;
-  // Only add cache-busting to actual file URLs (images, videos, uploads)
+  if (!url) return url;
+  // Don't modify external URLs (S3, CDN, etc.)
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  // Only add cache-busting to local file URLs
   if (!url.match(/\.(webp|png|jpg|jpeg|mp4|webm|mov|pdf|svg|gif)(\?|$)/i)) return url;
   const ts = updatedAt
     ? new Date(updatedAt).getTime()
