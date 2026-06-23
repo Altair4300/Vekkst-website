@@ -325,7 +325,7 @@ export default function Home() {
               {portfolioProducts.slice(0, 8).map((p) => (
                 <div key={p.id} className="group bg-[#161616] rounded-xl overflow-hidden border border-white/5 hover:border-amber-400/30 transition-all">
                   <div className="relative aspect-square">
-                    <Link to={`/product/${p.id}`}><img src={p.image} alt={p.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.webp"; }} /></Link>
+                    <Link to={`/product/${p.id}`}><img src={p.image} alt={p.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }} /></Link>
                     <Link to={`/product/${p.id}`} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span className="bg-amber-400 text-black px-4 py-2 rounded-full text-sm font-medium">View Details</span>
                     </Link>

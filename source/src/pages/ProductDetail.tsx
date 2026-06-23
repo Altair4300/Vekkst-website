@@ -48,12 +48,12 @@ export default function ProductDetail() {
             {/* Image Gallery */}
             <div className="space-y-4">
               <div className="relative">
-                <img src={product.image} alt={product.name} className="w-full aspect-square object-cover rounded-lg" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }} />
+                <img src={product.image} alt={product.name} className="w-full aspect-square object-cover rounded-lg" onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }} />
               </div>
               <div className="grid grid-cols-3 gap-3">
-                <img src={product.image} alt="Front view" className="w-full aspect-square object-cover rounded-lg border-2 border-[#E60012]" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }} />
-                <img src={product.image} alt="Back view" className="w-full aspect-square object-cover rounded-lg opacity-70" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }} />
-                <img src={product.image} alt="Detail view" className="w-full aspect-square object-cover rounded-lg opacity-70" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }} />
+                <img src={product.image} alt="Front view" className="w-full aspect-square object-cover rounded-lg border-2 border-[#E60012]" onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }} />
+                <img src={product.image} alt="Back view" className="w-full aspect-square object-cover rounded-lg opacity-70" onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }} />
+                <img src={product.image} alt="Detail view" className="w-full aspect-square object-cover rounded-lg opacity-70" onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }} />
               </div>
             </div>
 
@@ -101,7 +101,7 @@ export default function ProductDetail() {
                 {related.map((p) => (
                   <Link to={`/product/${p.id}`} key={p.id} className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
                     <div className="relative aspect-square">
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }} />
+                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }} />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <span className="bg-white text-[#333] px-3 py-1.5 rounded text-xs font-medium">View Details</span>
                       </div>

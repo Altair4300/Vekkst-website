@@ -113,7 +113,7 @@ export default function Products() {
                 <div key={p.id} className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
                   <div className="relative aspect-square">
                     <Link to={`/product/${p.id}`}>
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }} />
+                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }} />
                     </Link>
                     <Link to={`/product/${p.id}`} className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span className="bg-white text-[#333] px-4 py-2 rounded text-sm font-medium">View Details</span>

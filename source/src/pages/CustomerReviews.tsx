@@ -79,7 +79,7 @@ export default function CustomerReviews() {
                     src={review.img}
                     alt={`${review.name}'s review`}
                     className="w-full h-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }}
                   />
                 </div>
                 <div className="p-6">
