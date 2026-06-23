@@ -181,7 +181,7 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-hidden">
+        <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
           <img src={cms("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
@@ -198,7 +198,7 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-hidden">
+        <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
           <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
@@ -215,7 +215,7 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-hidden">
+        <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
           <img src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
@@ -232,7 +232,7 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-hidden">
+        <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
           <img src={cms("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
@@ -249,7 +249,7 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-hidden">
+        <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
           <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
@@ -266,7 +266,7 @@ export default function Home() {
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
-        <div className="max-w-[1920px] mx-auto overflow-hidden">
+        <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
           {/* Desktop image */}
           <img src={cms("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
           {/* Mobile image */}
@@ -415,7 +415,7 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex items-end justify-center md:justify-start">
-              <SmartVideo src={cms("factory-tour-1", "/videos/factory-tour-2024.mp4")} className="w-full md:max-w-[360px] aspect-video md:aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/factory-machine.webp" />
+              <SmartVideo src={cms("factory-tour-new", "/videos/factory-tour-2024.mp4")} className="w-full md:max-w-[360px] aspect-video md:aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/factory-machine.webp" />
             </div>
             <div className="space-y-4">
               <SmartVideo src={cms("factory-tour-2", "/videos/video-factory.mp4")} className="w-full aspect-video object-cover rounded-2xl shadow-2xl border border-white/5 bg-black" poster="/images/showroom.webp" />
