@@ -29,10 +29,10 @@ export default function About() {
     <>
       {/* Hero */}
       <section className="relative h-[300px] overflow-hidden">
-        {/* Desktop image */}
-        <img src={cms("hero-banner", "/images/hero-factory.webp")} alt="Factory" className="hidden md:block w-full h-full object-cover" />
-        {/* Mobile image */}
-        <img src={cmsMobile("hero-banner", "/images/hero-factory.webp")} alt="Factory" className="md:hidden w-full h-full object-cover" />
+        <picture className="block h-full w-full">
+          <source srcSet={cmsMobile("hero-banner", "/images/hero-factory.webp")} media="(max-width: 768px)" />
+          <img src={cms("hero-banner", "/images/hero-factory.webp")} alt="Factory" className="h-full w-full object-cover" />
+        </picture>
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center justify-center text-white text-center px-4">
           <div>

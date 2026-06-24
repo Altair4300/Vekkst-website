@@ -57,6 +57,15 @@ function getS3Url(key: string) {
   return `https://pub-a2177565917e494a9eb3b3e59a5ab93b.r2.dev/${key}`;
 }
 
+// Construct full URL from request headers (works behind Railway proxy)
+function getBaseUrl(req: any): string {
+  const forwardedHost = req.headers.get("x-forwarded-host");
+  const forwardedProto = req.headers.get("x-forwarded-proto");
+  const host = forwardedHost || req.headers.get("host") || "localhost";
+  const protocol = forwardedProto || "https";
+  return `${protocol}://${host}`;
+}
+
 // Generate a pre-signed URL for direct browser upload to R2
 async function createPresignedUrl(key: string, contentType: string) {
   const getSignedUrl = await getPresignerModule();
@@ -124,8 +133,9 @@ export const mediaRouter = createRouter({
       try { await mkdir(uploadDir, { recursive: true }); } catch { /* exists */ }
       const filePath = join(uploadDir, filename);
       await writeFile(filePath, buffer);
-      const localUrl = `/uploads/${input.category}/${filename}`;
-      console.log(`[MEDIA] Local uploadImage OK: ${filePath} -> ${localUrl}`);
+      const baseUrl = getBaseUrl(ctx.req);
+      const fullUrl = `${baseUrl}${localUrl}`;
+      console.log(`[MEDIA] Local uploadImage OK: ${filePath} -> ${fullUrl}`);
 
       // Optionally also upload to R2 for backup (don't fail if R2 fails)
       if (USE_S3) {
@@ -145,7 +155,7 @@ export const mediaRouter = createRouter({
         }
       }
 
-      return { url: localUrl, category: input.category };
+      return { url: fullUrl, category: input.category };
     }),
 
   // Upload a video (authenticated users only — rate limited)
@@ -179,8 +189,9 @@ export const mediaRouter = createRouter({
         try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
         const filePath = join(videoDir, filename);
         await writeFile(filePath, buffer);
-        const localUrl = `/videos/${input.category}/${filename}`;
-        console.log(`[UPLOAD] Local save OK: ${filePath} -> ${localUrl}`);
+        const baseUrl = getBaseUrl(ctx.req);
+        const fullUrl = `${baseUrl}${localUrl}`;
+        console.log(`[UPLOAD] Local save OK: ${filePath} -> ${fullUrl}`);
 
         // Optionally also upload to R2 for backup (don't fail if R2 fails)
         if (USE_S3) {
@@ -200,7 +211,7 @@ export const mediaRouter = createRouter({
           }
         }
 
-        return { url: localUrl, category: input.category };
+        return { url: fullUrl, category: input.category };
       } catch (err: any) {
         console.error(`[UPLOAD] Video upload failed:`, err?.message || err);
         throw new Error(`Upload failed: ${err?.message || "Unknown error"}`);
