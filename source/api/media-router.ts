@@ -91,11 +91,16 @@ export const mediaRouter = createRouter({
       const prefix = input.type === "video" ? "videos" : "uploads";
       const key = `${prefix}/${input.category}/${filename}`;
       const contentType = input.type === "video" ? `video/${ext}` : `image/${ext}`;
-      const presignedUrl = await createPresignedUrl(key, contentType);
-      if (!presignedUrl) {
-        throw new Error("Failed to generate upload URL.");
+      try {
+        const presignedUrl = await createPresignedUrl(key, contentType);
+        if (!presignedUrl) {
+          throw new Error("Failed to generate upload URL.");
+        }
+        return { url: presignedUrl, publicUrl: getS3Url(key), key };
+      } catch (err: any) {
+        console.error("[MEDIA] getPresignedUploadUrl failed:", err?.message || err);
+        throw new Error("R2 upload not available. Please use base64 upload.");
       }
-      return { url: presignedUrl, publicUrl: getS3Url(key), key };
     }),
 
   // Upload an image (authenticated users only — rate limited)
@@ -128,8 +133,8 @@ export const mediaRouter = createRouter({
           console.log(`[MEDIA] S3 uploadImage OK: ${key}`);
           return { url: getS3Url(key), category: input.category };
         } catch (s3Err: any) {
-          console.error("[MEDIA] S3 uploadImage failed:", s3Err?.message || s3Err);
-          throw s3Err;
+          console.error("[MEDIA] S3 uploadImage failed, falling back to local filesystem:", s3Err?.message || s3Err);
+          // Fall through to local filesystem below
         }
       }
 
@@ -138,6 +143,7 @@ export const mediaRouter = createRouter({
       try { await mkdir(uploadDir, { recursive: true }); } catch { /* exists */ }
       const filePath = join(uploadDir, filename);
       await writeFile(filePath, buffer);
+      console.log(`[MEDIA] Local uploadImage OK: ${filePath}`);
       return { url: `/uploads/${input.category}/${filename}`, category: input.category };
     }),
 
@@ -181,8 +187,8 @@ export const mediaRouter = createRouter({
             console.log(`[MEDIA] S3 uploadVideo OK: ${key}`);
             return { url: getS3Url(key), category: input.category };
           } catch (s3Err: any) {
-            console.error("[MEDIA] S3 uploadVideo failed:", s3Err?.message || s3Err);
-            throw s3Err;
+            console.error("[MEDIA] S3 uploadVideo failed, falling back to local filesystem:", s3Err?.message || s3Err);
+            // Fall through to local filesystem below
           }
         }
 
