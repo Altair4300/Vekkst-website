@@ -133,6 +133,7 @@ export const mediaRouter = createRouter({
       try { await mkdir(uploadDir, { recursive: true }); } catch { /* exists */ }
       const filePath = join(uploadDir, filename);
       await writeFile(filePath, buffer);
+      const localUrl = `/uploads/${input.category}/${filename}`;
       const baseUrl = getBaseUrl(ctx.req);
       const fullUrl = `${baseUrl}${localUrl}`;
       console.log(`[MEDIA] Local uploadImage OK: ${filePath} -> ${fullUrl}`);
@@ -189,6 +190,7 @@ export const mediaRouter = createRouter({
         try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
         const filePath = join(videoDir, filename);
         await writeFile(filePath, buffer);
+        const localUrl = `/videos/${input.category}/${filename}`;
         const baseUrl = getBaseUrl(ctx.req);
         const fullUrl = `${baseUrl}${localUrl}`;
         console.log(`[UPLOAD] Local save OK: ${filePath} -> ${fullUrl}`);
