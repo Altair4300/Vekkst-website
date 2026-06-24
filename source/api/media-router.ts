@@ -54,7 +54,8 @@ function getS3Client(S3Client: any) {
 
 function getS3Url(key: string) {
   // Use Cloudflare R2 public development URL for publicly accessible files
-  return `https://pub-a2177565917e494a9eb3b3e59a5ab93b.r2.dev/${key}`;
+  // Note: R2 public dev URLs require the bucket name in the path
+  return `https://pub-a2177565917e494a9eb3b3e59a5ab93b.r2.dev/${BUCKET}/${key}`;
 }
 
 // Generate a pre-signed URL for direct browser upload to R2
