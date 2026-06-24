@@ -3,19 +3,77 @@
 @tailwind utilities;
 
 @layer base {
-  html, body {
-    overflow-x: hidden;
-  }
-  body {
-    position: relative;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    min-width: 320px; /* Ensure minimum readable width */
+  :root {
+    /* Color palette - Vekkst brand */
+    --color-primary: #E60012;
+    --color-primary-dark: #c4000f;
+    --color-amber: #F5A623;
+    --color-amber-light: #FFD700;
+    --color-dark: #0a0a0a;
+    --color-dark-lighter: #1a1a1a;
+    --color-dark-card: #161616;
+    --color-white: #ffffff;
+    --color-gray-100: #f5f5f5;
+    --color-gray-200: #e5e5e5;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827;
+    
+    /* Spacing scale - mobile-first */
+    --space-1: 0.25rem;   /* 4px */
+    --space-2: 0.5rem;    /* 8px */
+    --space-3: 0.75rem;   /* 12px */
+    --space-4: 1rem;      /* 16px */
+    --space-5: 1.25rem;   /* 20px */
+    --space-6: 1.5rem;    /* 24px */
+    --space-8: 2rem;      /* 32px */
+    --space-10: 2.5rem;   /* 40px */
+    --space-12: 3rem;     /* 48px */
+    --space-16: 4rem;     /* 64px */
+    --space-20: 5rem;     /* 80px */
+    --space-24: 6rem;     /* 96px */
+    
+    /* Typography - mobile-first */
+    --text-xs: 0.75rem;   /* 12px */
+    --text-sm: 0.875rem;  /* 14px */
+    --text-base: 1rem;    /* 16px */
+    --text-lg: 1.125rem;  /* 18px */
+    --text-xl: 1.25rem;   /* 20px */
+    --text-2xl: 1.5rem;   /* 24px */
+    --text-3xl: 1.875rem; /* 30px */
+    --text-4xl: 2.25rem;  /* 36px */
+    --text-5xl: 3rem;     /* 48px */
+    
+    /* Border radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+    --radius-full: 9999px;
   }
 
-  /* iOS smooth scroll */
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
   body {
+    position: relative;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--color-gray-900);
+    background-color: var(--color-white);
+    line-height: 1.5;
+    /* iOS smooth scroll */
     -webkit-overflow-scrolling: touch;
   }
 
@@ -23,18 +81,9 @@
   input, select, textarea {
     font-size: 16px !important;
   }
-  /* On desktop, allow smaller text */
   @media (min-width: 768px) {
     input, select, textarea {
       font-size: 0.875rem !important;
-    }
-  }
-
-  /* Minimum touch target: 48px for buttons and links on mobile */
-  @media (max-width: 768px) {
-    button, a, [role="button"] {
-      min-height: 44px;
-      min-width: 44px;
     }
   }
 
@@ -42,6 +91,7 @@
   img, video, iframe, embed, object {
     max-width: 100%;
     height: auto;
+    display: block;
   }
 
   /* Prevent text overflow on small screens */
@@ -49,11 +99,237 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
+
+  /* Selection color */
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
 }
 
-html { scroll-behavior: smooth; }
+@layer components {
+  /* Container - mobile-first padding */
+  .container-site {
+    width: 100%;
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  @media (min-width: 640px) {
+    .container-site {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .container-site {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
 
-/* Hide scrollbar for section image containers on mobile but keep functionality */
+  /* Section spacing - mobile-first */
+  .section {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  @media (min-width: 768px) {
+    .section {
+      padding-top: 4rem;
+      padding-bottom: 4rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .section {
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+    }
+  }
+
+  /* Section title - mobile-first */
+  .section-title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  @media (min-width: 768px) {
+    .section-title {
+      font-size: var(--text-3xl);
+    }
+  }
+  @media (min-width: 1024px) {
+    .section-title {
+      font-size: var(--text-4xl);
+    }
+  }
+
+  /* Section subtitle - mobile-first */
+  .section-subtitle {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  @media (min-width: 768px) {
+    .section-subtitle {
+      font-size: var(--text-sm);
+    }
+  }
+
+  /* Button primary - mobile-first */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: var(--color-amber);
+    color: var(--color-dark);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-full);
+    transition: background-color 0.2s ease;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .btn-primary:hover {
+    background-color: var(--color-amber-light);
+  }
+  @media (min-width: 768px) {
+    .btn-primary {
+      font-size: var(--text-base);
+      padding: 0.875rem 2rem;
+    }
+  }
+
+  /* Button secondary */
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 2px solid var(--color-amber);
+    color: var(--color-amber);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-full);
+    transition: all 0.2s ease;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .btn-secondary:hover {
+    background-color: var(--color-amber);
+    color: var(--color-dark);
+  }
+
+  /* Card dark */
+  .card-dark {
+    background-color: var(--color-dark-card);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+
+  /* Grid - mobile-first */
+  .grid-products {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  @media (min-width: 640px) {
+    .grid-products {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .grid-products {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  /* Image aspect ratio containers */
+  .aspect-hero {
+    aspect-ratio: 16 / 10;
+  }
+  @media (min-width: 768px) {
+    .aspect-hero {
+      aspect-ratio: 21 / 9;
+    }
+  }
+  @media (min-width: 1024px) {
+    .aspect-hero {
+      aspect-ratio: 21 / 9;
+    }
+  }
+
+  .aspect-card {
+    aspect-ratio: 1 / 1;
+  }
+  @media (min-width: 768px) {
+    .aspect-card {
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  /* Text line clamp */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@layer utilities {
+  /* Hide scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Full bleed section */
+  .full-bleed {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+  }
+
+  /* Mobile-only / desktop-only */
+  .mobile-only {
+    display: block;
+  }
+  @media (min-width: 768px) {
+    .mobile-only {
+      display: none;
+    }
+  }
+
+  .desktop-only {
+    display: none;
+  }
+  @media (min-width: 768px) {
+    .desktop-only {
+      display: block;
+    }
+  }
+}
+
+/* Hide scrollbar for section image containers */
 .overflow-x-auto::-webkit-scrollbar {
   height: 4px;
 }
@@ -63,12 +339,4 @@ html { scroll-behavior: smooth; }
 .overflow-x-auto::-webkit-scrollbar-thumb {
   background: rgba(245, 158, 11, 0.4);
   border-radius: 2px;
-}
-
-/* Responsive scaling utilities */
-@layer utilities {
-  .responsive-fit {
-    width: 100%;
-    max-width: 100vw;
-  }
 }

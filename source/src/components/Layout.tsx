@@ -1,5 +1,4 @@
 import { useState } from "react";
-import TopBar from "./TopBar";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import QuoteModal from "./QuoteModal";
@@ -18,10 +17,9 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-[100dvh] md:min-h-screen flex flex-col bg-white overflow-x-hidden">
-      <TopBar />
+    <div className="min-h-[100dvh] flex flex-col bg-white overflow-x-hidden">
       <Navbar onQuoteClick={() => openQuote()} />
-      <main className="flex-1 pt-[112px]">{children}</main>
+      <main className="flex-1 pt-[calc(3.5rem+2.5rem)]">{children}</main>
       <Footer />
       {showQuoteModal && (
         <QuoteModal
