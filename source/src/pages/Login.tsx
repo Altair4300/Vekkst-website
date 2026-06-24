@@ -25,7 +25,7 @@ export default function Login() {
   });
 
   if (isAuthenticated) {
-    navigate(redirect);
+    navigate(redirect, { replace: true });
     return null;
   }
 

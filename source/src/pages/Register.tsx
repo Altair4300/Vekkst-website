@@ -28,7 +28,7 @@ export default function Register() {
   });
 
   if (isAuthenticated) {
-    navigate(redirect);
+    navigate(redirect, { replace: true });
     return null;
   }
 

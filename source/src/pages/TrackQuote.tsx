@@ -31,7 +31,7 @@ export default function TrackQuote() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      navigate(`/login?redirect=${encodeURIComponent("/track-quote")}`);
+      navigate(`/login?redirect=${encodeURIComponent("/track-quote")}`, { replace: true });
     }
   }, [authLoading, isAuthenticated, navigate]);
 
