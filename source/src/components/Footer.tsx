@@ -5,11 +5,16 @@ export default function Footer() {
   return (
     <footer className="bg-[#0a0a0a] border-t border-white/5 text-gray-400">
       {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div className="container-site py-10 md:py-14">
+        {/* Mobile: stacked grid, Desktop: 4 columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
           {/* Brand */}
-          <div className="md:col-span-1">
-            <img src="/images/vekkst-logo.webp" alt="VEKKST" className="h-20 w-auto mb-4" />
+          <div className="sm:col-span-2 lg:col-span-1">
+            <img
+              src="/images/vekkst-logo.webp"
+              alt="VEKKST"
+              className="h-16 md:h-20 w-auto mb-4"
+            />
             <p className="text-sm leading-relaxed mb-4 text-gray-500">
               Committed to providing men's clothing customization services that combine quality and efficiency.
             </p>
@@ -30,8 +35,6 @@ export default function Footer() {
               <li><Link to="/quote" className="hover:text-amber-400 transition-colors">Get a Quote</Link></li>
               <li><Link to="/privacy" className="hover:text-amber-400 transition-colors">Privacy Policy</Link></li>
               <li><Link to="/terms" className="hover:text-amber-400 transition-colors">Terms of Service</Link></li>
-              <li><Link to="/returns" className="hover:text-amber-400 transition-colors">Return Policy</Link></li>
-              <li><Link to="/shipping" className="hover:text-amber-400 transition-colors">Shipping Policy</Link></li>
             </ul>
           </div>
 
@@ -51,18 +54,20 @@ export default function Footer() {
           {/* Contact */}
           <div>
             <h4 className="font-semibold text-sm mb-4 text-white">Contact us</h4>
-            <ul className="space-y-3.5 text-sm">
+            <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <Phone className="w-4 h-4 mt-0.5 text-amber-400 flex-shrink-0" />
                 <span>+86 134 2474 5515</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <Mail className="w-4 h-4 mt-0.5 text-amber-400 flex-shrink-0" />
-                <span>Info@vekkst.com</span>
+                <span className="break-all">Info@vekkst.com</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 mt-0.5 text-amber-400 flex-shrink-0" />
-                <span>2nd floor, C Block, Garment Creative Industrial Park, Humen Town, Dongguan City, Guangdong Province, China</span>
+                <span className="text-xs leading-relaxed">
+                  2nd floor, C Block, Garment Creative Industrial Park, Humen Town, Dongguan City, Guangdong Province, China
+                </span>
               </li>
             </ul>
             <div className="mt-5 flex gap-4">
@@ -79,7 +84,7 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between text-xs text-gray-600">
+        <div className="container-site py-4 flex flex-col md:flex-row items-center justify-between text-xs text-gray-600 gap-2">
           <p>Copyright &copy; {new Date().getFullYear()} DongGuan VEKKST Garment Co., Ltd. All Rights Reserved.</p>
           <p>ODM/OEM Manufacturer | Custom Men's Fashion Clothing</p>
         </div>

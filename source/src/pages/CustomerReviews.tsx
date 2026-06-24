@@ -48,7 +48,7 @@ export default function CustomerReviews() {
   return (
     <>
       {/* Hero Header */}
-      <section className="pt-[160px] pb-16 bg-[#0a0a0a] overflow-hidden">
+      <section className="pt-[calc(3.5rem+2.5rem)] pb-12 md:pb-16 bg-[#0a0a0a] overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <Link to="/" className="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-8">
             <ArrowLeft className="w-4 h-4" />
@@ -79,7 +79,7 @@ export default function CustomerReviews() {
                     src={review.img}
                     alt={`${review.name}'s review`}
                     className="w-full h-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }}
                   />
                 </div>
                 <div className="p-6">

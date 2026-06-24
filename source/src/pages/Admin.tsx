@@ -867,7 +867,7 @@ function ProductsPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {products?.map((p) => (
           <div key={p.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <img src={p.image} alt={p.name} className="w-full h-44 object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/images/placeholder.jpg"; }} />
+            <img src={p.image} alt={p.name} className="w-full h-44 object-cover" onError={(e) => { (e.target as HTMLImageElement).src = "/images/vekkst-logo.webp"; }} />
             <div className="p-3">
               <p className="text-[13px] font-semibold truncate">{p.name}</p>
               <p className="text-[11px] text-gray-400 capitalize">{p.category}{p.season ? ` · ${p.season}` : ""}</p>

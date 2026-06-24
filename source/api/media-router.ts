@@ -31,6 +31,11 @@ async function getS3Modules() {
   return { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command };
 }
 
+async function getPresignerModule() {
+  const { getSignedUrl } = await import("@aws-sdk/s3-request-presigner");
+  return getSignedUrl;
+}
+
 function getS3Client(S3Client: any) {
   if (!USE_S3) return null;
   const config: any = {
@@ -48,10 +53,27 @@ function getS3Client(S3Client: any) {
 }
 
 function getS3Url(key: string) {
-  if (ENDPOINT) {
-    return `${ENDPOINT}/${BUCKET}/${key}`;
-  }
-  return `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
+  // Use Cloudflare R2 public development URL for publicly accessible files
+  return `https://pub-a2177565917e494a9eb3b3e59a5ab93b.r2.dev/${key}`;
+}
+
+// Construct full URL from request headers (works behind Railway proxy)
+function getBaseUrl(req: any): string {
+  const forwardedHost = req.headers.get("x-forwarded-host");
+  const forwardedProto = req.headers.get("x-forwarded-proto");
+  const host = forwardedHost || req.headers.get("host") || "localhost";
+  const protocol = forwardedProto || "https";
+  return `${protocol}://${host}`;
+}
+
+// Generate a pre-signed URL for direct browser upload to R2
+async function createPresignedUrl(key: string, contentType: string) {
+  const getSignedUrl = await getPresignerModule();
+  const { S3Client, PutObjectCommand } = await getS3Modules();
+  const s3 = getS3Client(S3Client);
+  if (!s3) return null;
+  const command = new PutObjectCommand({ Bucket: BUCKET, Key: key, ContentType: contentType });
+  return getSignedUrl(s3, command, { expiresIn: 300 }); // 5 minutes
 }
 
 // ─── Categories ───
@@ -62,6 +84,34 @@ const VIDEO_DIR = join(process.cwd(), "public", "videos");
 const IMAGE_DIR = join(process.cwd(), "public", "uploads");
 
 export const mediaRouter = createRouter({
+  // Get a pre-signed URL for direct browser upload to R2 (fast, no base64)
+  getPresignedUploadUrl: authedQuery
+    .input(z.object({
+      filename: z.string(),
+      type: z.enum(["image", "video"]),
+      category: z.string().default("general"),
+    }))
+    .query(async ({ input }) => {
+      if (!USE_S3) {
+        throw new Error("S3 storage is not configured.");
+      }
+      const ext = input.filename.split(".").pop() || (input.type === "video" ? "mp4" : "jpg");
+      const filename = `${Date.now()}_${input.filename.replace(/\s+/g, "_")}`;
+      const prefix = input.type === "video" ? "videos" : "uploads";
+      const key = `${prefix}/${input.category}/${filename}`;
+      const contentType = input.type === "video" ? `video/${ext}` : `image/${ext}`;
+      try {
+        const presignedUrl = await createPresignedUrl(key, contentType);
+        if (!presignedUrl) {
+          throw new Error("Failed to generate upload URL.");
+        }
+        return { url: presignedUrl, publicUrl: getS3Url(key), key };
+      } catch (err: any) {
+        console.error("[MEDIA] getPresignedUploadUrl failed:", err?.message || err);
+        throw new Error("R2 upload not available. Please use base64 upload.");
+      }
+    }),
+
   // Upload an image (authenticated users only — rate limited)
   uploadImage: authedQuery
     .input(z.object({
@@ -78,6 +128,7 @@ export const mediaRouter = createRouter({
       const buffer = Buffer.from(base64Data, "base64");
       const filename = `${Date.now()}_${input.filename}`;
 
+      // Try R2 first (free, CDN-backed, persistent)
       if (USE_S3) {
         try {
           const { S3Client, PutObjectCommand } = await getS3Modules();
@@ -89,26 +140,30 @@ export const mediaRouter = createRouter({
             Body: buffer,
             ContentType: "image/jpeg",
           }));
-          console.log(`[MEDIA] S3 uploadImage OK: ${key}`);
-          return { url: getS3Url(key), category: input.category };
+          const r2Url = getS3Url(key);
+          console.log(`[MEDIA] R2 uploadImage OK: ${r2Url}`);
+          return { url: r2Url, category: input.category };
         } catch (s3Err: any) {
-          console.error("[MEDIA] S3 uploadImage failed:", s3Err?.message || s3Err);
-          throw s3Err;
+          console.error("[MEDIA] R2 uploadImage failed, falling back to local:", s3Err?.message || s3Err);
         }
       }
 
-      // Fallback: local filesystem
+      // Fallback: save locally (will be lost on redeploy without volume)
       const uploadDir = join(process.cwd(), "public", "uploads", input.category);
       try { await mkdir(uploadDir, { recursive: true }); } catch { /* exists */ }
       const filePath = join(uploadDir, filename);
       await writeFile(filePath, buffer);
-      return { url: `/uploads/${input.category}/${filename}`, category: input.category };
+      const localUrl = `/uploads/${input.category}/${filename}`;
+      const baseUrl = getBaseUrl(ctx.req);
+      const fullUrl = `${baseUrl}${localUrl}`;
+      console.log(`[MEDIA] Local uploadImage fallback: ${filePath} -> ${fullUrl}`);
+      return { url: fullUrl, category: input.category };
     }),
 
   // Upload a video (authenticated users only — rate limited)
   uploadVideo: authedQuery
     .input(z.object({
-      data: z.string(),
+      data: z.string().max(100 * 1024 * 1024, "Video data too large. Max 75MB after base64 encoding."),
       filename: z.string(),
       category: z.string().default("general"),
     }))
@@ -117,35 +172,54 @@ export const mediaRouter = createRouter({
       if (!checkUploadRateLimit(ip)) {
         throw new Error("Upload rate limit exceeded. Please try again later.");
       }
-      const base64Data = input.data.replace(/^data:video\/\w+;base64,/, "");
-      const buffer = Buffer.from(base64Data, "base64");
-      const filename = `${Date.now()}_${input.filename}`;
+      
+      console.log(`[UPLOAD] Starting video upload from ${ip}, filename: ${input.filename}, data length: ${input.data.length} chars`);
+      
+      try {
+        const base64Data = input.data.replace(/^data:video\/\w+;base64,/, "");
+        const buffer = Buffer.from(base64Data, "base64");
+        const filename = `${Date.now()}_${input.filename}`;
 
-      if (USE_S3) {
-        try {
-          const { S3Client, PutObjectCommand } = await getS3Modules();
-          const key = `videos/${input.category}/${filename}`;
-          const s3 = getS3Client(S3Client);
-          await s3!.send(new PutObjectCommand({
-            Bucket: BUCKET,
-            Key: key,
-            Body: buffer,
-            ContentType: "video/mp4",
-          }));
-          console.log(`[MEDIA] S3 uploadVideo OK: ${key}`);
-          return { url: getS3Url(key), category: input.category };
-        } catch (s3Err: any) {
-          console.error("[MEDIA] S3 uploadVideo failed:", s3Err?.message || s3Err);
-          throw s3Err;
+        console.log(`[UPLOAD] Decoded base64, buffer size: ${buffer.length} bytes`);
+
+        if (buffer.length > 50 * 1024 * 1024) {
+          throw new Error(`Video file too large (${(buffer.length / 1024 / 1024).toFixed(1)}MB). Maximum is 50MB. Please compress your video before uploading.`);
         }
-      }
 
-      // Fallback: local filesystem
-      const videoDir = join(process.cwd(), "public", "videos", input.category);
-      try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
-      const filePath = join(videoDir, filename);
-      await writeFile(filePath, buffer);
-      return { url: `/videos/${input.category}/${filename}`, category: input.category };
+        // Try R2 first (free, CDN-backed, persistent)
+        if (USE_S3) {
+          try {
+            const { S3Client, PutObjectCommand } = await getS3Modules();
+            const key = `videos/${input.category}/${filename}`;
+            const s3 = getS3Client(S3Client);
+            await s3!.send(new PutObjectCommand({
+              Bucket: BUCKET,
+              Key: key,
+              Body: buffer,
+              ContentType: "video/mp4",
+            }));
+            const r2Url = getS3Url(key);
+            console.log(`[MEDIA] R2 uploadVideo OK: ${r2Url}`);
+            return { url: r2Url, category: input.category };
+          } catch (s3Err: any) {
+            console.error("[MEDIA] R2 uploadVideo failed, falling back to local:", s3Err?.message || s3Err);
+          }
+        }
+
+        // Fallback: save locally (will be lost on redeploy without volume)
+        const videoDir = join(process.cwd(), "public", "videos", input.category);
+        try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
+        const filePath = join(videoDir, filename);
+        await writeFile(filePath, buffer);
+        const localUrl = `/videos/${input.category}/${filename}`;
+        const baseUrl = getBaseUrl(ctx.req);
+        const fullUrl = `${baseUrl}${localUrl}`;
+        console.log(`[UPLOAD] Local save fallback: ${filePath} -> ${fullUrl}`);
+        return { url: fullUrl, category: input.category };
+      } catch (err: any) {
+        console.error(`[UPLOAD] Video upload failed:`, err?.message || err);
+        throw new Error(`Upload failed: ${err?.message || "Unknown error"}`);
+      }
     }),
 
   // List all videos by category
