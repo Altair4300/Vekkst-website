@@ -58,22 +58,34 @@ export function serveStaticFiles(app: App) {
 
   console.log(`[STATIC] distPath=${distPath}, uploadsPath=${uploadsPath}, videosPath=${videosPath}`);
 
-  // ─── Uploaded images (with Range + nested path support) ───
+  // ─── Uploaded images (check public/uploads/ then dist/public/uploads/) ───
   app.use("/uploads/*", async (c, next) => {
     const relativePath = c.req.path.replace("/uploads/", "");
     const filePath = path.join(uploadsPath, relativePath);
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-      return serveFileWithRange(c, filePath);
+    const fallbackPath = path.join(distPath, "uploads", relativePath);
+    const resolvedPath = fs.existsSync(filePath) && fs.statSync(filePath).isFile()
+      ? filePath
+      : fs.existsSync(fallbackPath) && fs.statSync(fallbackPath).isFile()
+        ? fallbackPath
+        : null;
+    if (resolvedPath) {
+      return serveFileWithRange(c, resolvedPath);
     }
     await next();
   });
 
-  // ─── Uploaded videos (with Range + nested path support) ───
+  // ─── Uploaded videos (check public/videos/ then dist/public/videos/) ───
   app.use("/videos/*", async (c, next) => {
     const relativePath = c.req.path.replace("/videos/", "");
     const filePath = path.join(videosPath, relativePath);
-    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-      return serveFileWithRange(c, filePath);
+    const fallbackPath = path.join(distPath, "videos", relativePath);
+    const resolvedPath = fs.existsSync(filePath) && fs.statSync(filePath).isFile()
+      ? filePath
+      : fs.existsSync(fallbackPath) && fs.statSync(fallbackPath).isFile()
+        ? fallbackPath
+        : null;
+    if (resolvedPath) {
+      return serveFileWithRange(c, resolvedPath);
     }
     await next();
   });
