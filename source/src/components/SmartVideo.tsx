@@ -11,6 +11,12 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Log the src for debugging
+  useEffect(() => {
+    console.log("[SmartVideo] src:", src);
+  }, [src]);
 
   const handleClick = () => {
     const video = videoRef.current;
@@ -27,7 +33,10 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
     setIsMuted(true);
     video.play()
       .then(() => setIsPlaying(true))
-      .catch(() => setIsPlaying(false));
+      .catch((err) => {
+        console.error("[SmartVideo] Play failed:", err, "src:", src);
+        setIsPlaying(false);
+      });
   };
 
   const toggleMute = (e: React.MouseEvent) => {
@@ -59,6 +68,11 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
 
   return (
     <div className="relative group cursor-pointer" onClick={handleClick}>
+      {loadError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
+          <p className="text-red-400 text-sm text-center px-4">Video failed to load.<br/>Check admin upload.</p>
+        </div>
+      )}
       <video
         ref={videoRef}
         src={src}
@@ -70,10 +84,14 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
         poster={poster}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        onError={() => {
+          console.error("[SmartVideo] Video error, src:", src);
+          setLoadError("Failed to load video");
+        }}
       />
 
       {/* Play button when not playing */}
-      {!isPlaying && (
+      {!isPlaying && !loadError && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
           <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
             <Play className="w-7 h-7 text-[#E60012] ml-1" fill="currentColor" />
