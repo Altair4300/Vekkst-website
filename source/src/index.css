@@ -14,6 +14,30 @@
     min-width: 320px; /* Ensure minimum readable width */
   }
 
+  /* iOS smooth scroll */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent iOS zoom on input focus (font-size must be >= 16px) */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  /* On desktop, allow smaller text */
+  @media (min-width: 768px) {
+    input, select, textarea {
+      font-size: 0.875rem !important;
+    }
+  }
+
+  /* Minimum touch target: 48px for buttons and links on mobile */
+  @media (max-width: 768px) {
+    button, a, [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
   /* Ensure all images and videos are responsive by default */
   img, video, iframe, embed, object {
     max-width: 100%;

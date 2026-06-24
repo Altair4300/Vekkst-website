@@ -78,7 +78,7 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
           </div>
 
           {/* Mobile Hamburger */}
-          <button className="md:hidden text-white" onClick={() => setMobileOpen(!mobileOpen)}>
+          <button className="md:hidden text-white p-3 -mr-3 min-h-[48px] min-w-[48px] flex items-center justify-center" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -90,7 +90,7 @@ export default function Navbar({ onQuoteClick }: NavbarProps) {
           <div className="px-4 py-3 space-y-1">
             {links.map((link) => (
               <Link key={link.path} to={link.path} onClick={() => setMobileOpen(false)}
-                className={`block py-2 text-sm font-medium ${isActive(link.path) ? "text-amber-400" : "text-gray-400"}`}>
+                className={`block py-3 min-h-[48px] flex items-center text-sm font-medium ${isActive(link.path) ? "text-amber-400" : "text-gray-400"}`}>
                 {link.label}
               </Link>
             ))}

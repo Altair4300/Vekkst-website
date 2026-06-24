@@ -31,12 +31,21 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
     // Always play muted first — this works on ALL browsers including mobile
     video.muted = true;
     setIsMuted(true);
-    video.play()
-      .then(() => setIsPlaying(true))
-      .catch((err) => {
-        console.error("[SmartVideo] Play failed:", err, "src:", src);
-        setIsPlaying(false);
-      });
+    
+    // iOS Safari requires user gesture and playsInline
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => setIsPlaying(true))
+        .catch((err) => {
+          console.error("[SmartVideo] Play failed:", err, "src:", src);
+          // On mobile, if autoplay fails, show error
+          setIsPlaying(false);
+          if (err.name === "NotAllowedError") {
+            setLoadError("Tap to play video");
+          }
+        });
+    }
   };
 
   const toggleMute = (e: React.MouseEvent) => {

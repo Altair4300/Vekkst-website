@@ -18,7 +18,7 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
+    <div className="min-h-[100dvh] md:min-h-screen flex flex-col bg-white overflow-x-hidden">
       <TopBar />
       <Navbar onQuoteClick={() => openQuote()} />
       <main className="flex-1 pt-[112px]">{children}</main>
