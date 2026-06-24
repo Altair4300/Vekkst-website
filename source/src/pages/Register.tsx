@@ -43,39 +43,39 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link to="/">
             <img src="/images/vekkst-logo.webp" alt="VEKKST" className="h-10 w-auto mx-auto mb-4" />
           </Link>
-          <h1 className="text-2xl font-bold text-[#333]">Create Account</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Create Account</h1>
           <p className="text-gray-500 text-sm mt-1">Join us today</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-white rounded-xl shadow-sm border p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded">{error}</div>}
+            {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>}
             <div className="space-y-2">
               <Label htmlFor="name">Full Name *</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" required />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" required className="min-h-[44px]" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email *</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required className="min-h-[44px]" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 234 567 890" />
+              <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 234 567 890" className="min-h-[44px]" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password *</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 6 characters" required />
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 6 characters" required className="min-h-[44px]" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirm">Confirm Password *</Label>
-              <Input id="confirm" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repeat password" required />
+              <Input id="confirm" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="Repeat password" required className="min-h-[44px]" />
             </div>
-            <Button type="submit" className="w-full bg-[#E60012] hover:bg-[#c4000f] text-white" disabled={registerMutation.isPending}>
+            <Button type="submit" className="w-full bg-[#E60012] hover:bg-[#c4000f] text-white min-h-[44px]" disabled={registerMutation.isPending}>
               <UserPlus className="w-4 h-4 mr-2" /> {registerMutation.isPending ? "Creating account..." : "Create Account"}
             </Button>
           </form>
