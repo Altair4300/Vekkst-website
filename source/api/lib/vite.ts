@@ -15,10 +15,16 @@ export function serveStaticFiles(app: App) {
   console.log(`[STATIC] distPath=${distPath}, uploadsPath=${uploadsPath}, videosPath=${videosPath}`);
 
   // ─── Uploaded images ───
-  app.use("/uploads/*", serveStatic({ root: uploadsPath }));
+  app.use("/uploads/*", serveStatic({ 
+    root: uploadsPath,
+    rewriteRequestPath: (p) => p.replace(/^\/uploads\//, "")
+  }));
 
   // ─── Uploaded videos ───
-  app.use("/videos/*", serveStatic({ root: videosPath }));
+  app.use("/videos/*", serveStatic({ 
+    root: videosPath,
+    rewriteRequestPath: (p) => p.replace(/^\/videos\//, "")
+  }));
 
   // ─── Built frontend assets ───
   app.use("*", serveStatic({ root: distPath }));
