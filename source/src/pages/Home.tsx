@@ -45,11 +45,13 @@ export default function Home() {
     <>
       {/* ═══════ HERO ═══════ */}
       <section className="relative w-full bg-black overflow-hidden">
-        <div className="aspect-hero">
+        {/* Mobile: full width, natural height, shows entire banner */}
+        {/* Desktop: fixed 16/9, fills container, logo visible */}
+        <div className="w-full md:aspect-[16/9]">
           <img
             src={cms("hero-banner", "/images/banner.webp")}
             alt="Premium Streetwear Manufacturer"
-            className="h-full w-full object-cover object-top md:object-left"
+            className="w-full h-auto md:h-full object-contain md:object-cover md:object-left"
             decoding="async"
             loading="eager"
           />

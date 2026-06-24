@@ -253,16 +253,7 @@
     }
   }
 
-  /* Image aspect ratio containers */
-  .aspect-hero {
-    aspect-ratio: 3 / 2;
-  }
-  @media (min-width: 768px) {
-    .aspect-hero {
-      aspect-ratio: 16 / 9;
-    }
-  }
-
+  /* Card aspect ratio */
   .aspect-card {
     aspect-ratio: 1 / 1;
   }
