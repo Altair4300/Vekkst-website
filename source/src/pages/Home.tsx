@@ -46,16 +46,22 @@ export default function Home() {
       {/* ═══════ HERO ═══════ */}
       <section className="relative w-full bg-black overflow-hidden">
         <div className="h-[50vh] min-h-[400px] md:h-[720px]">
-          <picture className="block h-full w-full">
-            <source srcSet={cmsMobile("hero-banner", "/images/banner.webp")} media="(max-width: 768px)" />
-            <img
-              src={cms("hero-banner", "/images/banner.webp")}
-              alt="Premium Streetwear Manufacturer"
-              className="h-full w-full object-cover"
-              decoding="async"
-              loading="eager"
-            />
-          </picture>
+          {/* Desktop image */}
+          <img
+            src={cms("hero-banner", "/images/banner.webp")}
+            alt="Premium Streetwear Manufacturer"
+            className="hidden md:block h-full w-full object-cover"
+            decoding="async"
+            loading="eager"
+          />
+          {/* Mobile image */}
+          <img
+            src={cmsMobile("hero-banner", "/images/banner.webp")}
+            alt="Premium Streetwear Manufacturer"
+            className="md:hidden h-full w-full object-cover"
+            decoding="async"
+            loading="eager"
+          />
         </div>
       </section>
 
@@ -176,10 +182,10 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
-          <picture className="block w-full">
-            <source srcSet={cmsMobile("factory-strength", "/images/Factory Strength.webp")} media="(max-width: 768px)" />
-            <img src={cms("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
-          </picture>
+          {/* Desktop image */}
+          <img src={cms("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("factory-strength", "/images/Factory Strength.webp")} alt="Factory Strength" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -193,10 +199,10 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
-          <picture className="block w-full">
-            <source srcSet={cmsMobile("logo-rich-technology", "/images/Logo Rich Technology.webp")} media="(max-width: 768px)" />
-            <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
-          </picture>
+          {/* Desktop image */}
+          <img src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("logo-rich-technology", "/images/Logo Rich Technology.webp")} alt="16+ Printing and Embroidery Techniques" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -210,10 +216,10 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
-          <picture className="block w-full">
-            <source srcSet={cmsMobile("premium-fabric", "/images/Premium Custom Fabric.webp")} media="(max-width: 768px)" />
-            <img src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
-          </picture>
+          {/* Desktop image */}
+          <img src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("premium-fabric", "/images/Premium Custom Fabric.webp")} alt="Custom Fabric Options" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -227,10 +233,10 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
-          <picture className="block w-full">
-            <source srcSet={cmsMobile("supply-chain", "/images/From Idea to Bulk.webp")} media="(max-width: 768px)" />
-            <img src={cms("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
-          </picture>
+          {/* Desktop image */}
+          <img src={cms("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("supply-chain", "/images/From Idea to Bulk.webp")} alt="From Idea to Bulk - 8 Step Process" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -244,10 +250,10 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
-          <picture className="block w-full">
-            <source srcSet={cmsMobile("partner-brands", "/images/Trusted by 1100+ Brands.webp")} media="(max-width: 768px)" />
-            <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
-          </picture>
+          {/* Desktop image */}
+          <img src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("partner-brands", "/images/Trusted by 1100+ Brands.webp")} alt="Trusted by 1100+ Global Streetwear Brands" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
@@ -261,10 +267,10 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-[1920px] mx-auto overflow-hidden w-full">
-          <picture className="block w-full">
-            <source srcSet={cmsMobile("certifications", "/images/Certifications & Compliance.webp")} media="(max-width: 768px)" />
-            <img src={cms("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
-          </picture>
+          {/* Desktop image */}
+          <img src={cms("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="hidden md:block w-full h-auto md:h-[720px] object-cover" decoding="async" loading="lazy" />
+          {/* Mobile image */}
+          <img src={cmsMobile("certifications", "/images/Certifications & Compliance.webp")} alt="Certifications and Compliance" className="md:hidden w-full h-auto object-cover" decoding="async" loading="lazy" />
         </div>
       </section>
 
