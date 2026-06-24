@@ -53,11 +53,12 @@ export function usePageContent(page: string) {
     };
   }, [sections]);
 
-  // Helper: get mobile content with fallback to desktop + cache-busting
+  // Helper: get mobile content (DEPRECATED: use cms() instead)
+  // Kept for backward compatibility but falls back to content
   const cmsMobile = useMemo(() => {
     return (sectionKey: string, fallback: string) => {
       const section = sections.find((s: any) => s.section === sectionKey);
-      const content = section?.mobileContent || section?.content || fallback;
+      const content = section?.content || fallback;
       return addCacheBust(content, section?.updatedAt);
     };
   }, [sections]);
