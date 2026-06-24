@@ -259,12 +259,7 @@
   }
   @media (min-width: 768px) {
     .aspect-hero {
-      aspect-ratio: 21 / 9;
-    }
-  }
-  @media (min-width: 1024px) {
-    .aspect-hero {
-      aspect-ratio: 21 / 9;
+      aspect-ratio: 16 / 9;
     }
   }
 
