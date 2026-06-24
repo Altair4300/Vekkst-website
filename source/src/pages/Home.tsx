@@ -44,18 +44,14 @@ export default function Home() {
   return (
     <>
       {/* ═══════ HERO ═══════ */}
-      <section className="relative w-full bg-black overflow-hidden">
-        {/* Mobile: full width, natural height, shows entire banner */}
-        {/* Desktop: fixed 16/9, fills container, logo visible */}
-        <div className="w-full md:aspect-[16/9]">
-          <img
-            src={cms("hero-banner", "/images/banner.webp")}
-            alt="Premium Streetwear Manufacturer"
-            className="w-full h-auto md:h-full object-contain md:object-cover md:object-left"
-            decoding="async"
-            loading="eager"
-          />
-        </div>
+      <section className="relative w-full bg-black">
+        <img
+          src={cms("hero-banner", "/images/banner.webp")}
+          alt="Premium Streetwear Manufacturer"
+          className="w-full h-auto block"
+          decoding="async"
+          loading="eager"
+        />
       </section>
 
       {/* ═══════ CATEGORIES ═══════ */}
