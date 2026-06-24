@@ -128,17 +128,7 @@ export const mediaRouter = createRouter({
       const buffer = Buffer.from(base64Data, "base64");
       const filename = `${Date.now()}_${input.filename}`;
 
-      // Always save to local filesystem first
-      const uploadDir = join(process.cwd(), "public", "uploads", input.category);
-      try { await mkdir(uploadDir, { recursive: true }); } catch { /* exists */ }
-      const filePath = join(uploadDir, filename);
-      await writeFile(filePath, buffer);
-      const localUrl = `/uploads/${input.category}/${filename}`;
-      const baseUrl = getBaseUrl(ctx.req);
-      const fullUrl = `${baseUrl}${localUrl}`;
-      console.log(`[MEDIA] Local uploadImage OK: ${filePath} -> ${fullUrl}`);
-
-      // Optionally also upload to R2 for backup (don't fail if R2 fails)
+      // Try R2 first (free, CDN-backed, persistent)
       if (USE_S3) {
         try {
           const { S3Client, PutObjectCommand } = await getS3Modules();
@@ -150,12 +140,23 @@ export const mediaRouter = createRouter({
             Body: buffer,
             ContentType: "image/jpeg",
           }));
-          console.log(`[MEDIA] S3 uploadImage backup OK: ${key}`);
+          const r2Url = getS3Url(key);
+          console.log(`[MEDIA] R2 uploadImage OK: ${r2Url}`);
+          return { url: r2Url, category: input.category };
         } catch (s3Err: any) {
-          console.error("[MEDIA] S3 uploadImage backup failed (non-critical):", s3Err?.message || s3Err);
+          console.error("[MEDIA] R2 uploadImage failed, falling back to local:", s3Err?.message || s3Err);
         }
       }
 
+      // Fallback: save locally (will be lost on redeploy without volume)
+      const uploadDir = join(process.cwd(), "public", "uploads", input.category);
+      try { await mkdir(uploadDir, { recursive: true }); } catch { /* exists */ }
+      const filePath = join(uploadDir, filename);
+      await writeFile(filePath, buffer);
+      const localUrl = `/uploads/${input.category}/${filename}`;
+      const baseUrl = getBaseUrl(ctx.req);
+      const fullUrl = `${baseUrl}${localUrl}`;
+      console.log(`[MEDIA] Local uploadImage fallback: ${filePath} -> ${fullUrl}`);
       return { url: fullUrl, category: input.category };
     }),
 
@@ -185,17 +186,7 @@ export const mediaRouter = createRouter({
           throw new Error(`Video file too large (${(buffer.length / 1024 / 1024).toFixed(1)}MB). Maximum is 50MB. Please compress your video before uploading.`);
         }
 
-        // Always save to local filesystem first
-        const videoDir = join(process.cwd(), "public", "videos", input.category);
-        try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
-        const filePath = join(videoDir, filename);
-        await writeFile(filePath, buffer);
-        const localUrl = `/videos/${input.category}/${filename}`;
-        const baseUrl = getBaseUrl(ctx.req);
-        const fullUrl = `${baseUrl}${localUrl}`;
-        console.log(`[UPLOAD] Local save OK: ${filePath} -> ${fullUrl}`);
-
-        // Optionally also upload to R2 for backup (don't fail if R2 fails)
+        // Try R2 first (free, CDN-backed, persistent)
         if (USE_S3) {
           try {
             const { S3Client, PutObjectCommand } = await getS3Modules();
@@ -207,12 +198,23 @@ export const mediaRouter = createRouter({
               Body: buffer,
               ContentType: "video/mp4",
             }));
-            console.log(`[MEDIA] S3 uploadVideo backup OK: ${key}`);
+            const r2Url = getS3Url(key);
+            console.log(`[MEDIA] R2 uploadVideo OK: ${r2Url}`);
+            return { url: r2Url, category: input.category };
           } catch (s3Err: any) {
-            console.error("[MEDIA] S3 uploadVideo backup failed (non-critical):", s3Err?.message || s3Err);
+            console.error("[MEDIA] R2 uploadVideo failed, falling back to local:", s3Err?.message || s3Err);
           }
         }
 
+        // Fallback: save locally (will be lost on redeploy without volume)
+        const videoDir = join(process.cwd(), "public", "videos", input.category);
+        try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
+        const filePath = join(videoDir, filename);
+        await writeFile(filePath, buffer);
+        const localUrl = `/videos/${input.category}/${filename}`;
+        const baseUrl = getBaseUrl(ctx.req);
+        const fullUrl = `${baseUrl}${localUrl}`;
+        console.log(`[UPLOAD] Local save fallback: ${filePath} -> ${fullUrl}`);
         return { url: fullUrl, category: input.category };
       } catch (err: any) {
         console.error(`[UPLOAD] Video upload failed:`, err?.message || err);
