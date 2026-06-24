@@ -49,7 +49,7 @@ export default function Home() {
           <img
             src={cms("hero-banner", "/images/banner.webp")}
             alt="Premium Streetwear Manufacturer"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-top md:object-center"
             decoding="async"
             loading="eager"
           />
