@@ -51,6 +51,7 @@ export default function Home() {
           className="w-full h-auto block"
           decoding="async"
           loading="eager"
+          fetchpriority="high"
         />
       </section>
 
