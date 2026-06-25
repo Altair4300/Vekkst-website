@@ -100,7 +100,15 @@ export const subadminRouter = createRouter({
 
   list: adminQuery.query(async () => {
     const db = getDb();
-    return db.select().from(subadmins).orderBy(desc(subadmins.createdAt));
+    return db.select({
+      id: subadmins.id,
+      name: subadmins.name,
+      email: subadmins.email,
+      phone: subadmins.phone,
+      status: subadmins.status,
+      permissions: subadmins.permissions,
+      createdAt: subadmins.createdAt,
+    }).from(subadmins).orderBy(desc(subadmins.createdAt));
   }),
 
   approve: adminQuery

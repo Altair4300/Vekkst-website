@@ -50,21 +50,25 @@ export const adminAuthRouter = createRouter({
     .input(z.object({ password: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
-      if (!storedPw) {
-        console.warn("[ADMIN] ADMIN_PASSWORD not configured");
-        return { success: false, error: "Server misconfiguration." };
-      }
-      if (!inputPw) {
-        return { success: false, error: "Password is required" };
-      }
-      const match = inputPw === storedPw;
       
       if (!checkRateLimit(ip)) {
         return { success: false, error: "Too many attempts. Try again in 15 minutes." };
       }
-      if (!match) {
+      
+      const storedPw = getAdminPassword();
+      if (!storedPw) {
+        return { success: false, error: "Server misconfiguration." };
+      }
+      
+      const inputPw = input.password.trim();
+      if (!inputPw) {
+        return { success: false, error: "Password is required" };
+      }
+      
+      if (inputPw !== storedPw) {
         return { success: false, error: "Invalid password" };
       }
+      
       // Generate admin JWT token
       const token = jwt.sign(
         { role: "admin", isAdmin: true, type: "admin" },

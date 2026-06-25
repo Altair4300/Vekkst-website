@@ -27,8 +27,18 @@ export async function createContext(
     if (token) {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
       const db = getDb();
-      const rows = await db.select().from(schema.users).where(eq(schema.users.id, decoded.userId)).limit(1);
-      if (rows[0]) ctx.user = rows[0];
+      const rows = await db.select({
+        id: schema.users.id,
+        unionId: schema.users.unionId,
+        name: schema.users.name,
+        email: schema.users.email,
+        phone: schema.users.phone,
+        avatar: schema.users.avatar,
+        role: schema.users.role,
+        createdAt: schema.users.createdAt,
+        updatedAt: schema.users.updatedAt,
+      }).from(schema.users).where(eq(schema.users.id, decoded.userId)).limit(1);
+      if (rows[0]) ctx.user = rows[0] as typeof users.$inferSelect;
     }
   } catch {
     // Auth is optional - user stays undefined for public endpoints

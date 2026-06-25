@@ -22,16 +22,16 @@ function checkMessageRateLimit(ip: string): boolean {
 }
 
 export const messageRouter = createRouter({
-  // Send a message (customer or admin)
-  send: publicQuery
+  // Send a message (customer or admin) — requires authentication
+  send: authedQuery
     .input(
       z.object({
         quoteId: z.string().min(1),
         sender: z.enum(["customer", "admin"]),
         senderName: z.string().optional(),
-        message: z.string().min(1),
+        message: z.string().min(1).max(5000),
         type: z.enum(["text", "image", "video"]).optional(),
-        fileUrl: z.string().optional(),
+        fileUrl: z.string().max(1000).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -43,6 +43,15 @@ export const messageRouter = createRouter({
       // Verify quote exists
       const quote = await db.select().from(quotes).where(eq(quotes.quoteId, input.quoteId)).limit(1);
       if (!quote.length) throw new Error("Quote not found");
+
+      // Prevent non-admins from sending as admin
+      if (input.sender === "admin" && ctx.user?.role !== "admin") {
+        throw new Error("Unauthorized: only admins can send as admin");
+      }
+      // Prevent customers from sending on quotes they don't own
+      if (input.sender === "customer" && ctx.user?.role !== "admin" && quote[0].email.toLowerCase() !== ctx.user?.email?.toLowerCase()) {
+        throw new Error("Unauthorized: this quote does not belong to you");
+      }
 
       const result = await db.insert(quoteMessages).values({
         quoteId: input.quoteId,
@@ -134,8 +143,8 @@ export const messageRouter = createRouter({
     return conversations.sort((a: { updatedAt: Date }, b: { updatedAt: Date }) => b.updatedAt.getTime() - a.updatedAt.getTime());
   }),
 
-  // Mark as read
-  markRead: publicQuery
+  // Mark as read (admin only)
+  markRead: adminQuery
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       const db = getDb();
