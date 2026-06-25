@@ -179,7 +179,6 @@ export const mediaRouter = createRouter({
         if (buffer.length > 50 * 1024 * 1024) {
           throw new Error(`Video file too large (${(buffer.length / 1024 / 1024).toFixed(1)}MB). Maximum is 50MB. Please compress your video before uploading.`);
         }
-        }
 
         // Try R2 first (free, CDN-backed, persistent)
         if (USE_S3) {
