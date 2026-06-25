@@ -35,7 +35,6 @@ export default defineConfig({
           trpc: ["@trpc/client", "@trpc/react-query", "@trpc/server"],
           radix: ["@radix-ui/react-dialog", "@radix-ui/react-dropdown-menu", "@radix-ui/react-select", "@radix-ui/react-tabs"],
           forms: ["react-hook-form", "@hookform/resolvers", "zod"],
-          charts: ["recharts"],
         },
       },
     },
