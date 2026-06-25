@@ -135,9 +135,15 @@ export default function Products() {
 
           {/* Empty state */}
           {!isLoading && (!products || products.length === 0) && (
-            <div className="text-center py-20 text-gray-500">
-              <p className="text-lg mb-2">No products yet</p>
-              <p className="text-sm">Products will appear here once uploaded via the admin panel.</p>
+            <div className="text-center py-20">
+              <p className="text-lg mb-2 font-medium">Our collection is being curated</p>
+              <p className="text-sm text-gray-500 mb-6">New products will be added soon. In the meantime, request a custom quote.</p>
+              <Link
+                to="/quote"
+                className="inline-flex items-center gap-2 bg-[#E60012] text-white px-6 py-3 rounded-md font-medium hover:bg-red-700 transition-colors"
+              >
+                Request a Quote
+              </Link>
             </div>
           )}
 

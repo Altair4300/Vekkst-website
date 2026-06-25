@@ -314,9 +314,15 @@ export default function Home() {
           )}
 
           {!portfolioLoading && (!portfolioProducts || portfolioProducts.length === 0) && (
-            <div className="text-center py-10 text-gray-500">
-              <p className="text-lg mb-2">No products yet</p>
-              <p className="text-sm">Products will appear here once uploaded via the admin panel.</p>
+            <div className="text-center py-10">
+              <p className="text-lg mb-2 font-medium text-gray-300">Our collection is being curated</p>
+              <p className="text-sm text-gray-500 mb-6">New products will be added soon. In the meantime, request a custom quote.</p>
+              <Link
+                to="/quote"
+                className="inline-flex items-center gap-2 bg-amber-400 text-black px-6 py-3 rounded-md font-semibold hover:bg-amber-300 transition-colors"
+              >
+                Request a Quote
+              </Link>
             </div>
           )}
 
