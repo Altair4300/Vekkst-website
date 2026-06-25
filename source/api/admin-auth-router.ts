@@ -7,17 +7,21 @@ if (!JWT_SECRET) {
   throw new Error("JWT_SECRET environment variable is required");
 }
 
-// Lazy check for ADMIN_PASSWORD — only validate at runtime so the module can be loaded during build
+// Lazy check for ADMIN_PASSWORD — required in production
 function getAdminPassword(): string {
   const pw = process.env.ADMIN_PASSWORD;
   if (!pw) {
-    console.warn("[ADMIN] ADMIN_PASSWORD not set, using fallback default");
-    return "VekkstAdmin2024!"; // Fallback for testing only
+    console.warn("[ADMIN] ADMIN_PASSWORD not set");
+    return "";
   }
   // Trim whitespace and remove surrounding quotes that might be accidentally added in Railway
   let cleaned = pw.trim();
   if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
     cleaned = cleaned.slice(1, -1);
+  }
+  if (!cleaned) {
+    console.warn("[ADMIN] ADMIN_PASSWORD is empty after cleanup");
+    return "";
   }
   return cleaned;
 }
@@ -46,12 +50,15 @@ export const adminAuthRouter = createRouter({
     .input(z.object({ password: z.string() }))
     .mutation(async ({ input, ctx }) => {
       const ip = ctx.req.headers.get("x-forwarded-for") || ctx.req.headers.get("x-real-ip") || "unknown";
-      const storedPw = getAdminPassword();
-      const inputPw = input.password.trim();
+      if (!storedPw) {
+        console.warn("[ADMIN] ADMIN_PASSWORD not configured");
+        return { success: false, error: "Server misconfiguration." };
+      }
+      if (!inputPw) {
+        return { success: false, error: "Password is required" };
+      }
       const match = inputPw === storedPw;
-
-      console.log(`[ADMIN_LOGIN] IP: ${ip}, inputPwLen: ${inputPw.length}, storedPwLen: ${storedPw.length}, match: ${match}`);
-
+      
       if (!checkRateLimit(ip)) {
         return { success: false, error: "Too many attempts. Try again in 15 minutes." };
       }

@@ -16,10 +16,12 @@ app.use("*", async (c, next) => {
     "https://vekkst-admin-vkkst.up.railway.app",
     "https://intuitive-wonder-vkkst.up.railway.app",
   ];
-  if (allowedOrigins.includes(origin) || origin.endsWith(".railway.app")) {
+  if (allowedOrigins.includes(origin) || origin.endsWith(".railway.app") || origin === "https://vekkstclothing.com") {
     c.header("Access-Control-Allow-Origin", origin);
-  } else {
+  } else if (process.env.NODE_ENV !== "production") {
     c.header("Access-Control-Allow-Origin", "*");
+  } else {
+    c.header("Access-Control-Allow-Origin", "https://vekkstclothing.com");
   }
   c.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
   c.header("Access-Control-Allow-Headers", "Content-Type, Authorization, x-admin-token, x-local-auth-token");
@@ -221,6 +223,7 @@ app.use("*", async (c, next) => {
   c.header("X-Content-Type-Options", "nosniff");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
   c.header("X-XSS-Protection", "1; mode=block");
+  c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   c.header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; font-src 'self'; connect-src 'self' https://libretranslate.de; frame-ancestors 'none'; base-uri 'self';");
   await next();
 });
@@ -271,10 +274,12 @@ app.onError((err, c) => {
     "https://vekkst-admin-vkkst.up.railway.app",
     "https://intuitive-wonder-vkkst.up.railway.app",
   ];
-  if (allowedOrigins.includes(origin) || origin.endsWith(".railway.app")) {
+  if (allowedOrigins.includes(origin) || origin.endsWith(".railway.app") || origin === "https://vekkstclothing.com") {
     c.header("Access-Control-Allow-Origin", origin);
-  } else {
+  } else if (process.env.NODE_ENV !== "production") {
     c.header("Access-Control-Allow-Origin", "*");
+  } else {
+    c.header("Access-Control-Allow-Origin", "https://vekkstclothing.com");
   }
   c.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
   c.header("Access-Control-Allow-Headers", "Content-Type, Authorization, x-admin-token, x-local-auth-token");

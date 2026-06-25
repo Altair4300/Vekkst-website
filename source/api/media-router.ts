@@ -141,7 +141,6 @@ export const mediaRouter = createRouter({
             ContentType: "image/jpeg",
           }));
           const r2Url = getS3Url(key);
-          console.log(`[MEDIA] R2 uploadImage OK: ${r2Url}`);
           return { url: r2Url, category: input.category };
         } catch (s3Err: any) {
           console.error("[MEDIA] R2 uploadImage failed, falling back to local:", s3Err?.message || s3Err);
@@ -156,7 +155,6 @@ export const mediaRouter = createRouter({
       const localUrl = `/uploads/${input.category}/${filename}`;
       const baseUrl = getBaseUrl(ctx.req);
       const fullUrl = `${baseUrl}${localUrl}`;
-      console.log(`[MEDIA] Local uploadImage fallback: ${filePath} -> ${fullUrl}`);
       return { url: fullUrl, category: input.category };
     }),
 
@@ -173,17 +171,14 @@ export const mediaRouter = createRouter({
         throw new Error("Upload rate limit exceeded. Please try again later.");
       }
       
-      console.log(`[UPLOAD] Starting video upload from ${ip}, filename: ${input.filename}, data length: ${input.data.length} chars`);
-      
       try {
         const base64Data = input.data.replace(/^data:video\/\w+;base64,/, "");
         const buffer = Buffer.from(base64Data, "base64");
         const filename = `${Date.now()}_${input.filename}`;
 
-        console.log(`[UPLOAD] Decoded base64, buffer size: ${buffer.length} bytes`);
-
         if (buffer.length > 50 * 1024 * 1024) {
           throw new Error(`Video file too large (${(buffer.length / 1024 / 1024).toFixed(1)}MB). Maximum is 50MB. Please compress your video before uploading.`);
+        }
         }
 
         // Try R2 first (free, CDN-backed, persistent)
@@ -199,7 +194,6 @@ export const mediaRouter = createRouter({
               ContentType: "video/mp4",
             }));
             const r2Url = getS3Url(key);
-            console.log(`[MEDIA] R2 uploadVideo OK: ${r2Url}`);
             return { url: r2Url, category: input.category };
           } catch (s3Err: any) {
             console.error("[MEDIA] R2 uploadVideo failed, falling back to local:", s3Err?.message || s3Err);
@@ -214,7 +208,6 @@ export const mediaRouter = createRouter({
         const localUrl = `/videos/${input.category}/${filename}`;
         const baseUrl = getBaseUrl(ctx.req);
         const fullUrl = `${baseUrl}${localUrl}`;
-        console.log(`[UPLOAD] Local save fallback: ${filePath} -> ${fullUrl}`);
         return { url: fullUrl, category: input.category };
       } catch (err: any) {
         console.error(`[UPLOAD] Video upload failed:`, err?.message || err);

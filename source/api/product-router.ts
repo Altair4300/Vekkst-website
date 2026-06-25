@@ -49,6 +49,9 @@ export const productRouter = createRouter({
   uploadImage: adminQuery
     .input(z.object({ data: z.string(), filename: z.string() }))
     .mutation(async ({ input }) => {
+      if (!input.data.startsWith("data:image/")) {
+        throw new Error("Invalid image format. Only base64-encoded images are allowed.");
+      }
       const base64Data = input.data.replace(/^data:image\/\w+;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
       const filename = `${Date.now()}_${input.filename}`;

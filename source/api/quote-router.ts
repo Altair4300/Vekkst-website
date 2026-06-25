@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createRouter, publicQuery, authedQuery } from "./middleware";
+import { createRouter, publicQuery, authedQuery, adminQuery } from "./middleware";
 import { quotes } from "@db/schema";
 import { getDb } from "./queries/connection";
 import { eq, desc } from "drizzle-orm";
@@ -64,12 +64,12 @@ export const quoteRouter = createRouter({
       return q;
     }),
 
-  list: publicQuery.query(async () => {
+  list: adminQuery.query(async () => {
     const db = getDb();
     return db.select().from(quotes).orderBy(desc(quotes.createdAt));
   }),
 
-  updateStatus: publicQuery
+  updateStatus: adminQuery
     .input(z.object({ id: z.number(), status: z.enum(["new", "processing", "quoted", "accepted", "declined"]) }))
     .mutation(async ({ input }) => {
       const db = getDb();
@@ -77,7 +77,7 @@ export const quoteRouter = createRouter({
       return { success: true };
     }),
 
-  addResponse: publicQuery
+  addResponse: adminQuery
     .input(
       z.object({
         id: z.number(),
@@ -100,7 +100,7 @@ export const quoteRouter = createRouter({
       return { success: true };
     }),
 
-  stats: publicQuery.query(async () => {
+  stats: adminQuery.query(async () => {
     const db = getDb();
     const all = await db.select().from(quotes);
     return {

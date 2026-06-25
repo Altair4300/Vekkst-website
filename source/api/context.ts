@@ -35,16 +35,12 @@ export async function createContext(
   }
 
   // 2. Check for admin auth token (x-admin-token header)
-  // If no regular user is found, check if admin token is present
   if (!ctx.user) {
     try {
       const adminToken = opts.req.headers.get("x-admin-token");
-      console.log("[CONTEXT] x-admin-token header present:", !!adminToken, "length:", adminToken?.length || 0);
       if (adminToken) {
         const decoded = jwt.verify(adminToken, JWT_SECRET) as { role: string; isAdmin: boolean; subadminId?: number };
-        console.log("[CONTEXT] Admin token decoded:", { role: decoded.role, isAdmin: decoded.isAdmin, subadminId: decoded.subadminId });
         if (decoded.role === "admin" && decoded.isAdmin) {
-          // Create a synthetic admin user for middleware checks
           ctx.user = {
             id: 0,
             unionId: null,
@@ -57,13 +53,9 @@ export async function createContext(
             createdAt: new Date(),
             updatedAt: new Date(),
           } as typeof users.$inferSelect;
-          console.log("[CONTEXT] Admin user created successfully");
-        } else {
-          console.log("[CONTEXT] Admin token rejected - role:", decoded.role, "isAdmin:", decoded.isAdmin);
         }
       }
-    } catch (err: any) {
-      console.log("[CONTEXT] Admin token verification failed:", err?.message || err);
+    } catch {
       // Admin auth is optional
     }
   }
