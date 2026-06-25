@@ -27,7 +27,7 @@ export default function Account() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      navigate("/login");
+      navigate("/login", { replace: true });
     }
   }, [authLoading, isAuthenticated, navigate]);
 

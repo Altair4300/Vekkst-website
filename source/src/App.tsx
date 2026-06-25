@@ -2,6 +2,8 @@ import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route, Outlet } from 'react-router'
 import Layout from './components/Layout'
 
+import ScrollToTop from './components/ScrollToTop'
+
 // Lazy load all pages for code splitting
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -48,26 +50,29 @@ function LayoutWrapper() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<LayoutWrapper />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/quote" element={<QuoteForm />} />
-        <Route path="/quote/:productRef" element={<QuoteForm />} />
-        <Route path="/track-quote" element={<TrackQuote />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/returns" element={<ReturnPolicy />} />
-        <Route path="/shipping" element={<ShippingPolicy />} />
-        <Route path="/customer-reviews" element={<CustomerReviews />} />
-      </Route>
-      <Route path="/admin" element={<AdminRedirect />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/account" element={<Account />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route element={<LayoutWrapper />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/quote" element={<QuoteForm />} />
+          <Route path="/quote/:productRef" element={<QuoteForm />} />
+          <Route path="/track-quote" element={<TrackQuote />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/returns" element={<ReturnPolicy />} />
+          <Route path="/shipping" element={<ShippingPolicy />} />
+          <Route path="/customer-reviews" element={<CustomerReviews />} />
+        </Route>
+        <Route path="/admin" element={<AdminRedirect />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   )
 }

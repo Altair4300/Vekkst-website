@@ -388,7 +388,7 @@ export default function Home() {
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
               <SmartVideo
-                src={cms("company-overview-video", "/videos/factory-overview-v2.mp4")}
+                src={cms("company-overview-video", "/videos/Company-overview-fixed.mp4")}
                 className="w-full aspect-video object-cover"
                 poster="/images/choose1.webp"
               />
@@ -441,7 +441,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-end justify-center md:justify-start">
               <SmartVideo
-                src={cms("factory-tour-1", "/videos/video-tour.mp4")}
+                src={cms("factory-tour-1", "/videos/Factory-tour-h264.mp4")}
                 className="w-full md:max-w-[360px] aspect-video md:aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/5 bg-black"
                 poster="/images/factory-machine.webp"
               />

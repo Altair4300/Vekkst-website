@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect } from "react";
-import { Play, Volume2, VolumeX } from "lucide-react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Play, Volume2, VolumeX, RefreshCw } from "lucide-react";
 
 interface SmartVideoProps {
   src: string;
@@ -12,11 +12,9 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
-  // Log the src for debugging
-  useEffect(() => {
-    console.log("[SmartVideo] src:", src);
-  }, [src]);
+  const clearError = useCallback(() => setLoadError(null), []);
 
   const handleClick = () => {
     const video = videoRef.current;
@@ -28,28 +26,31 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
       return;
     }
 
-    // Always play muted first — this works on ALL browsers including mobile
+    // Clear any previous error and try to load
+    setLoadError(null);
+
+    // Always play muted first — required for mobile autoplay
     video.muted = true;
     setIsMuted(true);
-    
-    // iOS Safari requires user gesture and playsInline
+
     const playPromise = video.play();
     if (playPromise !== undefined) {
       playPromise
         .then(() => setIsPlaying(true))
         .catch((err) => {
           console.error("[SmartVideo] Play failed:", err, "src:", src);
-          // On mobile, if autoplay fails, show error
           setIsPlaying(false);
           if (err.name === "NotAllowedError") {
             setLoadError("Tap to play video");
+          } else {
+            setLoadError("Video failed to load");
           }
         });
     }
   };
 
   const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Don't pause the video
+    e.stopPropagation();
     const video = videoRef.current;
     if (!video) return;
     video.muted = !video.muted;
@@ -75,13 +76,45 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
     return () => observer.disconnect();
   }, []);
 
+  // Reset state when src changes
+  useEffect(() => {
+    setLoadError(null);
+    setHasLoaded(false);
+    setIsPlaying(false);
+  }, [src]);
+
+  const isUnavailable = loadError && loadError !== "Tap to play video";
+
   return (
     <div className="relative group cursor-pointer" onClick={handleClick}>
-      {loadError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
-          <p className="text-red-400 text-sm text-center px-4">Video failed to load.<br/>Check admin upload.</p>
+      {/* Error overlay — only for genuine load failures, not "tap to play" */}
+      {isUnavailable && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20">
+          {poster ? (
+            <img
+              src={poster}
+              alt="Video preview"
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
+            />
+          ) : null}
+          <div className="relative z-10 flex flex-col items-center gap-3 px-4">
+            <p className="text-gray-300 text-sm text-center">
+              Video unavailable on this device.
+            </p>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                clearError();
+                handleClick();
+              }}
+              className="flex items-center gap-2 text-xs text-amber-400 hover:text-amber-300 transition-colors"
+            >
+              <RefreshCw className="w-3 h-3" /> Retry
+            </button>
+          </div>
         </div>
       )}
+
       <video
         ref={videoRef}
         src={src}
@@ -93,14 +126,22 @@ export default function SmartVideo({ src, className = "", poster }: SmartVideoPr
         poster={poster}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        onLoadedData={() => {
+          setHasLoaded(true);
+          setLoadError(null);
+        }}
+        onLoadedMetadata={() => {
+          setHasLoaded(true);
+          setLoadError(null);
+        }}
         onError={() => {
           console.error("[SmartVideo] Video error, src:", src);
           setLoadError("Failed to load video");
         }}
       />
 
-      {/* Play button when not playing */}
-      {!isPlaying && !loadError && (
+      {/* Play button overlay — shown when not playing and no error */}
+      {!isPlaying && !isUnavailable && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
           <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
             <Play className="w-7 h-7 text-[#E60012] ml-1" fill="currentColor" />
