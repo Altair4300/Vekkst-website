@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Play, Loader2 } from "lucide-react";
+import { t } from "@/lib/translations";
+import { useLanguage } from "@/providers/LanguageProvider";
 import SmartVideo from "@/components/SmartVideo";
 import { trpc } from "@/providers/trpc";
 import { usePageContent } from "@/hooks/usePageContent";
@@ -23,17 +25,17 @@ const seasons = [
   { name: "Winter", img: "/images/season-winter.webp" },
 ];
 
-const faqs = [
-  { q: "Our response time?", a: "We typically respond to all inquiries within 24 hours during business days." },
-  { q: "What's your payment terms?", a: "We accept T/T, L/C, and Western Union. 30% deposit, 70% before shipment." },
-  { q: "What's the production lead time?", a: "Standard production lead time is 15-25 days depending on order quantity." },
-  { q: "What's your sample policy?", a: "Sample lead time is 3-7 days. Sample fee is refundable upon bulk order." },
-  { q: "Can I put my design logo on the items?", a: "Yes, we specialize in custom OEM/ODM manufacturing with your own designs and logos." },
-];
-
 /* ─────────────── HOME PAGE ─────────────── */
 
 export default function Home() {
+  const { lang } = useLanguage();
+  const faqs = [
+    { q: t("faq1Q", lang), a: t("faq1A", lang) },
+    { q: t("faq2Q", lang), a: t("faq2A", lang) },
+    { q: t("faq3Q", lang), a: t("faq3A", lang) },
+    { q: t("faq4Q", lang), a: t("faq4A", lang) },
+    { q: t("faq5Q", lang), a: t("faq5A", lang) },
+  ];
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [hoveredCat, setHoveredCat] = useState<number | null>(null);
@@ -47,7 +49,7 @@ export default function Home() {
       <section className="relative w-full bg-black">
         <img
           src={cms("hero-banner", "/images/banner.webp")}
-          alt="Premium Streetwear Manufacturer"
+          alt={t("heroAlt", lang)}
           className="w-full h-auto block"
           decoding="async"
           loading="eager"
@@ -59,8 +61,8 @@ export default function Home() {
       <section className="section bg-[#0a0a0a]">
         <div className="container-site">
           <div className="text-center mb-8 md:mb-14">
-            <p className="section-subtitle text-amber-400 mb-3">Our Specialties</p>
-            <h2 className="section-title text-white">Popular Categories</h2>
+            <p className="section-subtitle text-amber-400 mb-3">{t("ourSpecialties", lang)}</p>
+            <h2 className="section-title text-white">{t("popularCategories", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
           <div className="grid-products">
@@ -81,7 +83,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                 <div className="absolute bottom-4 left-5">
                   <span className="text-xs text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 block">
-                    View designs &rarr;
+                    {t("viewDesigns", lang)}
                   </span>
                 </div>
               </Link>
@@ -94,17 +96,17 @@ export default function Home() {
       <section className="section bg-[#0a0a0a]">
         <div className="container-site">
           <div className="text-center mb-8 md:mb-14">
-            <p className="section-subtitle text-amber-400 mb-3">Why Us</p>
-            <h2 className="section-title text-white">Why VEKKST</h2>
+            <p className="section-subtitle text-amber-400 mb-3">{t("whyUs", lang)}</p>
+            <h2 className="section-title text-white">{t("whyVekkst", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
-              { num: "01", title: "HEAVYWEIGHT EXPERTISE", items: ["400-550 GSM Hoodies", "16+ Print & Embroidery Techniques", "9+ Specialty Washes"] },
-              { num: "02", title: "BUILT FOR INDEPENDENT BRANDS", items: ["256 Professionals", "3-7 Day Sampling", "3,600+ m2 Factory", "300K-450K+ PCS / Month"] },
-              { num: "03", title: "TRUSTED COMPLIANCE", items: ["TUV Rheinland Verified", "BSCI & AZO FREE", "100% On-Time Delivery", "4.8/5 Rating"] },
-              { num: "04", title: "COOPERATION TERMS", items: ["100% OEM/ODM", "MOQ 60 pcs", "15-25 Days Bulk", "Custom Labels & Packaging"] },
-              { num: "05", title: "GLOBAL STREETWEAR PARTNER", items: ["Serving 1100+ Global Brands", "Fast Communication", "Trend-Driven Development", "Long-Term Brand Growth"] },
+              { num: "01", title: t("pillar1Title", lang), items: [t("pillar1Item1", lang), t("pillar1Item2", lang), t("pillar1Item3", lang)] },
+              { num: "02", title: t("pillar2Title", lang), items: [t("pillar2Item1", lang), t("pillar2Item2", lang), t("pillar2Item3", lang), t("pillar2Item4", lang)] },
+              { num: "03", title: t("pillar3Title", lang), items: [t("pillar3Item1", lang), t("pillar3Item2", lang), t("pillar3Item3", lang), t("pillar3Item4", lang)] },
+              { num: "04", title: t("pillar4Title", lang), items: [t("pillar4Item1", lang), t("pillar4Item2", lang), t("pillar4Item3", lang), t("pillar4Item4", lang)] },
+              { num: "05", title: t("pillar5Title", lang), items: [t("pillar5Item1", lang), t("pillar5Item2", lang), t("pillar5Item3", lang), t("pillar5Item4", lang)] },
             ].map((pillar) => (
               <div key={pillar.num} className="card-dark p-5 md:p-6 hover:border-amber-400/30 transition-colors">
                 <div className="text-amber-400 text-sm font-bold mb-2">{pillar.num}</div>
@@ -127,8 +129,8 @@ export default function Home() {
                 <svg className="w-6 h-6 md:w-8 md:h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               </div>
               <div>
-                <div className="text-xl md:text-2xl font-bold text-white">QUOTE IN 24 HOURS</div>
-                <div className="text-sm text-gray-500">Fast Response. Clear Solutions.</div>
+                <div className="text-xl md:text-2xl font-bold text-white">{t("quoteIn24Hours", lang)}</div>
+                <div className="text-sm text-gray-500">{t("fastResponseClearSolutions", lang)}</div>
               </div>
             </div>
             <div className="card-dark p-6 flex items-center gap-4">
@@ -136,8 +138,8 @@ export default function Home() {
                 <svg className="w-6 h-6 md:w-8 md:h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
               </div>
               <div>
-                <div className="text-xl md:text-2xl font-bold text-white">SAMPLE IN 3-7 DAYS</div>
-                <div className="text-sm text-gray-500">Ready to Build Together.</div>
+                <div className="text-xl md:text-2xl font-bold text-white">{t("sampleIn3to7Days", lang)}</div>
+                <div className="text-sm text-gray-500">{t("readyToBuildTogether", lang)}</div>
               </div>
             </div>
             <div className="card-dark p-6 flex items-center gap-4">
@@ -145,8 +147,8 @@ export default function Home() {
                 <svg className="w-6 h-6 md:w-8 md:h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
               </div>
               <div>
-                <div className="text-xl md:text-2xl font-bold text-white">BULK IN 15-25 DAYS</div>
-                <div className="text-sm text-gray-500">Reliable Production Timeline.</div>
+                <div className="text-xl md:text-2xl font-bold text-white">{t("bulkIn15to25Days", lang)}</div>
+                <div className="text-sm text-gray-500">{t("reliableProductionTimeline", lang)}</div>
               </div>
             </div>
           </div>
@@ -157,15 +159,15 @@ export default function Home() {
       <section className="section bg-gray-50">
         <div className="container-site">
           <div className="text-center mb-6">
-            <p className="section-subtitle text-amber-600 mb-3">Our Facility</p>
-            <h2 className="section-title text-gray-900">Factory Strength</h2>
+            <p className="section-subtitle text-amber-600 mb-3">{t("ourFacility", lang)}</p>
+            <h2 className="section-title text-gray-900">{t("factoryStrength", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
         <div className="full-bleed">
           <img
             src={cms("factory-strength", "/images/Factory Strength.webp")}
-            alt="Factory Strength"
+            alt={t("factoryStrength", lang)}
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
             loading="lazy"
@@ -177,15 +179,15 @@ export default function Home() {
       <section className="section bg-white">
         <div className="container-site">
           <div className="text-center mb-6">
-            <p className="section-subtitle text-amber-600 mb-3">Techniques</p>
-            <h2 className="section-title text-gray-900">Logo Rich Technology</h2>
+            <p className="section-subtitle text-amber-600 mb-3">{t("techniques", lang)}</p>
+            <h2 className="section-title text-gray-900">{t("logoRichTechnology", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
         <div className="full-bleed">
           <img
             src={cms("logo-rich-technology", "/images/Logo Rich Technology.webp")}
-            alt="16+ Printing and Embroidery Techniques"
+            alt={t("logoRichTechnology", lang)}
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
             loading="lazy"
@@ -197,15 +199,15 @@ export default function Home() {
       <section className="section bg-gray-50">
         <div className="container-site">
           <div className="text-center mb-6">
-            <p className="section-subtitle text-amber-600 mb-3">Materials</p>
-            <h2 className="section-title text-gray-900">Premium Custom Fabric</h2>
+            <p className="section-subtitle text-amber-600 mb-3">{t("materials", lang)}</p>
+            <h2 className="section-title text-gray-900">{t("premiumCustomFabric", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
         <div className="full-bleed">
           <img
             src={cms("premium-fabric", "/images/Premium Custom Fabric.webp")}
-            alt="Custom Fabric Options"
+            alt={t("premiumCustomFabric", lang)}
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
             loading="lazy"
@@ -217,15 +219,15 @@ export default function Home() {
       <section className="section bg-white">
         <div className="container-site">
           <div className="text-center mb-6">
-            <p className="section-subtitle text-amber-600 mb-3">Process</p>
-            <h2 className="section-title text-gray-900">From Idea to Bulk</h2>
+            <p className="section-subtitle text-amber-600 mb-3">{t("process", lang)}</p>
+            <h2 className="section-title text-gray-900">{t("fromIdeaToBulk", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
         <div className="full-bleed">
           <img
             src={cms("supply-chain", "/images/From Idea to Bulk.webp")}
-            alt="From Idea to Bulk - 8 Step Process"
+            alt={t("fromIdeaToBulk", lang)}
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
             loading="lazy"
@@ -237,15 +239,15 @@ export default function Home() {
       <section className="section bg-white">
         <div className="container-site">
           <div className="text-center mb-6">
-            <p className="section-subtitle text-amber-600 mb-3">Partners</p>
-            <h2 className="section-title text-gray-900">Trusted by 1100+ Brands</h2>
+            <p className="section-subtitle text-amber-600 mb-3">{t("partners", lang)}</p>
+            <h2 className="section-title text-gray-900">{t("trustedByBrands", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
         <div className="full-bleed">
           <img
             src={cms("partner-brands", "/images/Trusted by 1100+ Brands.webp")}
-            alt="Trusted by 1100+ Global Streetwear Brands"
+            alt={t("trustedByBrands", lang)}
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
             loading="lazy"
@@ -257,15 +259,15 @@ export default function Home() {
       <section className="section bg-gray-50">
         <div className="container-site">
           <div className="text-center mb-6">
-            <p className="section-subtitle text-amber-600 mb-3">Quality Assurance</p>
-            <h2 className="section-title text-gray-900">Certifications & Compliance</h2>
+            <p className="section-subtitle text-amber-600 mb-3">{t("qualityAssurance", lang)}</p>
+            <h2 className="section-title text-gray-900">{t("certificationsCompliance", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
         </div>
         <div className="full-bleed">
           <img
             src={cms("certifications", "/images/Certifications & Compliance.webp")}
-            alt="Certifications and Compliance"
+            alt={t("certificationsCompliance", lang)}
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
             loading="lazy"
@@ -277,8 +279,8 @@ export default function Home() {
       <section className="section bg-[#0a0a0a]">
         <div className="container-site">
           <div className="text-center mb-8 md:mb-14">
-            <p className="section-subtitle text-amber-400 mb-3">Collections</p>
-            <h2 className="section-title text-white">Select by Season</h2>
+            <p className="section-subtitle text-amber-400 mb-3">{t("collections", lang)}</p>
+            <h2 className="section-title text-white">{t("selectBySeason", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
@@ -288,7 +290,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4">
                   <h3 className="text-lg font-bold text-white">{s.name}</h3>
-                  <span className="text-xs text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity">Explore &rarr;</span>
+                  <span className="text-xs text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity">{t("explore", lang)}</span>
                 </div>
               </Link>
             ))}
@@ -300,11 +302,11 @@ export default function Home() {
       <section className="section bg-[#0f0f0f]">
         <div className="container-site">
           <div className="text-center mb-8 md:mb-14">
-            <p className="section-subtitle text-amber-400 mb-3">Portfolio</p>
-            <h2 className="section-title text-white">Design Portfolio</h2>
+            <p className="section-subtitle text-amber-400 mb-3">{t("portfolio", lang)}</p>
+            <h2 className="section-title text-white">{t("designPortfolio", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
             <p className="text-gray-400 mt-4 text-sm max-w-xl mx-auto">
-              Browse our styles for inspiration. Request a quote for any design.
+              {t("browseStyles", lang)}
             </p>
           </div>
 
@@ -316,13 +318,13 @@ export default function Home() {
 
           {!portfolioLoading && (!portfolioProducts || portfolioProducts.length === 0) && (
             <div className="text-center py-10">
-              <p className="text-lg mb-2 font-medium text-gray-300">Our collection is being curated</p>
-              <p className="text-sm text-gray-500 mb-6">New products will be added soon. In the meantime, request a custom quote.</p>
+              <p className="text-lg mb-2 font-medium text-gray-300">{t("collectionCurated", lang)}</p>
+              <p className="text-sm text-gray-500 mb-6">{t("collectionAddedSoon", lang)}</p>
               <Link
                 to="/quote"
                 className="inline-flex items-center gap-2 bg-amber-400 text-black px-6 py-3 rounded-md font-semibold hover:bg-amber-300 transition-colors"
               >
-                Request a Quote
+                {t("requestAQuote", lang)}
               </Link>
             </div>
           )}
@@ -342,7 +344,7 @@ export default function Home() {
                       />
                     </Link>
                     <Link to={`/product/${p.id}`} className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="btn-primary text-xs py-2 px-4">View Details</span>
+                      <span className="btn-primary text-xs py-2 px-4">{t("viewDetails", lang)}</span>
                     </Link>
                   </div>
                   <div className="p-3">
@@ -356,7 +358,7 @@ export default function Home() {
 
           <div className="text-center mt-10">
             <Link to="/products" className="btn-secondary">
-              View All Designs
+              {t("viewAllDesigns", lang)}
             </Link>
           </div>
         </div>
@@ -366,17 +368,17 @@ export default function Home() {
       <section className="section bg-[#0a0a0a]">
         <div className="container-site">
           <div className="text-center mb-8 md:mb-14">
-            <p className="section-subtitle text-amber-400 mb-3">Showcase</p>
-            <h2 className="section-title text-white">Our Factory in Action</h2>
+            <p className="section-subtitle text-amber-400 mb-3">{t("showcase", lang)}</p>
+            <h2 className="section-title text-white">{t("ourFactoryInAction", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center">
             <div className="space-y-4">
               <p className="text-gray-300 text-lg leading-relaxed">
-                More than 15 years of experience in menswear manufacturing and international trade.
+                {t("moreThan15YearsFull", lang)}
               </p>
               <div className="mt-8 space-y-4 text-sm text-gray-400">
-                {["Professional design and sampling team", "Advanced production equipment and technology", "Strict quality control system", "Fast delivery and excellent after-sales service"].map((item) => (
+                {[t("factoryFeature1", lang), t("factoryFeature2", lang), t("factoryFeature3", lang), t("factoryFeature4", lang)].map((item) => (
                   <p key={item} className="flex items-start gap-3">
                     <span className="text-amber-400 mt-0.5 text-lg">&#10003;</span>
                     <span>{item}</span>
@@ -384,7 +386,7 @@ export default function Home() {
                 ))}
               </div>
               <Link to="/quote" className="btn-primary mt-6">
-                <Play className="w-4 h-4" /> Request a Factory Tour
+                <Play className="w-4 h-4" /> {t("requestFactoryTour", lang)}
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/5 bg-black">
@@ -402,20 +404,20 @@ export default function Home() {
       <section className="section bg-[#0a0a0a]">
         <div className="container-site">
           <div className="text-center mb-8 md:mb-14">
-            <p className="section-subtitle text-amber-400 mb-3">Advantages</p>
-            <h2 className="section-title text-white">Why Choose Us</h2>
+            <p className="section-subtitle text-amber-400 mb-3">{t("advantages", lang)}</p>
+            <h2 className="section-title text-white">{t("whyChooseUs", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Customized design capabilities", icon: "/images/A1.webp", hover: "/images/A2.webp" },
-              { label: "Professional QC quality inspection", icon: "/images/B1.webp", hover: "/images/B2.webp" },
-              { label: "Flexible supply chain", icon: "/images/C1.webp", hover: "/images/C3.webp" },
-              { label: "Global market layout", icon: "/images/D1.webp", hover: "/images/D2.webp" },
-              { label: "Digital innovation", icon: "/images/E1.webp", hover: "/images/E2.webp" },
-              { label: "Strengthening local services", icon: "/images/F1.webp", hover: "/images/F2.webp" },
-              { label: "Sustainable development", icon: "/images/G1.webp", hover: "/images/G2.webp" },
-              { label: "Humanistic care and team stability", icon: "/images/H1.webp", hover: "/images/H2.webp" },
+              { label: t("feature1", lang), icon: "/images/A1.webp", hover: "/images/A2.webp" },
+              { label: t("feature2", lang), icon: "/images/B1.webp", hover: "/images/B2.webp" },
+              { label: t("feature3", lang), icon: "/images/C1.webp", hover: "/images/C3.webp" },
+              { label: t("feature4", lang), icon: "/images/D1.webp", hover: "/images/D2.webp" },
+              { label: t("feature5", lang), icon: "/images/E1.webp", hover: "/images/E2.webp" },
+              { label: t("feature6", lang), icon: "/images/F1.webp", hover: "/images/F2.webp" },
+              { label: t("feature7", lang), icon: "/images/G1.webp", hover: "/images/G2.webp" },
+              { label: t("feature8", lang), icon: "/images/H1.webp", hover: "/images/H2.webp" },
             ].map((f, i) => (
               <div
                 key={f.label}
@@ -435,9 +437,9 @@ export default function Home() {
       <section className="section bg-[#0f0f0f]">
         <div className="container-site">
           <div className="mb-6 md:mb-8">
-            <p className="section-subtitle text-amber-400 mb-3">Behind the Scenes</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white uppercase mb-4">Factory Tour</h2>
-            <p className="text-gray-400 max-w-md">See our production process and quality standards in action.</p>
+            <p className="section-subtitle text-amber-400 mb-3">{t("behindTheScenes", lang)}</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white uppercase mb-4">{t("factoryTour", lang)}</h2>
+            <p className="text-gray-400 max-w-md">{t("seeProductionProcess", lang)}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-end justify-center md:justify-start">
@@ -454,9 +456,7 @@ export default function Home() {
                 poster="/images/showroom.webp"
               />
               <p className="text-gray-400 text-sm leading-relaxed">
-                We strictly select high-quality fabrics, such as breathable and skin-friendly cotton materials, 
-                and high-tech functional materials, combined with exquisite workmanship, and strictly control 
-                every stitch and every detail.
+                {t("fabricQualityDesc", lang)}
               </p>
             </div>
           </div>
@@ -467,8 +467,8 @@ export default function Home() {
       <section className="section bg-[#0f0f0f]">
         <div className="container-site max-w-3xl">
           <div className="text-center mb-8 md:mb-14">
-            <p className="section-subtitle text-amber-400 mb-3">Support</p>
-            <h2 className="section-title text-white">Frequently Asked Questions</h2>
+            <p className="section-subtitle text-amber-400 mb-3">{t("support", lang)}</p>
+            <h2 className="section-title text-white">{t("faq", lang)}</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
           <div className="space-y-3">
@@ -495,14 +495,14 @@ export default function Home() {
       {/* ═══════ CTA ═══════ */}
       <section className="section bg-gradient-to-br from-[#0a0a0a] via-[#1a1200] to-[#0a0a0a]">
         <div className="container-site text-center">
-          <p className="section-subtitle text-amber-400 mb-3">Start Today</p>
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Ready to Build Your Brand?</h2>
+          <p className="section-subtitle text-amber-400 mb-3">{t("startToday", lang)}</p>
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">{t("readyToBuildBrand", lang)}</h2>
           <p className="text-gray-400 mb-10 max-w-xl mx-auto">
-            Get a free quote within 24 hours. Low MOQ from 60 pieces. Custom samples in 3-7 days.
+            {t("getFreeQuote24Hours", lang)}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/quote" className="btn-primary text-base py-4 px-10">
-              Get a Free Quote
+              {t("getFreeQuote", lang)}
             </Link>
             <a
               href="https://wa.me/8613125204154"
@@ -510,7 +510,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="btn-secondary text-base py-4 px-10"
             >
-              WhatsApp Us
+              {t("whatsappUs", lang)}
             </a>
           </div>
         </div>

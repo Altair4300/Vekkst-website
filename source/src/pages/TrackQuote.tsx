@@ -2,22 +2,25 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { Search, Loader2, Package, Clock, CheckCircle, XCircle, FileText } from "lucide-react";
 import ChatWidget from "@/components/ChatWidget";
+import { t } from "@/lib/translations";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { trpc } from "@/providers/trpc";
 import { useAuth } from "@/hooks/useAuth";
 
-const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
-  new: { label: "New", color: "bg-yellow-100 text-yellow-700", icon: Package },
-  processing: { label: "Processing", color: "bg-blue-100 text-blue-700", icon: Clock },
-  quoted: { label: "Quoted", color: "bg-purple-100 text-purple-700", icon: FileText },
-  accepted: { label: "Accepted", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  declined: { label: "Declined", color: "bg-red-100 text-red-700", icon: XCircle },
-};
-
 export default function TrackQuote() {
+  const { lang } = useLanguage();
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const navigate = useNavigate();
   const [quoteId, setQuoteId] = useState("");
   const [searched, setSearched] = useState(false);
+
+  const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
+    new: { label: t("new", lang), color: "bg-yellow-100 text-yellow-700", icon: Package },
+    processing: { label: t("processing", lang), color: "bg-blue-100 text-blue-700", icon: Clock },
+    quoted: { label: t("quoted", lang), color: "bg-purple-100 text-purple-700", icon: FileText },
+    accepted: { label: t("accepted", lang), color: "bg-green-100 text-green-700", icon: CheckCircle },
+    declined: { label: t("declined", lang), color: "bg-red-100 text-red-700", icon: XCircle },
+  };
 
   const { data: quote, isLoading, error } = trpc.quote.track.useQuery(
     { quoteId },
@@ -53,15 +56,15 @@ export default function TrackQuote() {
           <Link to="/">
             <img src="/images/vekkst-logo.webp" alt="VEKKST" className="h-10 w-auto mx-auto mb-4" />
           </Link>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Track Your Quote</h1>
-          <p className="text-gray-500 text-sm mt-1">Enter your Quote ID to check the status</p>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{t("trackYourQuote", lang)}</h1>
+          <p className="text-gray-500 text-sm mt-1">{t("enterQuoteId", lang)}</p>
         </div>
 
         {/* Search Form */}
         <div className="bg-white rounded-xl shadow-sm border p-4 md:p-6 mb-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Quote ID</label>
+              <label className="block text-sm font-medium mb-1.5">{t("quoteId", lang)}</label>
               <input
                 type="text"
                 value={quoteId}
@@ -76,7 +79,7 @@ export default function TrackQuote() {
               className="w-full btn-primary justify-center py-4 text-sm"
               disabled={isLoading}
             >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Search className="w-4 h-4" /> Track Quote</>}
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Search className="w-4 h-4" /> {t("trackQuote", lang)}</>}
             </button>
           </form>
         </div>
@@ -94,7 +97,7 @@ export default function TrackQuote() {
             <div className="p-4 md:p-6 border-b">
               <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div>
-                  <p className="text-sm text-gray-500">Quote ID</p>
+                  <p className="text-sm text-gray-500">{t("quoteId", lang)}</p>
                   <p className="text-xl md:text-2xl font-bold">{quote.quoteId}</p>
                 </div>
                 {(() => {
@@ -131,31 +134,31 @@ export default function TrackQuote() {
             {/* Quote Info */}
             <div className="p-4 md:p-6 space-y-4">
               <div className="grid grid-cols-2 gap-3 md:gap-4 text-sm">
-                <div><p className="text-gray-500">Name</p><p className="font-medium">{quote.name}</p></div>
-                <div><p className="text-gray-500">Email</p><p className="font-medium">{quote.email}</p></div>
-                {quote.company && <div><p className="text-gray-500">Company</p><p className="font-medium">{quote.company}</p></div>}
-                {quote.productType && <div><p className="text-gray-500">Product Type</p><p className="font-medium capitalize">{quote.productType}</p></div>}
-                {quote.quantity && <div><p className="text-gray-500">Quantity</p><p className="font-medium">{quote.quantity}</p></div>}
-                {quote.fabric && <div><p className="text-gray-500">Fabric</p><p className="font-medium">{quote.fabric}</p></div>}
+                <div><p className="text-gray-500">{t("name", lang)}</p><p className="font-medium">{quote.name}</p></div>
+                <div><p className="text-gray-500">{t("email", lang)}</p><p className="font-medium">{quote.email}</p></div>
+                {quote.company && <div><p className="text-gray-500">{t("company", lang)}</p><p className="font-medium">{quote.company}</p></div>}
+                {quote.productType && <div><p className="text-gray-500">{t("product", lang)}</p><p className="font-medium capitalize">{quote.productType}</p></div>}
+                {quote.quantity && <div><p className="text-gray-500">{t("quantity", lang)}</p><p className="font-medium">{quote.quantity}</p></div>}
+                {quote.fabric && <div><p className="text-gray-500">{t("fabric", lang)}</p><p className="font-medium">{quote.fabric}</p></div>}
               </div>
 
               {/* Admin Response */}
               {(quote.quotePrice || quote.quoteTimeline || quote.adminNotes) && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
                   <h3 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4" /> Our Response
+                    <CheckCircle className="w-4 h-4" /> {t("ourResponse", lang)}
                   </h3>
-                  {quote.quotePrice && <p className="text-sm text-green-700"><strong>Quote Price:</strong> {quote.quotePrice}</p>}
-                  {quote.quoteTimeline && <p className="text-sm text-green-700"><strong>Timeline:</strong> {quote.quoteTimeline}</p>}
+                  {quote.quotePrice && <p className="text-sm text-green-700"><strong>{t("quotePrice", lang)}:</strong> {quote.quotePrice}</p>}
+                  {quote.quoteTimeline && <p className="text-sm text-green-700"><strong>{t("timeline", lang)}:</strong> {quote.quoteTimeline}</p>}
                   {quote.quoteMou && <p className="text-sm text-green-700"><strong>MOQ:</strong> {quote.quoteMou}</p>}
-                  {quote.adminNotes && <p className="text-sm text-green-700 mt-2"><strong>Notes:</strong> {quote.adminNotes}</p>}
+                  {quote.adminNotes && <p className="text-sm text-green-700 mt-2"><strong>{t("notes", lang)}:</strong> {quote.adminNotes}</p>}
                 </div>
               )}
 
               {/* Design Files */}
               {quote.designFiles && (
                 <div className="pt-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Design Files:</p>
+                  <p className="text-sm font-medium text-gray-700 mb-2">{t("designFilesLabel", lang)}:</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {(() => {
                       try {
@@ -181,7 +184,7 @@ export default function TrackQuote() {
               )}
 
               <p className="text-xs text-gray-400 text-center pt-4">
-                Submitted on {new Date(quote.createdAt).toLocaleDateString()}
+                {t("submittedOn", lang)} {new Date(quote.createdAt).toLocaleDateString()}
               </p>
             </div>
           </div>
@@ -189,7 +192,7 @@ export default function TrackQuote() {
 
         {/* Help */}
         <div className="text-center mt-6 md:mt-8 text-sm text-gray-500">
-          <p>Need help? Contact us on <a href="https://wa.me/8613125204154" className="text-[#E60012]">WhatsApp</a> or email <a href="mailto:Info@vekkst.com" className="text-[#E60012]">Info@vekkst.com</a></p>
+          <p>{t("needHelp", lang)} <a href="https://wa.me/8613125204154" className="text-[#E60012]">{t("whatsapp", lang)}</a> {t("or", lang)} email <a href="mailto:Info@vekkst.com" className="text-[#E60012]">Info@vekkst.com</a></p>
         </div>
       </div>
 

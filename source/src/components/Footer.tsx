@@ -1,7 +1,11 @@
 import { Link } from "react-router";
 import { Phone, Mail, MapPin } from "lucide-react";
+import { t } from "@/lib/translations";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 export default function Footer() {
+  const { lang } = useLanguage();
+
   return (
     <footer className="bg-[#0a0a0a] border-t border-white/5 text-gray-400">
       {/* Main Footer */}
@@ -16,7 +20,7 @@ export default function Footer() {
               className="h-16 md:h-20 w-auto mb-4"
             />
             <p className="text-sm leading-relaxed mb-4 text-gray-500">
-              Committed to providing men's clothing customization services that combine quality and efficiency.
+              {t("committedServices", lang)}
             </p>
             <p className="text-xs text-gray-600">
               Dongguan VEKKST Garment Co., Ltd.<br />
@@ -26,34 +30,34 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold text-sm mb-4 text-white">Quick Links</h4>
+            <h4 className="font-semibold text-sm mb-4 text-white">{t("quickLinks", lang)}</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/" className="hover:text-amber-400 transition-colors">Home</Link></li>
-              <li><Link to="/about" className="hover:text-amber-400 transition-colors">About us</Link></li>
-              <li><Link to="/products" className="hover:text-amber-400 transition-colors">Product</Link></li>
-              <li><Link to="/track-quote" className="hover:text-amber-400 transition-colors">Track Quote</Link></li>
-              <li><Link to="/quote" className="hover:text-amber-400 transition-colors">Get a Quote</Link></li>
-              <li><Link to="/privacy" className="hover:text-amber-400 transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-amber-400 transition-colors">Terms of Service</Link></li>
+              <li><Link to="/" className="hover:text-amber-400 transition-colors">{t("home", lang)}</Link></li>
+              <li><Link to="/about" className="hover:text-amber-400 transition-colors">{t("about", lang)}</Link></li>
+              <li><Link to="/products" className="hover:text-amber-400 transition-colors">{t("products", lang)}</Link></li>
+              <li><Link to="/track-quote" className="hover:text-amber-400 transition-colors">{t("trackQuote", lang)}</Link></li>
+              <li><Link to="/quote" className="hover:text-amber-400 transition-colors">{t("getFreeQuote", lang)}</Link></li>
+              <li><Link to="/privacy" className="hover:text-amber-400 transition-colors">{t("privacyPolicy", lang)}</Link></li>
+              <li><Link to="/terms" className="hover:text-amber-400 transition-colors">{t("termsOfService", lang)}</Link></li>
             </ul>
           </div>
 
           {/* Products */}
           <div>
-            <h4 className="font-semibold text-sm mb-4 text-white">Products</h4>
+            <h4 className="font-semibold text-sm mb-4 text-white">{t("products", lang)}</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/products?category=hoodies" className="hover:text-amber-400 transition-colors">Hoodies</Link></li>
-              <li><Link to="/products?category=t-shirts" className="hover:text-amber-400 transition-colors">T-Shirts</Link></li>
-              <li><Link to="/products?category=jackets" className="hover:text-amber-400 transition-colors">Jackets</Link></li>
-              <li><Link to="/products?category=shorts" className="hover:text-amber-400 transition-colors">Shorts</Link></li>
-              <li><Link to="/products?category=pants" className="hover:text-amber-400 transition-colors">Pants</Link></li>
-              <li><Link to="/products?category=tracksuits" className="hover:text-amber-400 transition-colors">Tracksuits</Link></li>
+              <li><Link to="/products?category=hoodies" className="hover:text-amber-400 transition-colors">{t("hoodies", lang)}</Link></li>
+              <li><Link to="/products?category=t-shirts" className="hover:text-amber-400 transition-colors">{t("tShirts", lang)}</Link></li>
+              <li><Link to="/products?category=jackets" className="hover:text-amber-400 transition-colors">{t("jackets", lang)}</Link></li>
+              <li><Link to="/products?category=shorts" className="hover:text-amber-400 transition-colors">{t("shorts", lang)}</Link></li>
+              <li><Link to="/products?category=pants" className="hover:text-amber-400 transition-colors">{t("pants", lang)}</Link></li>
+              <li><Link to="/products?category=tracksuits" className="hover:text-amber-400 transition-colors">{t("tracksuits", lang)}</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold text-sm mb-4 text-white">Contact us</h4>
+            <h4 className="font-semibold text-sm mb-4 text-white">{t("contactUs", lang)}</h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <Phone className="w-4 h-4 mt-0.5 text-amber-400 flex-shrink-0" />
@@ -85,7 +89,7 @@ export default function Footer() {
       {/* Copyright */}
       <div className="border-t border-white/5">
         <div className="container-site py-4 flex flex-col md:flex-row items-center justify-between text-xs text-gray-600 gap-2">
-          <p>Copyright &copy; {new Date().getFullYear()} DongGuan VEKKST Garment Co., Ltd. All Rights Reserved.</p>
+          <p>Copyright &copy; {new Date().getFullYear()} DongGuan VEKKST Garment Co., Ltd. {t("allRightsReserved", lang)}</p>
           <p>ODM/OEM Manufacturer | Custom Men's Fashion Clothing</p>
         </div>
       </div>

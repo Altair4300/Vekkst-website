@@ -3,6 +3,8 @@ import { Link, useSearchParams } from "react-router";
 import { SlidersHorizontal, X, Loader2 } from "lucide-react";
 import { trpc } from "@/providers/trpc";
 import { usePageContent } from "@/hooks/usePageContent";
+import { t } from "@/lib/translations";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 const catOptions = [
   { label: "All", value: "" },
@@ -23,6 +25,7 @@ const seasonOptions = [
 ];
 
 export default function Products() {
+  const { lang } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const activeCategory = searchParams.get("category") || "";
@@ -49,12 +52,12 @@ export default function Products() {
     <>
       {/* ── Hero ── */}
       <section className="relative h-[35vh] md:h-[40vh] min-h-[200px] max-h-[400px] overflow-hidden">
-        <img src={cms("hero-banner", "/images/showroom.webp")} alt="Products" className="w-full h-full object-cover" />
+        <img src={cms("hero-banner", "/images/showroom.webp")} alt={t("products", lang)} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center justify-center text-white px-4">
           <div className="text-center">
-            <h1 className="text-2xl md:text-3xl font-bold mb-1">DESIGN PORTFOLIO</h1>
-            <p className="text-sm opacity-80 max-w-md mx-auto">Browse our styles for inspiration. Request a quote for customization.</p>
+            <h1 className="text-2xl md:text-3xl font-bold mb-1">{t("designPortfolio", lang)}</h1>
+            <p className="text-sm opacity-80 max-w-md mx-auto">{t("browseStyles", lang)}</p>
           </div>
         </div>
       </section>
@@ -68,11 +71,11 @@ export default function Products() {
               onClick={() => setShowFilters(!showFilters)}
               className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-[#E60012] min-h-[44px] px-3"
             >
-              <SlidersHorizontal className="w-4 h-4" /> Filters
+              <SlidersHorizontal className="w-4 h-4" /> {t("filters", lang)}
               {hasFilters && <span className="w-2 h-2 bg-[#E60012] rounded-full" />}
             </button>
             <span className="text-sm text-gray-500">
-              {isLoading ? "Loading..." : `${products?.length || 0} designs`}
+              {isLoading ? t("loading", lang) : `${products?.length || 0} ${t("designs", lang)}`}
             </span>
           </div>
 
@@ -80,7 +83,7 @@ export default function Products() {
           {showFilters && (
             <div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Category</label>
+                <label className="text-sm font-medium mb-2 block">{t("category", lang)}</label>
                 <div className="flex flex-wrap gap-2">
                   {catOptions.map((c) => (
                     <button
@@ -98,7 +101,7 @@ export default function Products() {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Season</label>
+                <label className="text-sm font-medium mb-2 block">{t("season", lang)}</label>
                 <div className="flex flex-wrap gap-2">
                   {seasonOptions.map((s) => (
                     <button
@@ -120,7 +123,7 @@ export default function Products() {
                   onClick={() => setSearchParams(new URLSearchParams())}
                   className="flex items-center gap-1 text-sm text-[#E60012] min-h-[44px]"
                 >
-                  <X className="w-3 h-3" /> Clear all filters
+                  <X className="w-3 h-3" /> {t("clearAllFilters", lang)}
                 </button>
               )}
             </div>
@@ -136,13 +139,13 @@ export default function Products() {
           {/* Empty state */}
           {!isLoading && (!products || products.length === 0) && (
             <div className="text-center py-20">
-              <p className="text-lg mb-2 font-medium">Our collection is being curated</p>
-              <p className="text-sm text-gray-500 mb-6">New products will be added soon. In the meantime, request a custom quote.</p>
+              <p className="text-lg mb-2 font-medium">{t("collectionCurated", lang)}</p>
+              <p className="text-sm text-gray-500 mb-6">{t("collectionAddedSoon", lang)}</p>
               <Link
                 to="/quote"
                 className="inline-flex items-center gap-2 bg-[#E60012] text-white px-6 py-3 rounded-md font-medium hover:bg-red-700 transition-colors"
               >
-                Request a Quote
+                {t("requestAQuote", lang)}
               </Link>
             </div>
           )}
@@ -165,11 +168,11 @@ export default function Products() {
                     />
                     {/* Desktop hover overlay - hidden on mobile */}
                     <div className="hidden md:flex absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center">
-                      <span className="bg-white text-gray-800 px-4 py-2 rounded-full text-sm font-medium">View Details</span>
+                      <span className="bg-white text-gray-800 px-4 py-2 rounded-full text-sm font-medium">{t("viewDetails", lang)}</span>
                     </div>
                     {/* Mobile: show a small badge instead of hover */}
                     <div className="md:hidden absolute bottom-2 right-2 bg-white/90 text-gray-800 px-2 py-1 rounded text-xs font-medium">
-                      View →
+                      {t("viewArrow", lang)}
                     </div>
                   </div>
                   <div className="p-3">

@@ -1,29 +1,32 @@
 import { Link } from "react-router";
 import { CheckCircle } from "lucide-react";
+import { t } from "@/lib/translations";
+import { useLanguage } from "@/providers/LanguageProvider";
 import { usePageContent } from "@/hooks/usePageContent";
 
-const capabilities = [
-  "Custom Design & Sampling (3-7 day turnaround)",
-  "OEM/ODM Full Production Service",
-  "Screen Print, DTG, Embroidery, Sublimation",
-  "Custom Labels, Hang Tags & Packaging",
-  "Quality Control at Every Stage",
-  "Low MOQ Starting from 60 pcs",
-  "Worldwide Shipping & Logistics",
-  "Dedicated Account Manager",
-];
-
-const milestones = [
-  { year: "2008", title: "Company Founded", desc: "Started with 7 passionate team members in Dongguan." },
-  { year: "2012", title: "Expansion", desc: "Expanded to 5,000m² factory and added new production lines." },
-  { year: "2016", title: "Global Reach", desc: "Began exporting to Europe, North America, and Australia." },
-  { year: "2018", title: "OEM/ODM Launch", desc: "Launched full OEM/ODM services for global fashion brands." },
-  { year: "2020", title: "Digital Upgrade", desc: "Invested in digital printing and automated cutting systems." },
-  { year: "2024", title: "1,100+ Brands", desc: "Partnered with over 1,100 brands worldwide." },
-];
-
 export default function About() {
+  const { lang } = useLanguage();
   const { cms } = usePageContent("about");
+
+  const capabilities = [
+    t("capability1", lang),
+    t("capability2", lang),
+    t("capability3", lang),
+    t("capability4", lang),
+    t("capability5", lang),
+    t("capability6", lang),
+    t("capability7", lang),
+    t("capability8", lang),
+  ];
+
+  const milestones = [
+    { year: t("milestone1Year", lang), title: t("milestone1Title", lang), desc: t("milestone1Desc", lang) },
+    { year: t("milestone2Year", lang), title: t("milestone2Title", lang), desc: t("milestone2Desc", lang) },
+    { year: t("milestone3Year", lang), title: t("milestone3Title", lang), desc: t("milestone3Desc", lang) },
+    { year: t("milestone4Year", lang), title: t("milestone4Title", lang), desc: t("milestone4Desc", lang) },
+    { year: t("milestone5Year", lang), title: t("milestone5Title", lang), desc: t("milestone5Desc", lang) },
+    { year: t("milestone6Year", lang), title: t("milestone6Title", lang), desc: t("milestone6Desc", lang) },
+  ];
 
   return (
     <>
@@ -33,8 +36,8 @@ export default function About() {
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex items-center justify-center text-white text-center px-4">
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">ABOUT US</h1>
-            <p className="text-sm md:text-base opacity-80">Dongguan VEKKST Garment Co., Ltd. | 14+ Years of Excellence</p>
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">{t("aboutUs", lang)}</h1>
+            <p className="text-sm md:text-base opacity-80">Dongguan VEKKST Garment Co., Ltd. | {t("yearsExcellence", lang)}</p>
           </div>
         </div>
       </section>
@@ -45,23 +48,20 @@ export default function About() {
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* Text */}
             <div className="order-2 md:order-1">
-              <h2 className="section-title mb-4">Dongguan VEKKST Garment Co., Ltd.</h2>
+              <h2 className="section-title mb-4">{t("aboutUs", lang)}</h2>
               <p className="text-gray-600 leading-relaxed mb-4 text-sm md:text-base">
-                We are a professional one-stop ODM/OEM manufacturer specializing in custom men's fashion clothing.
-                With over 14 years of experience, we have built a reputation for quality, reliability, and innovation
-                in the garment manufacturing industry.
+                {t("aboutIntroP1", lang)}
               </p>
               <p className="text-gray-600 leading-relaxed mb-6 text-sm md:text-base">
-                Our 5,000m² factory in Dongguan, Guangdong is equipped with state-of-the-art machinery and staffed
-                by 120+ skilled workers. Each season, we develop 2,000+ new styles and serve over 1,100 brands worldwide.
+                {t("aboutIntroP2", lang)}
               </p>
               {/* Stats grid - 2x2 on mobile, 2x2 on desktop (same, responsive) */}
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: "14+", label: "Years Experience" },
-                  { value: "5,000m²", label: "Factory Space" },
-                  { value: "120+", label: "Staff Members" },
-                  { value: "1,100+", label: "Partner Brands" },
+                  { value: "14+", label: t("yearsExperience", lang) },
+                  { value: "5,000m²", label: t("factorySpace", lang) },
+                  { value: "120+", label: t("staffMembers", lang) },
+                  { value: "1,100+", label: t("partnerBrands", lang) },
                 ].map((stat) => (
                   <div key={stat.label} className="bg-gray-50 rounded-lg p-3 md:p-4 text-center">
                     <div className="text-xl md:text-2xl font-bold text-[#E60012]">{stat.value}</div>
@@ -83,8 +83,8 @@ export default function About() {
       <section className="section bg-white">
         <div className="container-site">
           <div className="text-center mb-8">
-            <h2 className="section-title mb-2">Meet Our Team</h2>
-            <p className="text-gray-500 text-sm max-w-xl mx-auto">Over 256 skilled professionals dedicated to delivering premium quality streetwear</p>
+            <h2 className="section-title mb-2">{t("meetOurTeam", lang)}</h2>
+            <p className="text-gray-500 text-sm max-w-xl mx-auto">{t("meetOurTeamDesc", lang)}</p>
           </div>
           <div className="max-w-4xl mx-auto">
             <img src={cms("team-photo", "/images/team-photo.webp")} alt="VEKKST Garment Team" width="896" height="504" className="w-full rounded-xl shadow-lg" loading="lazy" decoding="async" />
@@ -96,8 +96,8 @@ export default function About() {
       <section className="section bg-gray-50">
         <div className="container-site">
           <div className="text-center mb-8">
-            <h2 className="section-title mb-2">Our Capabilities</h2>
-            <p className="text-gray-500 text-sm max-w-xl mx-auto">Everything you need for your clothing brand under one roof</p>
+            <h2 className="section-title mb-2">{t("ourCapabilities", lang)}</h2>
+            <p className="text-gray-500 text-sm max-w-xl mx-auto">{t("ourCapabilitiesDesc", lang)}</p>
           </div>
           <div className="grid md:grid-cols-2 gap-3 max-w-3xl mx-auto">
             {capabilities.map((cap) => (
@@ -114,8 +114,8 @@ export default function About() {
       <section className="section bg-white">
         <div className="container-site">
           <div className="text-center mb-10">
-            <h2 className="section-title mb-2">Our Journey</h2>
-            <p className="text-gray-500 text-sm max-w-xl mx-auto">From a small team to a global manufacturing partner</p>
+            <h2 className="section-title mb-2">{t("ourJourney", lang)}</h2>
+            <p className="text-gray-500 text-sm max-w-xl mx-auto">{t("ourJourneyDesc", lang)}</p>
           </div>
           <div className="max-w-4xl mx-auto space-y-6">
             {milestones.map((m, i) => (
@@ -137,11 +137,11 @@ export default function About() {
       {/* ── CTA ── */}
       <section className="py-12 md:py-16 bg-[#E60012] text-white text-center">
         <div className="container-site">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-3">Ready to Start Your Project?</h2>
-          <p className="text-white/80 mb-6 max-w-xl mx-auto text-sm md:text-base">Get a free quote within 24 hours. Low MOQ from 60 pieces. Custom samples in 3-7 days.</p>
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-3">{t("readyToStartProject", lang)}</h2>
+          <p className="text-white/80 mb-6 max-w-xl mx-auto text-sm md:text-base">{t("getFreeQuote24Hours", lang)}</p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
-            <Link to="/quote" className="btn-primary text-sm">Get a Free Quote</Link>
-            <a href="https://wa.me/8613125204154" target="_blank" rel="noopener noreferrer" className="btn-primary bg-white/10 border border-white/30 text-sm">WhatsApp Us</a>
+            <Link to="/quote" className="btn-primary text-sm">{t("getFreeQuote", lang)}</Link>
+            <a href="https://wa.me/8613125204154" target="_blank" rel="noopener noreferrer" className="btn-primary bg-white/10 border border-white/30 text-sm">{t("whatsapp", lang)}</a>
           </div>
         </div>
       </section>
