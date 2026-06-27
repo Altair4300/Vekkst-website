@@ -155,6 +155,19 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════ FACTORY STRENGTH (image only, no heading) ═══════ */}
+      <section className="section bg-gray-50">
+        <div className="full-bleed">
+          <img
+            src={cms("factory-strength", "/images/factory-strength.webp")}
+            alt="Factory Strength"
+            className="w-full h-auto md:h-[720px] object-cover"
+            decoding="async"
+            loading="lazy"
+          />
+        </div>
+      </section>
+
       {/* ═══════ CRAFTSMANSHIP ═══════ */}
       <section className="section bg-white">
         <div className="container-site">
