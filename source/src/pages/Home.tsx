@@ -155,8 +155,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════ FACTORY STRENGTH (image only, no heading) ═══════ */}
+      {/* ═══════ FACTORY STRENGTH (title only, no subtitle) ═══════ */}
       <section className="section bg-gray-50">
+        <div className="container-site">
+          <div className="text-center mb-6">
+            <h2 className="section-title text-gray-900">Factory Strength</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+        </div>
         <div className="full-bleed">
           <img
             src={cms("factory-strength", "/images/factory-strength.webp")}
