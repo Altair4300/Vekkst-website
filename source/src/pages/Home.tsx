@@ -226,7 +226,7 @@ export default function Home() {
         </div>
         <div className="full-bleed">
           <img
-            src={cms("supply-chain", "/images/From Idea to Bulk.webp")}
+            src={cms("process-8steps", "/images/from-idea-to-bulk.webp")}
             alt={t("fromIdeaToBulk", lang)}
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
