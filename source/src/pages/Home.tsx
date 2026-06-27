@@ -152,26 +152,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════ FACTORY STRENGTH ═══════ */}
-      <section className="section bg-gray-50">
-        <div className="container-site">
-          <div className="text-center mb-6">
-            <p className="section-subtitle text-amber-600 mb-3">Our Facility</p>
-            <h2 className="section-title text-gray-900">Factory Strength</h2>
-            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
-          </div>
-        </div>
-        <div className="full-bleed">
-          <img
-            src={cms("factory-strength", "/images/Factory Strength.webp")}
-            alt="Factory Strength"
-            className="w-full h-auto md:h-[720px] object-cover"
-            decoding="async"
-            loading="lazy"
-          />
-        </div>
-      </section>
-
       {/* ═══════ CRAFTSMANSHIP ═══════ */}
       <section className="section bg-white">
         <div className="container-site">
@@ -355,6 +335,39 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══════ WHY CHOOSE US ═══════ */}
+      <section className="section bg-[#0a0a0a]">
+        <div className="container-site">
+          <div className="text-center mb-8 md:mb-14">
+            <p className="section-subtitle text-amber-400 mb-3">Advantages</p>
+            <h2 className="section-title text-white">Why Choose Us</h2>
+            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: "Customized design capabilities", icon: "/images/A1.webp", hover: "/images/A2.webp" },
+              { label: "Professional QC quality inspection", icon: "/images/B1.webp", hover: "/images/B2.webp" },
+              { label: "Flexible supply chain", icon: "/images/C1.webp", hover: "/images/C3.webp" },
+              { label: "Global market layout", icon: "/images/D1.webp", hover: "/images/D2.webp" },
+              { label: "Digital innovation", icon: "/images/E1.webp", hover: "/images/E2.webp" },
+              { label: "Strengthening local services", icon: "/images/F1.webp", hover: "/images/F2.webp" },
+              { label: "Sustainable development", icon: "/images/G1.webp", hover: "/images/G2.webp" },
+              { label: "Humanistic care and team stability", icon: "/images/H1.webp", hover: "/images/H2.webp" },
+            ].map((f, i) => (
+              <div
+                key={f.label}
+                className="rounded-xl overflow-hidden cursor-pointer border border-white/5 hover:border-amber-400/30 transition-all"
+                onMouseEnter={() => setHoveredFeature(i)}
+                onMouseLeave={() => setHoveredFeature(null)}
+              >
+                <img src={hoveredFeature === i ? f.hover : f.icon} alt={f.label} className="w-full aspect-square object-cover" loading="lazy" />
+                <p className="text-xs text-center text-gray-400 py-3 px-2 bg-[#161616]">{f.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══════ VIDEO - Our Factory in Action ═══════ */}
       <section className="section bg-[#0a0a0a]">
         <div className="container-site">
@@ -387,39 +400,6 @@ export default function Home() {
                 poster="/images/choose1.webp"
               />
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════ WHY CHOOSE US ═══════ */}
-      <section className="section bg-[#0a0a0a]">
-        <div className="container-site">
-          <div className="text-center mb-8 md:mb-14">
-            <p className="section-subtitle text-amber-400 mb-3">Advantages</p>
-            <h2 className="section-title text-white">Why Choose Us</h2>
-            <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: "Customized design capabilities", icon: "/images/A1.webp", hover: "/images/A2.webp" },
-              { label: "Professional QC quality inspection", icon: "/images/B1.webp", hover: "/images/B2.webp" },
-              { label: "Flexible supply chain", icon: "/images/C1.webp", hover: "/images/C3.webp" },
-              { label: "Global market layout", icon: "/images/D1.webp", hover: "/images/D2.webp" },
-              { label: "Digital innovation", icon: "/images/E1.webp", hover: "/images/E2.webp" },
-              { label: "Strengthening local services", icon: "/images/F1.webp", hover: "/images/F2.webp" },
-              { label: "Sustainable development", icon: "/images/G1.webp", hover: "/images/G2.webp" },
-              { label: "Humanistic care and team stability", icon: "/images/H1.webp", hover: "/images/H2.webp" },
-            ].map((f, i) => (
-              <div
-                key={f.label}
-                className="rounded-xl overflow-hidden cursor-pointer border border-white/5 hover:border-amber-400/30 transition-all"
-                onMouseEnter={() => setHoveredFeature(i)}
-                onMouseLeave={() => setHoveredFeature(null)}
-              >
-                <img src={hoveredFeature === i ? f.hover : f.icon} alt={f.label} className="w-full aspect-square object-cover" loading="lazy" />
-                <p className="text-xs text-center text-gray-400 py-3 px-2 bg-[#161616]">{f.label}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
