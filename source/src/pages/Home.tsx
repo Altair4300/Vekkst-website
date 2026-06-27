@@ -166,7 +166,7 @@ export default function Home() {
         </div>
         <div className="full-bleed">
           <img
-            src={cms("factory-strength", "/images/Factory Strength.png")}
+            src={cms("factory-strength", "/images/Factory Strength.webp")}
             alt="Factory Strength"
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
@@ -226,7 +226,7 @@ export default function Home() {
         </div>
         <div className="full-bleed">
           <img
-            src={cms("process-8steps", "/images/From Idea to Bulk.png")}
+            src={cms("process-8steps", "/images/From Idea to Bulk.webp")}
             alt={t("fromIdeaToBulk", lang)}
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
