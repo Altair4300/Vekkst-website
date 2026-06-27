@@ -166,7 +166,7 @@ export default function Home() {
         </div>
         <div className="full-bleed">
           <img
-            src={cms("factory-strength", "/images/Factory Strength.webp")}
+            src={cms("factory-strength", "/images/factory-strength.webp")}
             alt={t("factoryStrength", lang)}
             className="w-full h-auto md:h-[720px] object-cover"
             decoding="async"
