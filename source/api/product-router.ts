@@ -49,15 +49,18 @@ export const productRouter = createRouter({
   uploadImage: adminQuery
     .input(z.object({ data: z.string(), filename: z.string() }))
     .mutation(async ({ input }) => {
+      if (!input.data.startsWith("data:image/")) {
+        throw new Error("Invalid image format. Only base64-encoded images are allowed.");
+      }
       const base64Data = input.data.replace(/^data:image\/\w+;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
-      const filename = `${Date.now()}_${input.filename}`;
+      const safeFilename = `${Date.now()}_${input.filename.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
       const fs = await import("fs/promises");
       const path = await import("path");
       const uploadDir = path.join(process.cwd(), "public", "uploads");
       try { await fs.mkdir(uploadDir, { recursive: true }); } catch { /* exists */ }
-      const filePath = path.join(uploadDir, filename);
+      const filePath = path.join(uploadDir, safeFilename);
       await fs.writeFile(filePath, buffer);
-      return { url: `/uploads/${filename}` };
+      return { url: `/uploads/${safeFilename}` };
     }),
 });

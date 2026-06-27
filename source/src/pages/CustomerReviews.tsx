@@ -1,5 +1,7 @@
 import { Link } from "react-router";
 import { Star, ArrowLeft } from "lucide-react";
+import { t } from "@/lib/translations";
+import { useLanguage } from "@/providers/LanguageProvider";
 
 /* ─────────────── CUSTOMER REVIEWS DATA ─────────────── */
 
@@ -45,6 +47,7 @@ const reviews = [
 /* ─────────────── CUSTOMER REVIEWS PAGE ─────────────── */
 
 export default function CustomerReviews() {
+  const { lang } = useLanguage();
   return (
     <>
       {/* Hero Header */}
@@ -52,14 +55,14 @@ export default function CustomerReviews() {
         <div className="max-w-7xl mx-auto px-4">
           <Link to="/" className="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-8">
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm">Back to Home</span>
+            <span className="text-sm">{t("backToHome", lang)}</span>
           </Link>
           <div className="text-center">
-            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Testimonials</p>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Customer Reviews</h1>
+            <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">{t("testimonials", lang)}</p>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">{t("customerReviews", lang)}</h1>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4 mb-6" />
             <p className="text-gray-400 max-w-2xl mx-auto">
-              See what our clients say about working with VEKKST. Real feedback from real brands worldwide.
+              {t("seeWhatClientsSay", lang)}
             </p>
           </div>
         </div>
@@ -111,17 +114,17 @@ export default function CustomerReviews() {
       {/* CTA Section */}
       <section className="py-24 bg-gradient-to-br from-[#0a0a0a] via-[#1a1200] to-[#0a0a0a] overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">Join Our Clients</p>
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Ready to Build Your Brand?</h2>
+          <p className="text-sm tracking-[0.35em] text-amber-400 uppercase mb-3">{t("joinOurClients", lang)}</p>
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">{t("readyToBuildBrand", lang)}</h2>
           <p className="text-gray-400 mb-10 max-w-xl mx-auto">
-            Get a free quote within 24 hours. Low MOQ from 60 pieces. Custom samples in 3-7 days.
+            {t("getFreeQuote24Hours", lang)}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               to="/quote"
               className="inline-block bg-amber-400 hover:bg-amber-500 text-black px-10 py-4 rounded-full font-semibold transition-colors"
             >
-              Get a Free Quote
+              {t("getFreeQuote", lang)}
             </Link>
             <a
               href="https://wa.me/8613125204154"
@@ -129,7 +132,7 @@ export default function CustomerReviews() {
               rel="noopener noreferrer"
               className="inline-block border border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-black px-10 py-4 rounded-full font-semibold transition-all"
             >
-              WhatsApp Us
+              {t("whatsappUs", lang)}
             </a>
           </div>
         </div>

@@ -33,7 +33,7 @@ function addCacheBust(url: string, updatedAt?: string | Date | null): string {
 export function usePageContent(page: string) {
   const { data, isLoading, error } = trpc.content.list.useQuery(
     { page },
-    { staleTime: 0, refetchOnWindowFocus: true } // No stale time — always fetch fresh
+    { staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false } // Cache 5 min, no refetch on tab focus
   );
 
   const sections = useMemo(() => {

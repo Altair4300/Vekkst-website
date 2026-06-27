@@ -27,24 +27,30 @@ export async function createContext(
     if (token) {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
       const db = getDb();
-      const rows = await db.select().from(schema.users).where(eq(schema.users.id, decoded.userId)).limit(1);
-      if (rows[0]) ctx.user = rows[0];
+      const rows = await db.select({
+        id: schema.users.id,
+        unionId: schema.users.unionId,
+        name: schema.users.name,
+        email: schema.users.email,
+        phone: schema.users.phone,
+        avatar: schema.users.avatar,
+        role: schema.users.role,
+        createdAt: schema.users.createdAt,
+        updatedAt: schema.users.updatedAt,
+      }).from(schema.users).where(eq(schema.users.id, decoded.userId)).limit(1);
+      if (rows[0]) ctx.user = rows[0] as typeof users.$inferSelect;
     }
   } catch {
     // Auth is optional - user stays undefined for public endpoints
   }
 
   // 2. Check for admin auth token (x-admin-token header)
-  // If no regular user is found, check if admin token is present
   if (!ctx.user) {
     try {
       const adminToken = opts.req.headers.get("x-admin-token");
-      console.log("[CONTEXT] x-admin-token header present:", !!adminToken, "length:", adminToken?.length || 0);
       if (adminToken) {
         const decoded = jwt.verify(adminToken, JWT_SECRET) as { role: string; isAdmin: boolean; subadminId?: number };
-        console.log("[CONTEXT] Admin token decoded:", { role: decoded.role, isAdmin: decoded.isAdmin, subadminId: decoded.subadminId });
         if (decoded.role === "admin" && decoded.isAdmin) {
-          // Create a synthetic admin user for middleware checks
           ctx.user = {
             id: 0,
             unionId: null,
@@ -57,13 +63,9 @@ export async function createContext(
             createdAt: new Date(),
             updatedAt: new Date(),
           } as typeof users.$inferSelect;
-          console.log("[CONTEXT] Admin user created successfully");
-        } else {
-          console.log("[CONTEXT] Admin token rejected - role:", decoded.role, "isAdmin:", decoded.isAdmin);
         }
       }
-    } catch (err: any) {
-      console.log("[CONTEXT] Admin token verification failed:", err?.message || err);
+    } catch {
       // Admin auth is optional
     }
   }

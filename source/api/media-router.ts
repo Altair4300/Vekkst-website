@@ -124,15 +124,19 @@ export const mediaRouter = createRouter({
       if (!checkUploadRateLimit(ip)) {
         throw new Error("Upload rate limit exceeded. Please try again later.");
       }
+      if (!input.data.startsWith("data:image/")) {
+        throw new Error("Invalid image format. Only base64-encoded images are allowed.");
+      }
       const base64Data = input.data.replace(/^data:image\/\w+;base64,/, "");
       const buffer = Buffer.from(base64Data, "base64");
-      const filename = `${Date.now()}_${input.filename}`;
+      const safeCategory = CATEGORIES.includes(input.category) ? input.category : "general";
+      const safeFilename = `${Date.now()}_${input.filename.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
 
       // Try R2 first (free, CDN-backed, persistent)
       if (USE_S3) {
         try {
           const { S3Client, PutObjectCommand } = await getS3Modules();
-          const key = `uploads/${input.category}/${filename}`;
+          const key = `uploads/${safeCategory}/${safeFilename}`;
           const s3 = getS3Client(S3Client);
           await s3!.send(new PutObjectCommand({
             Bucket: BUCKET,
@@ -141,23 +145,21 @@ export const mediaRouter = createRouter({
             ContentType: "image/jpeg",
           }));
           const r2Url = getS3Url(key);
-          console.log(`[MEDIA] R2 uploadImage OK: ${r2Url}`);
-          return { url: r2Url, category: input.category };
+          return { url: r2Url, category: safeCategory };
         } catch (s3Err: any) {
           console.error("[MEDIA] R2 uploadImage failed, falling back to local:", s3Err?.message || s3Err);
         }
       }
 
       // Fallback: save locally (will be lost on redeploy without volume)
-      const uploadDir = join(process.cwd(), "public", "uploads", input.category);
+      const uploadDir = join(process.cwd(), "public", "uploads", safeCategory);
       try { await mkdir(uploadDir, { recursive: true }); } catch { /* exists */ }
-      const filePath = join(uploadDir, filename);
+      const filePath = join(uploadDir, safeFilename);
       await writeFile(filePath, buffer);
-      const localUrl = `/uploads/${input.category}/${filename}`;
+      const localUrl = `/uploads/${safeCategory}/${safeFilename}`;
       const baseUrl = getBaseUrl(ctx.req);
       const fullUrl = `${baseUrl}${localUrl}`;
-      console.log(`[MEDIA] Local uploadImage fallback: ${filePath} -> ${fullUrl}`);
-      return { url: fullUrl, category: input.category };
+      return { url: fullUrl, category: safeCategory };
     }),
 
   // Upload a video (authenticated users only — rate limited)
@@ -173,14 +175,11 @@ export const mediaRouter = createRouter({
         throw new Error("Upload rate limit exceeded. Please try again later.");
       }
       
-      console.log(`[UPLOAD] Starting video upload from ${ip}, filename: ${input.filename}, data length: ${input.data.length} chars`);
-      
       try {
         const base64Data = input.data.replace(/^data:video\/\w+;base64,/, "");
         const buffer = Buffer.from(base64Data, "base64");
-        const filename = `${Date.now()}_${input.filename}`;
-
-        console.log(`[UPLOAD] Decoded base64, buffer size: ${buffer.length} bytes`);
+        const safeCategory = CATEGORIES.includes(input.category) ? input.category : "general";
+        const safeFilename = `${Date.now()}_${input.filename.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
 
         if (buffer.length > 50 * 1024 * 1024) {
           throw new Error(`Video file too large (${(buffer.length / 1024 / 1024).toFixed(1)}MB). Maximum is 50MB. Please compress your video before uploading.`);
@@ -190,7 +189,7 @@ export const mediaRouter = createRouter({
         if (USE_S3) {
           try {
             const { S3Client, PutObjectCommand } = await getS3Modules();
-            const key = `videos/${input.category}/${filename}`;
+            const key = `videos/${safeCategory}/${safeFilename}`;
             const s3 = getS3Client(S3Client);
             await s3!.send(new PutObjectCommand({
               Bucket: BUCKET,
@@ -199,23 +198,21 @@ export const mediaRouter = createRouter({
               ContentType: "video/mp4",
             }));
             const r2Url = getS3Url(key);
-            console.log(`[MEDIA] R2 uploadVideo OK: ${r2Url}`);
-            return { url: r2Url, category: input.category };
+            return { url: r2Url, category: safeCategory };
           } catch (s3Err: any) {
             console.error("[MEDIA] R2 uploadVideo failed, falling back to local:", s3Err?.message || s3Err);
           }
         }
 
         // Fallback: save locally (will be lost on redeploy without volume)
-        const videoDir = join(process.cwd(), "public", "videos", input.category);
+        const videoDir = join(process.cwd(), "public", "videos", safeCategory);
         try { await mkdir(videoDir, { recursive: true }); } catch { /* exists */ }
-        const filePath = join(videoDir, filename);
+        const filePath = join(videoDir, safeFilename);
         await writeFile(filePath, buffer);
-        const localUrl = `/videos/${input.category}/${filename}`;
+        const localUrl = `/videos/${safeCategory}/${safeFilename}`;
         const baseUrl = getBaseUrl(ctx.req);
         const fullUrl = `${baseUrl}${localUrl}`;
-        console.log(`[UPLOAD] Local save fallback: ${filePath} -> ${fullUrl}`);
-        return { url: fullUrl, category: input.category };
+        return { url: fullUrl, category: safeCategory };
       } catch (err: any) {
         console.error(`[UPLOAD] Video upload failed:`, err?.message || err);
         throw new Error(`Upload failed: ${err?.message || "Unknown error"}`);
@@ -256,12 +253,13 @@ export const mediaRouter = createRouter({
 
       // Fallback: local filesystem
       try {
-        if (category) {
-          const dir = join(VIDEO_DIR, category);
+        const safeCategory = category && CATEGORIES.includes(category) ? category : undefined;
+        if (safeCategory) {
+          const dir = join(VIDEO_DIR, safeCategory);
           const files = await readdir(dir);
           return files
             .filter(f => f.endsWith(".mp4") || f.endsWith(".webm") || f.endsWith(".mov"))
-            .map(f => ({ name: f, url: `/videos/${category}/${f}`, category, size: f.length }));
+            .map(f => ({ name: f, url: `/videos/${safeCategory}/${f}`, category: safeCategory, size: f.length }));
         } else {
           // List all categories
           const results: any[] = [];
@@ -313,12 +311,13 @@ export const mediaRouter = createRouter({
 
       // Fallback: local filesystem
       try {
-        if (category) {
-          const dir = join(IMAGE_DIR, category);
+        const safeCategory = category && CATEGORIES.includes(category) ? category : undefined;
+        if (safeCategory) {
+          const dir = join(IMAGE_DIR, safeCategory);
           const files = await readdir(dir);
           return files
             .filter(f => !f.endsWith("/"))
-            .map(f => ({ name: f, url: `/uploads/${category}/${f}`, category, size: f.length }));
+            .map(f => ({ name: f, url: `/uploads/${safeCategory}/${f}`, category: safeCategory, size: f.length }));
         } else {
           // List all categories
           const results: any[] = [];
@@ -340,21 +339,20 @@ export const mediaRouter = createRouter({
   deleteFile: adminQuery
     .input(z.object({ path: z.string() }))
     .mutation(async ({ input }) => {
+      // Validate path — must be under uploads/ or videos/ and no directory traversal
+      const safePath = input.path.replace(/[^a-zA-Z0-9._\-\/]/g, "").replace(/\.\.\/+/g, "").replace(/^\/+/, "");
+      if (!safePath.startsWith("uploads/") && !safePath.startsWith("videos/")) {
+        throw new Error("Invalid path. Only uploads/ or videos/ files can be deleted.");
+      }
       if (USE_S3) {
         const { S3Client, DeleteObjectCommand } = await getS3Modules();
         const s3 = getS3Client(S3Client);
-        // Extract key from full URL or relative path
-        let key = input.path;
-        if (key.startsWith("http")) {
-          key = key.split(".amazonaws.com/")[1] || key.split(`/${BUCKET}/`)[1] || key;
-        }
-        if (key.startsWith("/")) key = key.slice(1);
-        await s3!.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }));
+        await s3!.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: safePath }));
         return { success: true };
       }
 
       // Fallback: local filesystem
-      const filePath = join(process.cwd(), "public", input.path);
+      const filePath = join(process.cwd(), "public", safePath);
       try { await unlink(filePath); } catch { /* ignore */ }
       return { success: true };
     }),
