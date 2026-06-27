@@ -156,9 +156,10 @@ export default function Home() {
       </section>
 
       {/* ═══════ FACTORY STRENGTH (title only, no subtitle) ═══════ */}
-      <section className="section bg-gray-50">
+      <section className="section bg-gray-50 pb-0">
         <div className="container-site">
           <div className="text-center mb-6">
+            <p className="section-subtitle text-amber-600 mb-3 opacity-0" aria-hidden="true">Spacer</p>
             <h2 className="section-title text-gray-900">Factory Strength</h2>
             <div className="w-16 h-0.5 bg-amber-400 mx-auto mt-4" />
           </div>
