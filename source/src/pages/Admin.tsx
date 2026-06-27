@@ -31,7 +31,7 @@ const EMOJIS = ["😀", "😂", "😍", "🙏", "👍", "👎", "🔥", "❤️"
 
 // ─── LOGIN SCREEN ───
 function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string) => void }) {
-  const { lang } = useLanguage();
+  const { lang, setLang } = useLanguage();
   const [pw, setPw] = useState("");
   const [email, setEmail] = useState("");
   const [showReg, setShowReg] = useState(false);
@@ -87,11 +87,28 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
 
   if (regStep === "pending") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e] relative">
+        {/* Language selector — top-right corner */}
+        <div className="absolute top-4 right-4 z-10">
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+            <Globe className="w-4 h-4 text-white/70" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as Language)}
+              className="bg-transparent text-sm text-white border-none focus:outline-none cursor-pointer"
+            >
+              {languages.map((l) => (
+                <option key={l.code} value={l.code} className="text-gray-800">
+                  {l.flag} {l.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl text-center">
           <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
           <h2 className="text-lg font-semibold mb-2 text-gray-800">{t("applicationSubmitted", lang)}</h2>
-          <p className="text-sm text-gray-500 mb-6">Your application is pending approval. You will be notified once approved.</p>
+          <p className="text-sm text-gray-500 mb-6">{t("applicationPendingApproval", lang)}</p>
           <button onClick={() => setRegStep("form")} className="text-sm text-[#E60012] hover:underline">{t("backToLogin", lang)}</button>
         </div>
       </div>
@@ -99,7 +116,24 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e] relative">
+      {/* Language selector — top-right corner, visible before login */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+          <Globe className="w-4 h-4 text-white/70" />
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as Language)}
+            className="bg-transparent text-sm text-white border-none focus:outline-none cursor-pointer"
+          >
+            {languages.map((l) => (
+              <option key={l.code} value={l.code} className="text-gray-800">
+                {l.flag} {l.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl">
         <img src="/images/vekkst-logo.webp" alt="VEKKST" className="h-10 mx-auto mb-5" />
         <h1 className="text-center text-xl font-semibold mb-6 text-gray-800">{t("adminPanel", lang)}</h1>
@@ -107,7 +141,7 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
           type="email"
           value={email}
           onChange={(e) => { setEmail(e.target.value); setError(false); }}
-          placeholder="Email (optional for team members)"
+          placeholder={t("emailOptionalForTeamMembers", lang)}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm mb-3 focus:outline-none focus:border-[#E60012]"
         />
         <input
@@ -118,7 +152,7 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
           placeholder={t("enterPassword", lang)}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm mb-4 focus:outline-none focus:border-[#E60012]"
         />
-        {error && <p className="text-red-500 text-xs text-center mb-3">{errorMsg || "Incorrect password"}</p>}
+        {error && <p className="text-red-500 text-xs text-center mb-3">{errorMsg || t("incorrectPassword", lang)}</p>}
         <button
           onClick={handleLogin}
           disabled={loginMutation.isPending || subadminLogin.isPending}
@@ -140,6 +174,7 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
 }
 
 function SubadminRegister({ onBack, onPending }: { onBack: () => void; onPending: () => void }) {
+  const { lang, setLang } = useLanguage();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -170,16 +205,33 @@ function SubadminRegister({ onBack, onPending }: { onBack: () => void; onPending
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e]">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e] relative">
+      {/* Language selector — top-right corner */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+          <Globe className="w-4 h-4 text-white/70" />
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as Language)}
+            className="bg-transparent text-sm text-white border-none focus:outline-none cursor-pointer"
+          >
+            {languages.map((l) => (
+              <option key={l.code} value={l.code} className="text-gray-800">
+                {l.flag} {l.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className="bg-white p-10 rounded-xl w-full max-w-sm shadow-2xl">
         <img src="/images/vekkst-logo.webp" alt="VEKKST" className="h-10 mx-auto mb-5" />
         <h1 className="text-center text-xl font-semibold mb-6 text-gray-800">{t("joinTeam", lang)}</h1>
         <div className="space-y-3">
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
-          <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (optional)" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (min 6 chars)" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
-          <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Confirm Password" className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("fullName", lang)} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("email", lang)} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t("phone", lang) + " (" + t("optional", lang) + ")"} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t("password", lang) + " (" + t("min6Chars", lang) + ")"} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
+          <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder={t("confirmPassword", lang)} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-[#E60012]" />
         </div>
         {error && <p className="text-red-500 text-xs text-center mt-3">{error}</p>}
         <button
@@ -187,10 +239,10 @@ function SubadminRegister({ onBack, onPending }: { onBack: () => void; onPending
           disabled={register.isPending}
           className="w-full mt-4 py-3 bg-[#E60012] hover:bg-[#c4000f] disabled:opacity-50 text-white rounded-lg text-sm font-semibold transition-colors"
         >
-          {register.isPending ? t("submitting", lang) : "Submit Application"}
+          {register.isPending ? t("submitting", lang) : t("submitApplication", lang)}
         </button>
         <button onClick={onBack} className="w-full mt-3 py-2.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
-          Back to Login
+          {t("backToLogin", lang)}
         </button>
       </div>
     </div>
