@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import QuoteModal from "./QuoteModal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,8 +12,14 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [quoteProductRef, setQuoteProductRef] = useState<string>("");
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const openQuote = (productRef?: string) => {
+    if (!isAuthenticated) {
+      navigate("/login", { replace: true });
+      return;
+    }
     setQuoteProductRef(productRef || "");
     setShowQuoteModal(true);
   };
