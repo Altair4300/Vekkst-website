@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createRouter, publicQuery, authedQuery, adminQuery } from "./middleware";
 import { quotes } from "@db/schema";
 import { getDb } from "./queries/connection";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 
 function generateQuoteId(): string {
   const prefix = "Q";
@@ -102,14 +102,21 @@ export const quoteRouter = createRouter({
 
   stats: adminQuery.query(async () => {
     const db = getDb();
-    const all = await db.select().from(quotes);
+    const [totalResult, newResult, processingResult, quotedResult, acceptedResult, declinedResult] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(quotes),
+      db.select({ count: sql<number>`count(*)` }).from(quotes).where(eq(quotes.status, "new")),
+      db.select({ count: sql<number>`count(*)` }).from(quotes).where(eq(quotes.status, "processing")),
+      db.select({ count: sql<number>`count(*)` }).from(quotes).where(eq(quotes.status, "quoted")),
+      db.select({ count: sql<number>`count(*)` }).from(quotes).where(eq(quotes.status, "accepted")),
+      db.select({ count: sql<number>`count(*)` }).from(quotes).where(eq(quotes.status, "declined")),
+    ]);
     return {
-      total: all.length,
-      new: all.filter((q) => q.status === "new").length,
-      processing: all.filter((q) => q.status === "processing").length,
-      quoted: all.filter((q) => q.status === "quoted").length,
-      accepted: all.filter((q) => q.status === "accepted").length,
-      declined: all.filter((q) => q.status === "declined").length,
+      total: Number(totalResult[0].count),
+      new: Number(newResult[0].count),
+      processing: Number(processingResult[0].count),
+      quoted: Number(quotedResult[0].count),
+      accepted: Number(acceptedResult[0].count),
+      declined: Number(declinedResult[0].count),
     };
   }),
 });

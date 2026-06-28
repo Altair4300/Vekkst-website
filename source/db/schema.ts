@@ -1,4 +1,4 @@
-import { mysqlTable, serial, varchar, text, timestamp, mysqlEnum, uniqueIndex, int } from "drizzle-orm/mysql-core";
+import { mysqlTable, serial, varchar, text, timestamp, mysqlEnum, uniqueIndex, int, index } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: serial("id").primaryKey(),
@@ -24,7 +24,9 @@ export const products = mysqlTable("products", {
   badge: varchar("badge", { length: 20 }),
   sizes: varchar("sizes", { length: 100 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  categoryIdx: index("category_idx").on(table.category),
+}));
 
 export const quotes = mysqlTable("quotes", {
   id: serial("id").primaryKey(),
@@ -48,7 +50,11 @@ export const quotes = mysqlTable("quotes", {
   quoteMou: varchar("quoteMou", { length: 100 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  emailIdx: index("email_idx").on(table.email),
+  statusIdx: index("status_idx").on(table.status),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
+}));
 
 export const quoteMessages = mysqlTable("quote_messages", {
   id: serial("id").primaryKey(),
@@ -61,7 +67,12 @@ export const quoteMessages = mysqlTable("quote_messages", {
   read: mysqlEnum("read", ["0", "1"]).default("0").notNull(),
   readByCustomer: mysqlEnum("readByCustomer", ["0", "1"]).default("0").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
+}, (table) => ({
+  quoteIdIdx: index("quote_id_idx").on(table.quoteId),
+  senderIdx: index("sender_idx").on(table.sender),
+  readIdx: index("read_idx").on(table.read),
+  createdAtIdx: index("msg_created_at_idx").on(table.createdAt),
+}));
 
 export const subadmins = mysqlTable("subadmins", {
   id: serial("id").primaryKey(),
@@ -88,5 +99,7 @@ export const pageSections = mysqlTable("page_sections", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => ({
   uniquePageSection: uniqueIndex("unique_page_section").on(table.page, table.section),
+  pageIdx: index("page_idx").on(table.page),
+  activeIdx: index("active_idx").on(table.isActive),
 }));
 

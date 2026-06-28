@@ -39,7 +39,7 @@ function serveFileWithRange(c: any, filePath: string) {
     c.header("Accept-Ranges", "bytes");
     c.header("Content-Length", chunksize.toString());
     c.header("Content-Type", contentType);
-    c.header("Cache-Control", "public, max-age=86400");
+    c.header("Cache-Control", "public, max-age=31536000, immutable");
     return c.body(stream, 206);
   }
 
@@ -47,7 +47,7 @@ function serveFileWithRange(c: any, filePath: string) {
   c.header("Content-Length", fileSize.toString());
   c.header("Content-Type", contentType);
   c.header("Accept-Ranges", "bytes");
-  c.header("Cache-Control", "public, max-age=86400");
+  c.header("Cache-Control", "public, max-age=31536000, immutable");
   return c.body(stream, 200);
 }
 
@@ -111,6 +111,7 @@ export function serveStaticFiles(app: App) {
       return c.json({ error: "index.html not found" }, 500);
     }
     const content = fs.readFileSync(indexPath, "utf-8");
+    c.header("Cache-Control", "no-cache, no-store, must-revalidate");
     return c.html(content);
   });
 }

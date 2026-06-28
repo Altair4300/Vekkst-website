@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createRouter, adminQuery } from "./middleware";
 import { users, products, quotes } from "@db/schema";
 import { getDb } from "./queries/connection";
-import { desc, sql, eq } from "drizzle-orm";
+import { desc, sql, eq, limit } from "drizzle-orm";
 
 export const adminRouter = createRouter({
   stats: adminQuery.query(async () => {
@@ -31,12 +31,12 @@ export const adminRouter = createRouter({
       role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt,
-    }).from(users).orderBy(desc(users.createdAt));
+    }).from(users).orderBy(desc(users.createdAt)).limit(50);
   }),
 
   quoteList: adminQuery.query(async () => {
     const db = getDb();
-    return db.select().from(quotes).orderBy(desc(quotes.createdAt));
+    return db.select().from(quotes).orderBy(desc(quotes.createdAt)).limit(50);
   }),
 
   updateQuote: adminQuery
