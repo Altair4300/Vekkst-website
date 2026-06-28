@@ -19,25 +19,31 @@ export const adminRouter = createRouter({
     };
   }),
 
-  customerList: adminQuery.query(async () => {
-    const db = getDb();
-    return db.select({
-      id: users.id,
-      unionId: users.unionId,
-      name: users.name,
-      email: users.email,
-      phone: users.phone,
-      avatar: users.avatar,
-      role: users.role,
-      createdAt: users.createdAt,
-      updatedAt: users.updatedAt,
-    }).from(users).orderBy(desc(users.createdAt)).limit(50);
-  }),
+  customerList: adminQuery
+    .input(z.object({ page: z.number().optional().default(1) }))
+    .query(async ({ input }) => {
+      const db = getDb();
+      const page = input.page;
+      return db.select({
+        id: users.id,
+        unionId: users.unionId,
+        name: users.name,
+        email: users.email,
+        phone: users.phone,
+        avatar: users.avatar,
+        role: users.role,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }).from(users).orderBy(desc(users.createdAt)).limit(50).offset((page - 1) * 50);
+    }),
 
-  quoteList: adminQuery.query(async () => {
-    const db = getDb();
-    return db.select().from(quotes).orderBy(desc(quotes.createdAt)).limit(50);
-  }),
+  quoteList: adminQuery
+    .input(z.object({ page: z.number().optional().default(1) }))
+    .query(async ({ input }) => {
+      const db = getDb();
+      const page = input.page;
+      return db.select().from(quotes).orderBy(desc(quotes.createdAt)).limit(50).offset((page - 1) * 50);
+    }),
 
   updateQuote: adminQuery
     .input(

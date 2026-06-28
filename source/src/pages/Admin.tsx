@@ -354,7 +354,7 @@ function StatusBadge({ status }: { status: string }) {
 function DashboardPage() {
   const { lang } = useLanguage();
   const { data: stats } = trpc.admin.stats.useQuery();
-  const { data: quotes } = trpc.admin.quoteList.useQuery();
+  const { data: quotes } = trpc.admin.quoteList.useQuery({ page: 1 });
   const { data: conversations } = trpc.message.listConversations.useQuery();
 
   const recentQuotes = quotes?.slice(0, 5) || [];
@@ -450,7 +450,8 @@ function DesignFilesDisplay({ designFiles }: { designFiles: string | null }) {
 
 function QuotesPage() {
   const { lang } = useLanguage();
-  const { data: quotes, refetch } = trpc.admin.quoteList.useQuery();
+  const [page, setPage] = useState(1);
+  const { data: quotes, refetch } = trpc.admin.quoteList.useQuery({ page });
   const updateQuote = trpc.admin.updateQuote.useMutation({ onSuccess: () => refetch() });
   const [viewing, setViewing] = useState<QuoteItem | null>(null);
 
@@ -496,6 +497,24 @@ function QuotesPage() {
               )}
             </tbody>
           </table>
+        </div>
+        {/* Pagination */}
+        <div className="flex justify-between items-center px-5 py-3 border-t border-gray-100 bg-gray-50">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-500 font-medium">Page {page}</span>
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!quotes || quotes.length < 50}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Next
+          </button>
         </div>
       </div>
 
