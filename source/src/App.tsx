@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Routes, Route, Outlet } from 'react-router'
+import { Routes, Route, Outlet, Navigate } from 'react-router'
 import Layout from './components/Layout'
+import { useAuth } from './hooks/useAuth'
 
 import ScrollToTop from './components/ScrollToTop'
 
@@ -38,6 +39,12 @@ function AdminRedirect() {
   return <div className="min-h-screen flex items-center justify-center bg-black text-white">Redirecting to admin panel...</div>;
 }
 
+// Auth guard — redirect to login if not authenticated
+function AuthRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+}
+
 function LayoutWrapper() {
   return (
     <Layout>
@@ -58,8 +65,8 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/products" element={<Products />} />
           <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/quote" element={<QuoteForm />} />
-          <Route path="/quote/:productRef" element={<QuoteForm />} />
+          <Route path="/quote" element={<AuthRoute><QuoteForm /></AuthRoute>} />
+          <Route path="/quote/:productRef" element={<AuthRoute><QuoteForm /></AuthRoute>} />
           <Route path="/track-quote" element={<TrackQuote />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
