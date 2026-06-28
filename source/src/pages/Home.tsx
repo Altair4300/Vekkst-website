@@ -65,7 +65,7 @@ export default function Home() {
         />
         {/* REQUEST A QUOTE button — right, dark */}
         <Link
-          to={isAuthenticated ? "/quote" : "/register"}
+          to={isAuthenticated ? "/quote" : "/login?redirect=/quote"}
           className="absolute top-[58%] left-[24%] w-[18%] h-[12%] cursor-pointer z-10 rounded-lg hover:scale-[1.02] active:scale-[0.98] hover:bg-white/10 hover:ring-2 hover:ring-white/50 hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] transition-all duration-300 ease-out"
           aria-label={t("requestQuote", lang)}
         />

@@ -39,10 +39,10 @@ function AdminRedirect() {
   return <div className="min-h-screen flex items-center justify-center bg-black text-white">Redirecting to admin panel...</div>;
 }
 
-// Auth guard — redirect to login if not authenticated
+// Auth guard — redirect to login if not authenticated (with redirect param)
 function AuthRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  return isAuthenticated ? children : <Navigate to="/login?redirect=/quote" replace />;
 }
 
 function LayoutWrapper() {

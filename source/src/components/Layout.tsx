@@ -17,7 +17,7 @@ export default function Layout({ children }: LayoutProps) {
 
   const openQuote = (productRef?: string) => {
     if (!isAuthenticated) {
-      navigate("/login", { replace: true });
+      navigate("/login?redirect=/quote");
       return;
     }
     setQuoteProductRef(productRef || "");
