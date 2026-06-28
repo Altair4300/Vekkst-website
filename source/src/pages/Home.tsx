@@ -57,10 +57,10 @@ export default function Home() {
           loading="eager"
           fetchpriority="high"
         />
-        {/* Clickable CTA overlay — only the bottom-center button area */}
+        {/* Clickable CTA overlay — matches the CTA button area exactly */}
         <Link
           to={isAuthenticated ? "/quote" : "/register"}
-          className="absolute bottom-[8%] left-1/2 -translate-x-1/2 w-[280px] h-[60px] md:w-[360px] md:h-[72px] cursor-pointer z-10"
+          className="absolute bottom-[5%] left-1/2 -translate-x-1/2 w-[200px] h-[50px] md:w-[260px] md:h-[56px] cursor-pointer z-10"
           aria-label={isAuthenticated ? t("requestQuote", lang) : t("getStarted", lang)}
         />
       </section>
