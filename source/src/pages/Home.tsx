@@ -49,19 +49,20 @@ export default function Home() {
     <>
       {/* ═══════ HERO ═══════ */}
       <section className="relative w-full bg-black">
+        <img
+          src={cms("hero-banner", "/images/banner.webp")}
+          alt={t("heroAlt", lang)}
+          className="w-full h-auto block"
+          decoding="async"
+          loading="eager"
+          fetchpriority="high"
+        />
+        {/* Clickable CTA overlay — only the bottom-center button area */}
         <Link
           to={isAuthenticated ? "/quote" : "/register"}
-          className="block cursor-pointer"
-        >
-          <img
-            src={cms("hero-banner", "/images/banner.webp")}
-            alt={t("heroAlt", lang)}
-            className="w-full h-auto block"
-            decoding="async"
-            loading="eager"
-            fetchpriority="high"
-          />
-        </Link>
+          className="absolute bottom-[8%] left-1/2 -translate-x-1/2 w-[280px] h-[60px] md:w-[360px] md:h-[72px] cursor-pointer z-10"
+          aria-label={isAuthenticated ? t("requestQuote", lang) : t("getStarted", lang)}
+        />
       </section>
 
       {/* ═══════ CATEGORIES ═══════ */}
