@@ -5,6 +5,7 @@ import { t } from "@/lib/translations";
 import { useLanguage } from "@/providers/LanguageProvider";
 import SmartVideo from "@/components/SmartVideo";
 import { trpc } from "@/providers/trpc";
+import { useAuth } from "@/hooks/useAuth";
 import { usePageContent } from "@/hooks/usePageContent";
 
 /* ─────────────── DATA ─────────────── */
@@ -42,19 +43,25 @@ export default function Home() {
 
   const { data: portfolioProducts, isLoading: portfolioLoading } = trpc.product.list.useQuery();
   const { cms } = usePageContent("home");
+  const { isAuthenticated } = useAuth();
 
   return (
     <>
       {/* ═══════ HERO ═══════ */}
       <section className="relative w-full bg-black">
-        <img
-          src={cms("hero-banner", "/images/banner.webp")}
-          alt={t("heroAlt", lang)}
-          className="w-full h-auto block"
-          decoding="async"
-          loading="eager"
-          fetchpriority="high"
-        />
+        <Link
+          to={isAuthenticated ? "/quote" : "/register"}
+          className="block cursor-pointer"
+        >
+          <img
+            src={cms("hero-banner", "/images/banner.webp")}
+            alt={t("heroAlt", lang)}
+            className="w-full h-auto block"
+            decoding="async"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </Link>
       </section>
 
       {/* ═══════ CATEGORIES ═══════ */}
