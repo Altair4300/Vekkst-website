@@ -60,13 +60,13 @@ export default function Home() {
         {/* OEM / ODM SOLUTIONS button — left, blue */}
         <Link
           to="/products"
-          className="absolute top-[58%] left-[3%] w-[18%] h-[12%] cursor-pointer z-10"
+          className="absolute top-[58%] left-[3%] w-[18%] h-[12%] cursor-pointer z-10 rounded-lg hover:scale-[1.02] active:scale-[0.98] hover:bg-blue-500/10 hover:ring-2 hover:ring-blue-400/60 hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all duration-300 ease-out"
           aria-label="OEM / ODM Solutions"
         />
         {/* REQUEST A QUOTE button — right, dark */}
         <Link
           to={isAuthenticated ? "/quote" : "/register"}
-          className="absolute top-[58%] left-[24%] w-[18%] h-[12%] cursor-pointer z-10"
+          className="absolute top-[58%] left-[24%] w-[18%] h-[12%] cursor-pointer z-10 rounded-lg hover:scale-[1.02] active:scale-[0.98] hover:bg-white/10 hover:ring-2 hover:ring-white/50 hover:shadow-[0_0_25px_rgba(255,255,255,0.3)] transition-all duration-300 ease-out"
           aria-label={t("requestQuote", lang)}
         />
       </section>
