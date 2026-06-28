@@ -22,10 +22,13 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
+  const utils = trpc.useUtils();
+
   const registerMutation = trpc.localAuth.register.useMutation({
     onSuccess: (data) => {
       localStorage.setItem("local_auth_token", data.token);
-      window.location.href = redirect;
+      utils.invalidate(); // Clear auth cache so navbar updates
+      navigate(redirect, { replace: true });
     },
     onError: (err) => setError(err.message),
   });

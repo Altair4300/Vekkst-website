@@ -19,10 +19,13 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const utils = trpc.useUtils();
+
   const loginMutation = trpc.localAuth.login.useMutation({
     onSuccess: (data) => {
       localStorage.setItem("local_auth_token", data.token);
-      window.location.href = redirect;
+      utils.invalidate(); // Clear auth cache so navbar updates
+      navigate(redirect, { replace: true });
     },
     onError: (err) => setError(err.message),
   });
