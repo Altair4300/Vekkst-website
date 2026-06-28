@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createRouter, publicQuery, authedQuery, adminQuery } from "./middleware";
 import { quoteMessages, quotes } from "@db/schema";
 import { getDb } from "./queries/connection";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, sql, inArray } from "drizzle-orm";
 
 // Rate limiting: max 20 messages per minute per IP
 const messageAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -122,17 +122,24 @@ export const messageRouter = createRouter({
       grouped.get(msg.quoteId)!.push(msg);
     }
 
-    // Get quote details for each conversation
+    // Get ALL quote details in a single query (was N+1 before)
+    const uniqueQuoteIds = [...grouped.keys()];
+    const allQuotes = uniqueQuoteIds.length > 0
+      ? await db.select().from(quotes).where(inArray(quotes.quoteId, uniqueQuoteIds))
+      : [];
+    const quoteMap = new Map(allQuotes.map(q => [q.quoteId, q]));
+
+    // Build conversations using O(1) map lookup
     const conversations = [];
     for (const [quoteId, messages] of grouped) {
-      const quote = await db.select().from(quotes).where(eq(quotes.quoteId, quoteId)).limit(1);
-      if (quote.length) {
+      const quote = quoteMap.get(quoteId);
+      if (quote) {
         const unreadCount = messages.filter(m => m.read === "0" && m.sender === "customer").length;
         conversations.push({
           quoteId,
-          quoteName: quote[0].name,
-          quoteEmail: quote[0].email,
-          quoteStatus: quote[0].status,
+          quoteName: quote.name,
+          quoteEmail: quote.email,
+          quoteStatus: quote.status,
           latestMessage: messages[0],
           messageCount: messages.length,
           unreadCount,
