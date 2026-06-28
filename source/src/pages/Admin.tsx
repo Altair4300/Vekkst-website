@@ -88,14 +88,14 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
   if (regStep === "pending") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e] relative">
-        {/* Language selector — top-right corner */}
-        <div className="absolute top-4 right-4 z-10">
-          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-            <Globe className="w-4 h-4 text-white/70" />
-            <select
+      {/* Language selector — top-right corner, clearly visible */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-300 shadow-lg">
+          <Globe className="w-4 h-4 text-gray-600" />
+          <select
               value={lang}
               onChange={(e) => setLang(e.target.value as Language)}
-              className="bg-transparent text-sm text-white border-none focus:outline-none cursor-pointer"
+              className="bg-transparent text-sm text-gray-800 border-none focus:outline-none cursor-pointer font-medium"
             >
               {languages.map((l) => (
                 <option key={l.code} value={l.code} className="text-gray-800">
@@ -117,14 +117,14 @@ function AdminLogin({ onLogin }: { onLogin: (token: string, permissions: string)
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e] relative">
-      {/* Language selector — top-right corner, visible before login */}
+      {/* Language selector — top-right corner, clearly visible */}
       <div className="absolute top-4 right-4 z-10">
-        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-          <Globe className="w-4 h-4 text-white/70" />
+        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-300 shadow-lg">
+          <Globe className="w-4 h-4 text-gray-600" />
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value as Language)}
-            className="bg-transparent text-sm text-white border-none focus:outline-none cursor-pointer"
+            className="bg-transparent text-sm text-gray-800 border-none focus:outline-none cursor-pointer font-medium"
           >
             {languages.map((l) => (
               <option key={l.code} value={l.code} className="text-gray-800">
@@ -206,14 +206,14 @@ function SubadminRegister({ onBack, onPending }: { onBack: () => void; onPending
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1a1a2e] to-[#16213e] relative">
-      {/* Language selector — top-right corner */}
+      {/* Language selector — top-right corner, clearly visible */}
       <div className="absolute top-4 right-4 z-10">
-        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-          <Globe className="w-4 h-4 text-white/70" />
+        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-gray-300 shadow-lg">
+          <Globe className="w-4 h-4 text-gray-600" />
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value as Language)}
-            className="bg-transparent text-sm text-white border-none focus:outline-none cursor-pointer"
+            className="bg-transparent text-sm text-gray-800 border-none focus:outline-none cursor-pointer font-medium"
           >
             {languages.map((l) => (
               <option key={l.code} value={l.code} className="text-gray-800">
