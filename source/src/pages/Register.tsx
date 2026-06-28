@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,12 @@ export default function Register() {
 
   const utils = trpc.useUtils();
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(redirect, { replace: true });
+    }
+  }, [isAuthenticated, redirect, navigate]);
+
   const registerMutation = trpc.localAuth.register.useMutation({
     onSuccess: (data) => {
       localStorage.setItem("local_auth_token", data.token);
@@ -34,7 +40,6 @@ export default function Register() {
   });
 
   if (isAuthenticated) {
-    navigate(redirect, { replace: true });
     return null;
   }
 
