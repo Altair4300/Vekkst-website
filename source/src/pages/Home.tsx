@@ -5,6 +5,7 @@ import { t } from "@/lib/translations";
 import { useLanguage } from "@/providers/LanguageProvider";
 import SmartVideo from "@/components/SmartVideo";
 import { trpc } from "@/providers/trpc";
+import { useAuth } from "@/hooks/useAuth";
 import { usePageContent } from "@/hooks/usePageContent";
 
 /* ─────────────── DATA ─────────────── */
@@ -42,6 +43,7 @@ export default function Home() {
 
   const { data: portfolioProducts, isLoading: portfolioLoading } = trpc.product.list.useQuery();
   const { cms } = usePageContent("home");
+  const { isAuthenticated } = useAuth();
 
   return (
     <>
@@ -54,6 +56,18 @@ export default function Home() {
           decoding="async"
           loading="eager"
           fetchpriority="high"
+        />
+        {/* OEM / ODM SOLUTIONS button — left, blue */}
+        <Link
+          to="/products"
+          className="absolute top-[65%] left-[3.5%] w-[18%] h-[11%] cursor-pointer z-10"
+          aria-label="OEM / ODM Solutions"
+        />
+        {/* REQUEST A QUOTE button — right, dark */}
+        <Link
+          to={isAuthenticated ? "/quote" : "/register"}
+          className="absolute top-[65%] left-[23%] w-[15%] h-[11%] cursor-pointer z-10"
+          aria-label={t("requestQuote", lang)}
         />
       </section>
 
